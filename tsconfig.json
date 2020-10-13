@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "removeComments": true,
+    "sourceMap": true,
+    "stripInternal": true,
+    "strict": true,
+    "declaration": true,
+    "rootDir": ".",
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+//    "types": ["typescript", "node"]
+  },
+//  "include": [
+//    "./src/**/*.ts",
+//    "./src/*.ts",
+//    "./index.ts",
+//    "./types.ts",
+//    "./global.d.ts"
+//  ],
+  "exclude": [
+    "./dev/**"
+//    "./node_modules/typescript/lib/tsserverlibrary.d.ts"
+  ]
+}

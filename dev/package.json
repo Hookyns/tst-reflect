@@ -1,0 +1,17 @@
+{
+  "name": "dev",
+  "version": "0.0.1",
+  "description": "dev",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "Roman Jámbor",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^3.9.5",
+    "ttypescript": "^1.5.10",
+    "glob": "^7.1.6"
+  }
+}

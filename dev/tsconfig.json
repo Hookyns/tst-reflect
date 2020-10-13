@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "esnext",
+    "removeComments": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "rootDir": ".",
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+  },
+  "include": [
+    "./**/*.ts",
+    "../global.d.ts"
+  ]
+}

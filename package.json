@@ -1,0 +1,32 @@
+{
+  "name": "tsrtr",
+  "version": "0.0.1",
+  "description": "TypeScript Runtime Types Reflection",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "files": [
+    "src/**/*.js",
+    "index.js",
+    "types.js",
+    "global.d.ts"
+  ],
+  "keywords": [
+    "runtime",
+    "types",
+    "reflection",
+    "reflective",
+    "typescript",
+    "gettype",
+    "typeof"
+  ],
+  "author": "Roman Jámbor",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.0.3"
+  },
+  "dependencies": {
+    "@types/node": "^14.11.8"
+  }
+}
