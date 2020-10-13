@@ -54,3 +54,11 @@ export declare class Type {
     getDecorators(): Array<Decorator>;
 }
 ```
+
+### Note
+I'm developing this for own Dependency Injection system, to allow registering and resolving based on types. Something like:
+```
+serviceCollection.AddScoped<ILog, Log>();
+...
+serviceProvider.Resolve<Log>();
+```
