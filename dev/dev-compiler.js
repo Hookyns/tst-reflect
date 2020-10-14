@@ -1,4 +1,4 @@
-﻿const ts = require("typescript");
+﻿﻿﻿const ts = require("typescript");
 const $path = require("path");
 const glob = require("glob");
 
@@ -7,7 +7,7 @@ const glob = require("glob");
 
 // TRANSFORMERS - aktivace transformátorů
 const TRANSFORMERS = [
-    (program) => require("../index").default(program, { rootDir: __dirname }),
+    (program) => require("./index").default(program/*, { rootDir: __dirname }*/),
 ];
 
 //////////////////////////////////////////////////////////////////////////////////////////////

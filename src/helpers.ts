@@ -73,5 +73,5 @@ export function isNativeType(type: ts.Type)
 
 export function isExpression(value: any)
 {
-	return value.hasOwnProperty("kind") && value.constructor.name == "NodeObject";
+	return value.hasOwnProperty("kind") && (value.constructor.name == "NodeObject" || value.constructor.name == "IdentifierObject");
 }

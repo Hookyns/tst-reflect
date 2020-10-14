@@ -1,9 +1,9 @@
-﻿import * as ts                     from "typescript";
-import {getType}                   from "./helpers";
-import createNewType               from "./createNewType";
-import {PropertyDescriptionSource} from "../types";
+﻿import * as ts                                        from "typescript";
+import {getType}                                      from "./helpers";
+import getTypeCall                                    from "./getTypeCall";
+import {PropertyDescriptionSource, SourceFileContext} from "../types";
 
-export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChecker): Array<PropertyDescriptionSource> | undefined
+export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChecker, sourceFileContext: SourceFileContext): Array<PropertyDescriptionSource> | undefined
 {
 	if (symbol?.members)
 	{
@@ -13,9 +13,9 @@ export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChe
 			.filter(m => m.flags == ts.SymbolFlags.Property || m.flags == ts.SymbolFlags.GetAccessor)
 			.map((memberSymbol: ts.Symbol) => ({
 				n: memberSymbol.escapedName.toString(),
-				t: createNewType(memberSymbol, getType(memberSymbol, checker), checker)
+				t: getTypeCall(memberSymbol, getType(memberSymbol, checker), checker, sourceFileContext)
 			}));
-		
+
 		return properties.length ? properties : undefined;
 	}
 

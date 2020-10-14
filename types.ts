@@ -1,4 +1,17 @@
-﻿export type GetTypeCall = import("typescript").CallExpression;
+﻿/**
+ * @internal
+ */
+export type GetTypeCall = import("typescript").CallExpression;
+
+/**
+ * @internal
+ */
+export interface SourceFileContext
+{
+	typesProperties: { [typeId: number]: import("typescript").ObjectLiteralExpression };
+	visitor: import("typescript").Visitor;
+	getTypeIdentifier?: import("typescript").Identifier;
+}
 
 export enum TypeKind
 {
@@ -138,6 +151,7 @@ export interface TypePropertiesSource
 	union?: boolean;
 	inter?: boolean;
 	types?: Array<GetTypeCall>;
+	ctor?: import("typescript").ArrowFunction;
 }
 
 /**
@@ -154,12 +168,14 @@ export interface TypeProperties
 	union?: boolean;
 	inter?: boolean;
 	types?: Array<Type>;
+	ctor?: () => Function;
 }
 
 const typesMetaCache: { [key: number]: Type } = {};
 
 export class Type
 {
+	private readonly _ctor?: () => Function;
 	private readonly _kind: TypeKind;
 	private readonly _name: string;
 	private readonly _fullName: string;
@@ -181,6 +197,7 @@ export class Type
 		this._constructors = description.ctors?.map(Type.mapConstructors) || [];
 		this._properties = description.props?.map(Type.mapProperties) || [];
 		this._decorators = description.decs?.map(Type.mapDecorators) || [];
+		this._ctor = description.ctor;
 
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
@@ -191,13 +208,15 @@ export class Type
 	 * @internal
 	 * @param typeId
 	 */
-	public static _getTypeMeta(typeId: number) {
+	public static _getTypeMeta(typeId: number)
+	{
 		const type = typesMetaCache[typeId];
-		
-		if (!type)  {
+
+		if (!type)
+		{
 			throw new Error("Unknown type identifier. Metadata not found.");
 		}
-		
+
 		return type;
 	}
 
@@ -206,7 +225,8 @@ export class Type
 	 * @param typeId
 	 * @param type
 	 */
-	public static _storeTypeMeta(typeId: number, type: Type) {
+	public static _storeTypeMeta(typeId: number, type: Type)
+	{
 		typesMetaCache[typeId] = type;
 	}
 
@@ -255,9 +275,19 @@ export class Type
 		return this._isIntersection;
 	}
 
+	/**
+	 * List of underlying types
+	 */
 	get types(): Array<Type> | undefined
 	{
 		return this._types;
+	}
+
+	/**
+	 * Constructor function if it is class
+	 */
+	get ctor(): Function | undefined {
+		return this._ctor?.();
 	}
 
 	// noinspection JSUnusedGlobalSymbols
@@ -284,6 +314,14 @@ export class Type
 	get kind(): TypeKind
 	{
 		return this._kind;
+	}
+
+	/**
+	 * Returns true if types are equals
+	 * @param type
+	 */
+	is(type: Type) {
+		return this._fullName == type._fullName;
 	}
 
 	/**
@@ -341,19 +379,27 @@ export class Type
  */
 export function getType<T>(): Type
 /** @internal */
-export function getType<T>(typeId?: number, description?: TypeProperties): Type
+export function getType<T>(description?: TypeProperties | number, typeId?: number): Type
 {
-	if (typeof typeId != "number") {
-		throw new Error("Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if 'tsrtr' transformer is used.");
-	}
-	
-	if (description && description.constructor === Object) {
-		const type = new Type(description);
-		Type._storeTypeMeta(typeId, type);
-		return type;
+	// return type from storage
+	if (typeof description == "number")
+	{
+		return Type._getTypeMeta(description);
 	}
 
-	return Type._getTypeMeta(typeId);
+	if (description && description.constructor === Object)
+	{
+		const type = new Type(description);
+
+		if (typeId)
+		{
+			Type._storeTypeMeta(typeId, type);
+		}
+
+		return type;
+	}
+	
+	throw new Error("Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if 'tsrtr' transformer is used.");
 }
 
 // To identify getType function in transformer

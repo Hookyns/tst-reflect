@@ -8,6 +8,9 @@
     "rootDir": ".",
     "typeRoots": [
       "node_modules/@types"
+    ],
+    "plugins": [
+      { "transform": "../index.js" }
     ]
   },
   "include": [

@@ -7,8 +7,8 @@
 
 let config: ConfigObject = {};
 
-export function setConfig(c?: ConfigObject) {
-	config = c || {};
+export function setConfig(c: ConfigObject) {
+	config = c;
 }
 
 export function getConfig() {

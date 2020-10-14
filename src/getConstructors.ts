@@ -1,9 +1,9 @@
-﻿import * as ts                        from "typescript";
-import {ConstructorDescriptionSource} from "../types";
-import {getType}                      from "./helpers";
-import createNewType                  from "./createNewType";
+﻿import * as ts                                           from "typescript";
+import {ConstructorDescriptionSource, SourceFileContext} from "../types";
+import {getType}                                         from "./helpers";
+import getTypeCall                                       from "./getTypeCall";
 
-export function getConstructors(type: ts.Type, checker: ts.TypeChecker)
+export function getConstructors(type: ts.Type, checker: ts.TypeChecker, sourceFileContext: SourceFileContext)
 {
 	const constructors: Array<ConstructorDescriptionSource> = [];
 	const ctors = type.getConstructSignatures();
@@ -19,7 +19,7 @@ export function getConstructors(type: ts.Type, checker: ts.TypeChecker)
 
 			params.push({
 				n: paramSymbol.getName(),
-				t: createNewType(paramSymbol, paramType, checker)
+				t: getTypeCall(paramSymbol, paramType, checker, sourceFileContext)
 			});
 		}
 
