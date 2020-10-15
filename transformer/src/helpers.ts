@@ -1,4 +1,4 @@
-﻿﻿import {TypeKind}  from "../types";
+﻿﻿import {TypeKind} from "tst-reflect";
 import * as ts     from "typescript";
 import * as path   from "path";
 import {getConfig} from "./config";
@@ -34,29 +34,31 @@ export function getTypeKind(symbol: ts.Symbol)
 	{
 		return TypeKind.Class;
 	}
-	
+
 	if (symbol.flags == ts.SymbolFlags.Interface)
 	{
 		return TypeKind.Interface;
 	}
-	
+
 	throw new Error("Unknown type kind");
 }
 
 export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 {
 	typeSymbol = typeSymbol || type.getSymbol();
-	
-	if (!typeSymbol) {
+
+	if (!typeSymbol)
+	{
 		return undefined;
 	}
-	
+
 	let filePath = typeSymbol.declarations[0].getSourceFile().fileName;
-	
-	if (rootDir) {
+
+	if (rootDir)
+	{
 		filePath = path.join(path.relative(filePath, rootDir), path.basename(filePath));
 	}
-	
+
 	return filePath + ":" + typeSymbol.getName()
 }
 

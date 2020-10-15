@@ -1,5 +1,5 @@
-﻿﻿import * as ts                      from "typescript";
-import {DecoratorDescriptionSource} from "../types";
+﻿﻿import * as ts                     from "typescript";
+import {DecoratorDescriptionSource} from "./declarations";
 import {getTypeFullName}            from "./helpers";
 
 export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array<DecoratorDescriptionSource> | undefined

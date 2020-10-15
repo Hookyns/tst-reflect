@@ -6,17 +6,14 @@
     "sourceMap": true,
     "stripInternal": true,
     "strict": true,
-    "declaration": true,
     "rootDir": ".",
     "typeRoots": [
       "node_modules/@types"
     ]
-//    "types": ["typescript", "node"]
   },
   "include": [
     "./src/**/*.ts",
     "./src/*.ts",
-    "./index.ts",
-    "./types.ts"
+    "./index.ts"
   ]
 }

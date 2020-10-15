@@ -1,16 +1,20 @@
-﻿﻿﻿/**
+﻿import * as ts          from "typescript";
+import {TypeKind, Type} from "tst-reflect";
+
+﻿﻿
+/**
  * @internal
  */
-export type GetTypeCall = import("typescript").CallExpression;
+export type GetTypeCall = ts.CallExpression;
 
 /**
  * @internal
  */
 export interface SourceFileContext
 {
-	typesProperties: { [typeId: number]: import("typescript").ObjectLiteralExpression };
-	visitor: import("typescript").Visitor;
-	getTypeIdentifier?: import("typescript").Identifier;
+	typesProperties: { [typeId: number]: ts.ObjectLiteralExpression };
+	visitor: ts.Visitor;
+	getTypeIdentifier?: ts.Identifier;
 }
 
 /**
@@ -105,7 +109,7 @@ export interface TypePropertiesSource
 	union?: boolean;
 	inter?: boolean;
 	types?: Array<GetTypeCall>;
-	ctor?: import("typescript").ArrowFunction;
+	ctor?: ts.ArrowFunction;
 }
 
 /**

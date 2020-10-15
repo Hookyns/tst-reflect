@@ -1,16 +1,18 @@
-﻿﻿import * as ts                                                          from "typescript";
-import {GetTypeCall, SourceFileContext, TypeKind, TypePropertiesSource} from "../types";
-import {getSymbol, getTypeFullName, getTypeKind, isNativeType}          from "./helpers";
-import {createValueExpression}                                          from "./createValueExpression";
-import {getProperties}                                                  from "./getProperties";
-import {getDecorators}                                                  from "./getDecorators";
-import {getConstructors}                                                from "./getConstructors";
+﻿﻿import * as ts                                                from "typescript";
+import {TypeKind}                                              from "tst-reflect";
+import {GetTypeCall, SourceFileContext, TypePropertiesSource}  from "./declarations";
+import {getSymbol, getTypeFullName, getTypeKind, isNativeType} from "./helpers";
+import {createValueExpression}                                 from "./createValueExpression";
+import {getProperties}                                         from "./getProperties";
+import {getDecorators}                                         from "./getDecorators";
+import {getConstructors}                                       from "./getConstructors";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 
 function createTypeGetter(typeCtor: ts.EntityName | undefined)
 {
-	if (!typeCtor) {
+	if (!typeCtor)
+	{
 		return undefined;
 	}
 
@@ -69,7 +71,7 @@ function getTypeProperties(symbol: ts.Symbol | undefined, type: ts.Type, checker
 
 	const decorators = getDecorators(typeSymbol, checker) || [];
 	const kind = getTypeKind(typeSymbol);
-	
+
 	return {
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, typeSymbol),
