@@ -17,6 +17,8 @@ class Foo {
 const type: Type = getType<Foo>();
 ```
 
+
+
 ## Synopsis
 ```typescript
 export declare enum TypeKind {
@@ -60,5 +62,7 @@ I'm developing this for own Dependency Injection system, to allow registering an
 ```
 serviceCollection.AddScoped<ILog, Log>();
 ...
-serviceProvider.Resolve<Log>();
+serviceProvider.Resolve<ILog>();
 ```
+
+Where resolve() take care about constructors parameters, based on their types, and resolve everything.
