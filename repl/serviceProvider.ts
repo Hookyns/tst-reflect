@@ -1,4 +1,4 @@
-﻿import {ServiceCollection} from "./ServiceCollection";
+﻿﻿import {ServiceCollection} from "./ServiceCollection";
 import {Type}              from "../types";
 
 export class ServiceProvider

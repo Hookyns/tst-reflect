@@ -1,17 +1,4 @@
-﻿/**
- * @internal
- */
-export type GetTypeCall = import("typescript").CallExpression;
-
-/**
- * @internal
- */
-export interface SourceFileContext
-{
-	typesProperties: { [typeId: number]: import("typescript").ObjectLiteralExpression };
-	visitor: import("typescript").Visitor;
-	getTypeIdentifier?: import("typescript").Identifier;
-}
+﻿const PACKAGE_ID: string = "ts-reflect"﻿
 
 export enum TypeKind
 {
@@ -45,15 +32,6 @@ export interface ParameterDescription
 	t: Type
 }
 
-/**
- * @internal
- */
-export interface ParameterDescriptionSource
-{
-	n: string;
-	t: GetTypeCall
-}
-
 export interface MethodParameter
 {
 	name: string;
@@ -67,15 +45,6 @@ export interface PropertyDescription
 {
 	n: string;
 	t: Type
-}
-
-/**
- * @internal
- */
-export interface PropertyDescriptionSource
-{
-	n: string;
-	t: GetTypeCall
 }
 
 export interface Property
@@ -93,15 +62,6 @@ export interface DecoratorDescription
 	fn: string;
 }
 
-/**
- * @internal
- */
-export interface DecoratorDescriptionSource
-{
-	n: string;
-	fn?: string;
-}
-
 export interface Decorator
 {
 	name: string;
@@ -116,42 +76,9 @@ export interface ConstructorDescription
 	params: Array<ParameterDescription>
 }
 
-/**
- * @internal
- */
-export interface ConstructorDescriptionSource
-{
-	params: Array<ParameterDescriptionSource>
-}
-
 export interface Constructor
 {
 	parameters: Array<MethodParameter>
-}
-
-/**
- * @internal
- */
-export interface TypePropertiesSource
-{
-	/**
-	 * Name
-	 * @name name
-	 */
-	n?: string;
-	/**
-	 * Full Name
-	 * @alias fullName
-	 */
-	fn?: string;
-	k: TypeKind;
-	ctors?: Array<ConstructorDescriptionSource>;
-	props?: Array<PropertyDescriptionSource>
-	decs?: Array<DecoratorDescriptionSource>
-	union?: boolean;
-	inter?: boolean;
-	types?: Array<GetTypeCall>;
-	ctor?: import("typescript").ArrowFunction;
 }
 
 /**
@@ -173,6 +100,9 @@ export interface TypeProperties
 
 const typesMetaCache: { [key: number]: Type } = {};
 
+/**
+ * Object representing TypeScript type in memory
+ */
 export class Type
 {
 	private readonly _ctor?: () => Function;
@@ -187,10 +117,15 @@ export class Type
 	private readonly _constructors: Array<Constructor>;
 
 	/**
+	 * Internal Type constructor
 	 * @internal
 	 */
 	constructor(description: TypeProperties)
 	{
+		if (new.target != TypeActivator) {
+			throw new Error("You cannot create instance of Type manually!");
+		}
+		
 		this._name = description.n || "";
 		this._fullName = description.fn || "";
 		this._kind = description.k;
@@ -259,7 +194,7 @@ export class Type
 
 	// noinspection JSUnusedGlobalSymbols
 	/**
-	 * Return true if type is container holding types union
+	 * Returns a value indicating whether the Type is container for unified Types or not
 	 */
 	get isUnion(): boolean
 	{
@@ -268,23 +203,25 @@ export class Type
 
 	// noinspection JSUnusedGlobalSymbols
 	/**
-	 * Return true if type is container holding types intersection
+	 * Returns a value indicating whether the Type is container for intersecting Types or not
 	 */
 	get isIntersection(): boolean
 	{
 		return this._isIntersection;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
-	 * List of underlying types
+	 * List of underlying types in case Type is union or intersection
 	 */
 	get types(): Array<Type> | undefined
 	{
 		return this._types;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
-	 * Constructor function if it is class
+	 * Constructor function in case Type is class
 	 */
 	get ctor(): Function | undefined {
 		return this._ctor?.();
@@ -293,6 +230,7 @@ export class Type
 	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Get type full-name
+	 * @description Contains file path base to project root
 	 */
 	get fullName(): string
 	{
@@ -308,6 +246,7 @@ export class Type
 		return this._name;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Get kind of type
 	 */
@@ -316,6 +255,7 @@ export class Type
 		return this._kind;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns true if types are equals
 	 * @param type
@@ -324,6 +264,7 @@ export class Type
 		return this._fullName == type._fullName;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is a class or not
 	 */
@@ -345,11 +286,11 @@ export class Type
 	/**
 	 * Returns constructor description when Type is a class
 	 */
-	getConstructors(): Array<Constructor> | null
+	getConstructors(): Array<Constructor> | undefined
 	{
 		if (!this.isClass())
 		{
-			return null;
+			return undefined;
 		}
 
 		return this._constructors;
@@ -374,6 +315,8 @@ export class Type
 	}
 }
 
+class TypeActivator extends Type {}
+
 /**
  * Returns Type of generic parameter
  */
@@ -381,16 +324,18 @@ export function getType<T>(): Type
 /** @internal */
 export function getType<T>(description?: TypeProperties | number, typeId?: number): Type
 {
-	// return type from storage
+	// Return type from storage
 	if (typeof description == "number")
 	{
 		return Type._getTypeMeta(description);
 	}
 
+	// Construct Type instance
 	if (description && description.constructor === Object)
 	{
-		const type = new Type(description);
+		const type = Reflect.construct(Type, [description], TypeActivator);
 
+		// Store Type if it has ID
 		if (typeId)
 		{
 			Type._storeTypeMeta(typeId, type);
@@ -399,9 +344,9 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 		return type;
 	}
 	
-	throw new Error("Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if 'tsrtr' transformer is used.");
+	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
 }
 
 // To identify getType function in transformer
-export const TYPE_ID_PROPERTY_NAME = "__tsrts__";
+export const TYPE_ID_PROPERTY_NAME = `__${PACKAGE_ID}__`;
 getType[TYPE_ID_PROPERTY_NAME] = true;

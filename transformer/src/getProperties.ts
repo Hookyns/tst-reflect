@@ -1,4 +1,4 @@
-﻿import * as ts                                        from "typescript";
+﻿﻿import * as ts                                        from "typescript";
 import {getType}                                      from "./helpers";
 import getTypeCall                                    from "./getTypeCall";
 import {PropertyDescriptionSource, SourceFileContext} from "../types";

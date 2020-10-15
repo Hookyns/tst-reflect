@@ -1,4 +1,4 @@
-﻿import * as ts                                                          from "typescript";
+﻿﻿import * as ts                                                          from "typescript";
 import {GetTypeCall, SourceFileContext, TypeKind, TypePropertiesSource} from "../types";
 import {getSymbol, getTypeFullName, getTypeKind, isNativeType}          from "./helpers";
 import {createValueExpression}                                          from "./createValueExpression";

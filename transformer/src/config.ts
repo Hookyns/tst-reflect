@@ -1,4 +1,4 @@
-﻿export interface ConfigObject {
+﻿﻿export interface ConfigObject {
 	/**
 	 * Base absolute path which will be used as root for type full names
 	 */

@@ -8,6 +8,9 @@ serviceCollection.addTransient(getType<IService>(), getType<Service>());
 
 const serviceProvider = new ServiceProvider(serviceCollection);
 
+const s1 = serviceProvider.getService<IService>(getType<IService>());
+console.log("Type created using reflection: ", s1);
+
 function myFunc<T>()
 {
 	// const t = getType<T>(); // Not working YET! TODO: Implement generic type referencing on runtime.
@@ -21,11 +24,7 @@ const logger = {
 	}
 };
 
-const s1 = new Service(logger);
-s1.whoAmI();
-
-
-const s2 = serviceProvider.getService<IService>(getType<IService>());
-console.log("Type created using reflection: ", s2);
+const s2 = new Service(logger);
+s2.whoAmI();
 
 myFunc<IService>();

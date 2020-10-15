@@ -1,4 +1,4 @@
-﻿import {TypeKind}  from "../types";
+﻿﻿import {TypeKind}  from "../types";
 import * as ts     from "typescript";
 import * as path   from "path";
 import {getConfig} from "./config";

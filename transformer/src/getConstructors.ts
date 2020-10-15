@@ -1,4 +1,4 @@
-﻿import * as ts                                           from "typescript";
+﻿﻿import * as ts                                           from "typescript";
 import {ConstructorDescriptionSource, SourceFileContext} from "../types";
 import {getType}                                         from "./helpers";
 import getTypeCall                                       from "./getTypeCall";

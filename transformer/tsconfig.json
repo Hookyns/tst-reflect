@@ -13,15 +13,10 @@
     ]
 //    "types": ["typescript", "node"]
   },
-//  "include": [
-//    "./src/**/*.ts",
-//    "./src/*.ts",
-//    "./index.ts",
-//    "./types.ts",
-//    "./global.d.ts"
-//  ],
-  "exclude": [
-    "./dev/**"
-//    "./node_modules/typescript/lib/tsserverlibrary.d.ts"
+  "include": [
+    "./src/**/*.ts",
+    "./src/*.ts",
+    "./index.ts",
+    "./types.ts"
   ]
 }

@@ -2,7 +2,6 @@
 **/*.js
 **/*.js.map
 **/*.d.ts
-!global.d.ts
 !dev/dev-compiler.js
 
 # Logs
