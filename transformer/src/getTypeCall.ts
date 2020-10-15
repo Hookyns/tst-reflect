@@ -69,7 +69,7 @@ function getTypeProperties(symbol: ts.Symbol | undefined, type: ts.Type, checker
 		throw new Error("Enable to resolve type's symbol.");
 	}
 
-	const decorators = getDecorators(typeSymbol, checker) || [];
+	const decorators = getDecorators(typeSymbol, checker);
 	const kind = getTypeKind(typeSymbol);
 
 	return {
@@ -118,44 +118,3 @@ export default function getTypeCall(symbol: ts.Symbol | undefined, type: ts.Type
 		throw ex;
 	}
 }
-
-// function addToSourceFile(symbol: ts.Symbol | undefined, expr: GetTypeCall)
-// {
-// 	if (!symbol)
-// 	{
-// 		return false;
-// 	}
-//
-// 	let node: ts.Node = symbol.declarations[0];
-//
-// 	if (!node)
-// 	{
-// 		return false;
-// 	}
-//
-// 	while (node && !ts.isSourceFile(node))
-// 	{
-// 		node = node.parent;
-// 	}
-//
-// 	if (!node)
-// 	{
-// 		return false;
-// 	}
-//
-// 	ts.factory.updateSourceFile(node, [ts.factory.createExpressionStatement(expr), ...node.statements ]);
-//
-// 	return true;
-// 	// ts.factory.updateSourceFile(node, [
-// 	// 	ts.factory.createVariableStatement(
-// 	// 		undefined,
-// 	// 		ts.factory.createVariableDeclarationList([
-// 	// 			ts.factory.createVariableDeclaration(
-// 	// 				"style", 
-// 	// 				undefined, 
-// 	// 				undefined,
-// 	//				
-// 	// 		])
-// 	// 	), ...node.statements
-// 	// ])
-// }

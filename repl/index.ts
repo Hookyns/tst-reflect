@@ -37,6 +37,7 @@ class Service implements IService
 }
 
 const serviceCollection = new ServiceCollection();
+serviceCollection.addTransient(getType<ILog>(), getType<Log>());
 serviceCollection.addTransient(getType<IService>(), getType<Service>());
 
 const serviceProvider = new ServiceProvider(serviceCollection);
@@ -44,3 +45,6 @@ const serviceProvider = new ServiceProvider(serviceCollection);
 const s1 = serviceProvider.getService<IService>(getType<IService>());
 console.log("Type created using reflection: ", s1);
 
+if (s1) {
+	s1.doJob();
+}

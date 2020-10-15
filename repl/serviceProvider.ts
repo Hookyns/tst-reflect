@@ -63,8 +63,8 @@ export class ServiceProvider
 	 * Get service instance
 	 * @param type
 	 */
-	getService<TDependency>(type: Type): Iterable<TDependency> | null
+	getService<TDependency>(type: Type): TDependency | null
 	{
-		return this.getServices<TDependency>(type)[0] || null;
+		return this.getServices<TDependency>(type)[Symbol.iterator]().next().value || null;
 	}
 }

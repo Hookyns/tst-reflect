@@ -7,6 +7,11 @@ const rootDir = getConfig().rootDir;
 
 export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 {
+	if (symbol.flags == ts.SymbolFlags.Interface)
+	{
+		return checker.getDeclaredTypeOfSymbol(symbol);
+	}
+
 	return checker.getTypeOfSymbolAtLocation(symbol, symbol.declarations[0]);
 }
 

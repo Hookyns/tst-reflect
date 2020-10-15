@@ -21,13 +21,13 @@ export class ServiceCollection
 		this._services.set(dependencyType, value);
 	}
 
-	addScoped(dependencyType: Type, dependencyImplementation: Type)
-	{
-
-	}
-
-	addSingleton(dependencyType: Type, dependencyImplementation: Type)
-	{
-
-	}
+	// addScoped(dependencyType: Type, dependencyImplementation: Type)
+	// {
+	//
+	// }
+	//
+	// addSingleton(dependencyType: Type, dependencyImplementation: Type)
+	// {
+	//
+	// }
 }
