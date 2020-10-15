@@ -1,0 +1,2 @@
+run = "cd repl && npm run repl"
+language = "typescript"

@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2020",
+    "removeComments": true,
+    "sourceMap": true,
+    "stripInternal": true,
+    "strict": true,
+    "rootDir": ".",
+    "typeRoots": [
+      "node_modules/@types"
+    ]
+  },
+  "include": [
+    "./src/**/*.ts",
+    "./src/*.ts",
+    "./index.ts"
+  ]
+}
