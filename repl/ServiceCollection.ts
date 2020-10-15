@@ -1,4 +1,4 @@
-﻿﻿import {Type} from "../types";
+import {Type} from "tst-reflect";
 
 export class ServiceCollection
 {

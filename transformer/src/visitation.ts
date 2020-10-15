@@ -1,4 +1,4 @@
-﻿﻿import * as ts                from "typescript";
+import * as ts                 from "typescript";
 import {TYPE_ID_PROPERTY_NAME} from "tst-reflect";
 import {SourceFileContext}     from "./declarations";
 import getTypeCall             from "./getTypeCall";

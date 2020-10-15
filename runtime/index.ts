@@ -1,4 +1,4 @@
-﻿const PACKAGE_ID: string = "tst-reflect"﻿
+const PACKAGE_ID: string = "tst-reflect"﻿
 
 export enum TypeKind
 {
@@ -122,10 +122,11 @@ export class Type
 	 */
 	constructor(description: TypeProperties)
 	{
-		if (new.target != TypeActivator) {
+		if (new.target != TypeActivator)
+		{
 			throw new Error("You cannot create instance of Type manually!");
 		}
-		
+
 		this._name = description.n || "";
 		this._fullName = description.fn || "";
 		this._kind = description.k;
@@ -223,7 +224,8 @@ export class Type
 	/**
 	 * Constructor function in case Type is class
 	 */
-	get ctor(): Function | undefined {
+	get ctor(): Function | undefined
+	{
 		return this._ctor?.();
 	}
 
@@ -260,7 +262,8 @@ export class Type
 	 * Returns true if types are equals
 	 * @param type
 	 */
-	is(type: Type) {
+	is(type: Type)
+	{
 		return this._fullName == type._fullName;
 	}
 
@@ -315,7 +318,9 @@ export class Type
 	}
 }
 
-class TypeActivator extends Type {}
+class TypeActivator extends Type
+{
+}
 
 /**
  * Returns Type of generic parameter
@@ -343,7 +348,7 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 
 		return type;
 	}
-	
+
 	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
 }
 

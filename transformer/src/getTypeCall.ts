@@ -1,4 +1,4 @@
-﻿﻿import * as ts                                                from "typescript";
+import * as ts                                                 from "typescript";
 import {TypeKind}                                              from "tst-reflect";
 import {GetTypeCall, SourceFileContext, TypePropertiesSource}  from "./declarations";
 import {getSymbol, getTypeFullName, getTypeKind, isNativeType} from "./helpers";

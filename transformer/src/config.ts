@@ -1,4 +1,5 @@
-﻿﻿export interface ConfigObject {
+export interface ConfigObject
+{
 	/**
 	 * Base absolute path which will be used as root for type full names
 	 */
@@ -7,10 +8,12 @@
 
 let config: ConfigObject = {};
 
-export function setConfig(c: ConfigObject) {
+export function setConfig(c: ConfigObject)
+{
 	config = c;
 }
 
-export function getConfig() {
+export function getConfig()
+{
 	return config;
 }

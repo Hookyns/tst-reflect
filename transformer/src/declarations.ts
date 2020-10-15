@@ -1,7 +1,6 @@
-﻿import * as ts          from "typescript";
+import * as ts          from "typescript";
 import {TypeKind, Type} from "tst-reflect";
 
-﻿﻿
 /**
  * @internal
  */

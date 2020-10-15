@@ -1,4 +1,4 @@
-﻿# Runtime of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
+# Runtime of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
 This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working in runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
 
 # How to start

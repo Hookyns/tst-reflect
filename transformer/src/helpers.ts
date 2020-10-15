@@ -1,6 +1,6 @@
-﻿﻿import {TypeKind} from "tst-reflect";
 import * as ts     from "typescript";
 import * as path   from "path";
+import {TypeKind}  from "tst-reflect";
 import {getConfig} from "./config";
 
 const rootDir = getConfig().rootDir;

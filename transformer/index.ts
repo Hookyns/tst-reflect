@@ -1,6 +1,5 @@
-﻿import {ConfigObject, setConfig} from "./src/config";
-
-﻿import * as ts                  from "typescript";
+import * as ts                   from "typescript";
+import {ConfigObject, setConfig} from "./src/config";
 
 export default function transform<T extends ts.Node>(program: ts.Program, config?: ConfigObject): ts.TransformerFactory<T>
 {
