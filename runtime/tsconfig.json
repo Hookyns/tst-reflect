@@ -2,9 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES6",
-    "sourceMap": true,
+    "sourceMap": false,
     "stripInternal": true,
-    "declaration": true,
+    "declaration": false,
     "typeRoots": [
       "node_modules/@types"
     ]
