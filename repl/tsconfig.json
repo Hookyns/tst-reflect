@@ -2,9 +2,9 @@
   "compilerOptions": {
     "module": "commonjs",
     "target": "ES2020",
-    "sourceMap": true
-  },
-  "plugins": [
-    { "transform": "../transformer/index.js" }
-  ]
+    "sourceMap": true,
+    "plugins": [
+      { "transform": "../transformer/index.js" }
+    ]
+  }
 }

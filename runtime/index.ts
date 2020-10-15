@@ -353,5 +353,5 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 }
 
 // To identify getType function in transformer
-export const TYPE_ID_PROPERTY_NAME = `__${PACKAGE_ID}__`;
-getType[TYPE_ID_PROPERTY_NAME] = true;
+export const TYPE_ID_PROPERTY_NAME = "__tst-reflect__";
+getType.__tst_reflect__ = true;

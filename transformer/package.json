@@ -24,10 +24,10 @@
   "author": "Roman Jámbor",
   "license": "MIT",
   "devDependencies": {
-    "typescript": "^4.0.0",
     "@types/node": "^14.0.0"
   },
   "dependencies": {
+    "typescript": "^4.0.0",
     "tst-reflect": "^0.1.1"
   },
   "repository": {
