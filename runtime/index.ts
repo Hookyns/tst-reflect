@@ -1,4 +1,4 @@
-﻿const PACKAGE_ID: string = "ts-reflect"﻿
+﻿const PACKAGE_ID: string = "tst-reflect"﻿
 
 export enum TypeKind
 {

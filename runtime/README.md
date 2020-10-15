@@ -1,8 +1,8 @@
-﻿# Runtime of TypeScript Transformer for Runtime Types & Reflection (ts-reflect)
-This package is runtime part of `ts-reflect-transformer`, which is TypeScript transformer generating Type objects that are working in runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
+﻿# Runtime of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
+This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working in runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
 
 # How to start
-`npm i ts-reflect && npm i ts-reflect-transformer ttypescript -D`
+`npm i tst-reflect && npm i tst-reflect-transformer ttypescript -D`
 
 ## Modify tsconfig.json
 Add `plugins` property into compilerOptions block.
@@ -13,7 +13,7 @@ Add `plugins` property into compilerOptions block.
 
     // ADD THIS!
     "plugins": [
-      { "transform": "ts-reflect-transformer" }
+      { "transform": "tst-reflect-transformer" }
     ]
   }
 }
@@ -115,7 +115,7 @@ It use some kind of cache (per file; it's impossible for TS to get main runtime 
 
 > index.ts
 ```typescript
-import {getType}           from "ts-reflect";
+import {getType}           from "tst-reflect";
 import {IService, Service} from "./dependency";
 import {ServiceCollection} from "./ServiceCollection";
 import {ServiceProvider}   from "./serviceProvider";
@@ -133,7 +133,7 @@ Generated output
 ```javascript
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const types_1 = require("ts-reflect");
+const types_1 = require("tst-reflect");
 const dependency_1 = require("./dependency");
 const ServiceCollection_1 = require("./ServiceCollection");
 const serviceProvider_1 = require("./serviceProvider");
