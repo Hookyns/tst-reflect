@@ -30,8 +30,8 @@
   "dependencies": {
     "tst-reflect": "^0.1.0"
   },
-  "repository" : {
-    "type" : "git",
+  "repository": {
+    "type": "git",
     "url": "https://github.com/Hookyns/ts-reflection.git",
     "directory": "transformer"
   }

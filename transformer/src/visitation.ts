@@ -1,7 +1,8 @@
-﻿﻿import * as ts                                    from "typescript";
-import {SourceFileContext, TYPE_ID_PROPERTY_NAME} from "../types";
-import getTypeCall                                from "./getTypeCall";
-import {getSymbol, getType}                       from "./helpers";
+﻿﻿import * as ts                from "typescript";
+import {TYPE_ID_PROPERTY_NAME} from "tst-reflect";
+import {SourceFileContext}     from "./declarations";
+import getTypeCall             from "./getTypeCall";
+import {getSymbol, getType}    from "./helpers";
 
 function visit(context: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker, node: ts.Node, sourceFileContext: SourceFileContext): ts.Node | undefined
 {
@@ -12,7 +13,7 @@ function visit(context: ts.TransformationContext, program: ts.Program, checker: 
 		{
 			sourceFileContext.getTypeIdentifier = node.expression as ts.Identifier;
 		}
-		
+
 		// getType type
 		const fncType = checker.getTypeAtLocation(node.expression);
 
@@ -78,9 +79,9 @@ export function getVisitor(context: ts.TransformationContext, program: ts.Progra
 					ts.factory.createCallExpression(sourceFileContext?.getTypeIdentifier!, [], [typesProperties[typeId], ts.factory.createNumericLiteral(typeId)])
 				));
 			}
-			
+
 			const importsCount = visitedNode.statements.findIndex(s => !ts.isImportDeclaration(s));
-			
+
 			if (importsCount == -1)
 			{
 				console.warn("Reflection: getType<T>() used, but no import found.");
@@ -88,7 +89,7 @@ export function getVisitor(context: ts.TransformationContext, program: ts.Progra
 
 			return ts.factory.updateSourceFile(
 				visitedNode,
-				importsCount == -1 
+				importsCount == -1
 					? [...propertiesStatements, ...visitedNode.statements]
 					: visitedNode.statements.slice(0, importsCount).concat(propertiesStatements).concat(visitedNode.statements.slice(importsCount))
 			);
