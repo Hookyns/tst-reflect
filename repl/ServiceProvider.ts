@@ -1,4 +1,4 @@
-﻿import {Type}              from "tst-reflect";
+import {Type}              from "tst-reflect";
 import {ServiceCollection} from "./ServiceCollection";
 
 /**
