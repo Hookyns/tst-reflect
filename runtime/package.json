@@ -1,6 +1,6 @@
 {
   "name": "tst-reflect",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Runtime of TypeScript Transformer for Runtime Types & Reflection",
   "main": "index.js",
   "types": "index.ts",
