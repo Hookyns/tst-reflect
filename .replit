@@ -1,2 +1,3 @@
+onBoot = "cd transformer && npm i && npx tsc"
 run = "cd repl && npm run repl"
 language = "typescript"
