@@ -1,3 +1,2 @@
-onBoot = "cd transformer && npm i && npx tsc && cd ../repl && npm i"
-run = "cd repl && npm run repl"
+run = "cd repl && node install.js && npm run repl"
 language = "typescript"

@@ -3,6 +3,7 @@
 **/*.js.map
 **/*.d.ts
 !dev/dev-compiler.js
+!repl/install.js
 
 # Logs
 logs
