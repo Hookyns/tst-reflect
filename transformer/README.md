@@ -1,12 +1,14 @@
-# Runtime Part of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
+# TypeScript Transformer for Runtime Types & Reflection (tst-reflect-transformer)
+> This package is compile/transpile time part of `tst-reflect`.
 
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect) 
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
-This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working at runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
 
-More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder too.
+This is TypeScript transformer generating Type objects that are working at runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
+
+More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder.
 
 ## How to start
 `npm i tst-reflect && npm i tst-reflect-transformer -D`
@@ -45,88 +47,6 @@ and with Webpack
 ### Obtaining Type
 This package contains two main exports, `getType<T>()` function and `Type` class.
 To get `Type` instance, just call `getType<InterfaceOrClassOrSomeType>()`.
-
-## Synopsis
-```typescript
-/**
- * Object representing TypeScript type in memory
- */
-export declare class Type {
-    /**
-     * Returns a value indicating whether the Type is container for unified Types or not
-     */
-    get isUnion(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is container for intersecting Types or not
-     */
-    get isIntersection(): boolean;
-
-    /**
-     * List of underlying types in case Type is union or intersection
-     */
-    get types(): Array<Type> | undefined;
-
-    /**
-     * Constructor function in case that Type is class
-     */
-    get ctor(): Function | undefined;
-
-    /**
-     * Get type full-name
-     * @description Contains file path base to project root. It is unique identifier.
-     */
-    get fullName(): string;
-
-    /**
-     * Get type name
-     */
-    get name(): string;
-
-    /**
-     * Get kind of type
-     */
-    get kind(): TypeKind;
-
-    /**
-     * Returns true if types are equals
-     * @param type
-     */
-    is(type: Type): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is a class or not
-     */
-    isClass(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is a interface or not
-     */
-    isInterface(): boolean;
-
-    /**
-     * Returns constructor description when Type is a class
-     */
-    getConstructors(): Array<Constructor> | undefined;
-
-    /**
-     * Returns array of properties
-     */
-    getProperties(): Array<Property>;
-
-    /**
-     * Returns array of decorators
-     */
-    getDecorators(): Array<Decorator>;
-}
-```
-
-```typescript
-/**
- * Returns Type of generic parameter
- */
-export declare function getType<T>(): Type;
-```
 
 ## How does it work
 Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic.

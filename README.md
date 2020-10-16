@@ -5,7 +5,7 @@
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
-[Example](#show-me-some-code) | [Synopsis](#synopsis) | [How to start](#how-to-start) | [License](#license)
+[Example](#show-me-some-code) | [Synopsis](#synopsis) | [How to start](#how-to-start)
 
 ## About
 Yeap! How the title says, this project is about runtime reflection, achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) and runtime stuff (package `tst-reflect`).
