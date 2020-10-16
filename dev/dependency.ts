@@ -1,4 +1,4 @@
-﻿import {getType}            from "../types";
+import {getType}            from "../types";
 import {inject, injectable} from "./decorators";
 
 export interface ILogger {

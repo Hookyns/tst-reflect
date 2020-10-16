@@ -1,11 +1,16 @@
-# Runtime of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
+# Runtime Part of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
 This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working in runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
 
-# How to start
-`npm i tst-reflect && npm i tst-reflect-transformer ttypescript -D`
+More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder too.
 
-## Modify tsconfig.json
-Add `plugins` property into compilerOptions block.
+## How to start
+`npm i tst-reflect && npm i tst-reflect-transformer -D`
+
+In order to use transformer plugin you will need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on your own), eg. package [ttypescript](https://www.npmjs.com/package/ttypescript).
+
+`npm i ttypescript -D`
+
+Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
 ```json5
 {
   "compilerOptions": {
@@ -19,12 +24,24 @@ Add `plugins` property into compilerOptions block.
 }
 ```
 
-## Obtaining Type
-This package contains two main exports, `getType<T>()` function and `Type` class.
-To get `Type` instance, just call `getType<InterfaceClassOrSomeType>()`.
+and with Webpack
+```javascript
+{
+    test: /\.(ts|tsx)$/,
+    loader: require.resolve("awesome-typescript-loader"),
+    // or
+    loader: require.resolve("ts-loader"),
+    options: {
+        compiler: "ttypescript"
+    }
+}
+```
 
-# Synopsis
-> class Type {}
+### Obtaining Type
+This package contains two main exports, `getType<T>()` function and `Type` class.
+To get `Type` instance, just call `getType<InterfaceOrClassOrSomeType>()`.
+
+## Synopsis
 ```typescript
 /**
  * Object representing TypeScript type in memory
@@ -99,7 +116,6 @@ export declare class Type {
 }
 ```
 
-> function getType<T>()
 ```typescript
 /**
  * Returns Type of generic parameter
@@ -107,8 +123,8 @@ export declare class Type {
 export declare function getType<T>(): Type;
 ```
 
-# How does it work
-Transformer looks for all calls of `getType<T>()` and replace those call by `Type` retrieving logic.
+## How does it work
+Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic.
 It generates object literals describing referred types and instances of `Type` are created from those objects.
 
 It use some kind of cache (per file; it's impossible for TS to get main runtime module and create cache there under GlobalThis; so it's in every file).

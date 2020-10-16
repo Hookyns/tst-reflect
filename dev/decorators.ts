@@ -1,4 +1,4 @@
-﻿export function injectable()
+export function injectable()
 {
 	return function (target) {
 

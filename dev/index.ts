@@ -1,4 +1,4 @@
-﻿import {getType}           from "../types";
+import {getType}           from "../types";
 import {IService, Service} from "./dependency";
 import {ServiceCollection} from "./ServiceCollection";
 import {ServiceProvider}   from "./serviceProvider";

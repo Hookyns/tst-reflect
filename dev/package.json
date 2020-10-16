@@ -1,7 +1,7 @@
 {
   "name": "dev",
   "version": "0.0.1",
-  "description": "dev",
+  "description": "Dev scripts",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -12,6 +12,9 @@
   "devDependencies": {
     "typescript": "^4.0.3",
     "ttypescript": "^1.5.10",
-    "glob": "^7.1.6"
+    "tst-reflect-transformer": "^0.1.0"
+  },
+  "dependencies": {
+    "tst-reflect": "^0.1.4"
   }
 }

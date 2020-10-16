@@ -10,7 +10,7 @@
       "node_modules/@types"
     ],
     "plugins": [
-      { "transform": "../index.js" }
+      { "transform": "../transformer/index.js" }
     ]
   },
   "include": [

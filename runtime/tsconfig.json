@@ -4,7 +4,7 @@
     "target": "ES6",
     "sourceMap": false,
     "stripInternal": true,
-    "declaration": false,
+    "declaration": true,
     "typeRoots": [
       "node_modules/@types"
     ]

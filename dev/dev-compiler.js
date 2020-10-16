@@ -1,4 +1,4 @@
-﻿﻿﻿const ts = require("typescript");
+const ts = require("typescript");
 const $path = require("path");
 const glob = require("glob");
 
