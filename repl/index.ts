@@ -1,6 +1,6 @@
 import {getType}           from "tst-reflect";
 import {ServiceCollection} from "./ServiceCollection";
-import {ServiceProvider}   from "./serviceProvider";
+import {ServiceProvider}   from "./ServiceProvider";
 
 interface ILog
 {

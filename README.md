@@ -1,5 +1,7 @@
 # TypeScript Transformer for Runtime Reflection
 
+[![Run on repl.it](https://repl.it/badge/github/Hookyns/ts-reflection.git)](https://repl.it/github/Hookyns/ts-reflection.git}&ref=button)
+
 This package provide method `getType<T>()` which is handled and transformed into `Type` instance which describe given type `T`.
 
 Work in progress...!
