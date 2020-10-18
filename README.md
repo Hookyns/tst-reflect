@@ -24,89 +24,99 @@ import {getType, Type} from "tst-reflect";
 
 class ServiceCollection
 {
-    public readonly services: Array<[Type, any]> = [];
+	public readonly services: Array<[Type, any]> = [];
+	
+	foo<A>(foo?: any) {
+		return getType<A>();
+	}
 
-    addTransient(dependencyType: Type, dependencyImplementation: Type | any)
-    {
-        this.services.push([dependencyType, dependencyImplementation]);
-    }
+	addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any)
+	{
+		this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
+	}
 }
 
 class ServiceProvider
 {
-    private readonly serviceCollection: ServiceCollection;
+	private readonly serviceCollection: ServiceCollection;
 
-    constructor(serviceCollection: ServiceCollection)
-    {
-        this.serviceCollection = serviceCollection;
-    }
+	constructor(serviceCollection: ServiceCollection)
+	{
+		this.serviceCollection = serviceCollection;
+	}
 
-    getService<TDependency>(type: Type): TDependency
-    {
-        // Find implementation of type
-        const [, impl] = this.serviceCollection.services.find(([dep]) => dep.is(type));
+	getService<TDependency>(type: Type): TDependency
+	{
+		// Find implementation of type
+		const [, impl] = this.serviceCollection.services.find(([dep]) => dep.is(type));
 
-        if (!impl)
-        {
-            throw new Error(`No implementation registered for '${type.name}'`);
-        }
+		if (!impl)
+		{
+			throw new Error(`No implementation registered for '${type.name}'`);
+		}
 
-        if (!(impl instanceof Type))
-        {
-            return impl;
-        }
+		if (!(impl instanceof Type))
+		{
+			return impl;
+		}
 
-        if (!impl.isClass())
-        {
-            throw new Error("Registered implementation is not class.");
-        }
+		if (!impl.isClass())
+		{
+			throw new Error("Registered implementation is not class.");
+		}
 
-        // Parameter-less
-        if (!impl.getConstructors()?.length)
-        {
-            return Reflect.construct(impl.ctor, []);
-        }
+		// Parameter-less
+		if (!impl.getConstructors()?.length)
+		{
+			return Reflect.construct(impl.ctor, []);
+		}
 
-        // Ctor with less parameters preferred
-        const ctor = impl.getConstructors().sort((a, b) => a.parameters.length > b.parameters.length ? 1 : 0)[0];
+		// Ctor with less parameters preferred
+		const ctor = impl.getConstructors().sort((a, b) => a.parameters.length > b.parameters.length ? 1 : 0)[0];
 
-        // Resolve parameters
-        const args = ctor.parameters.map(param => this.getService(param.type))
+		// Resolve parameters
+		const args = ctor.parameters.map(param => this.getService(param.type))
 
-        return Reflect.construct(impl.ctor, args);
-    }
+		return Reflect.construct(impl.ctor, args);
+	}
 }
 
 interface IPrinter {
-    printHelloWorld();
-    printText(text: string);
+	printHelloWorld();
+	printText(text: string);
 }
 
-class ConsolePrinter implements IPrinter
+abstract class BasePrinter implements IPrinter {
+	abstract printHelloWorld();
+	abstract printText(text: string);
+}
+
+class ConsolePrinter extends BasePrinter implements IPrinter
 {
-    private readonly console: Console;
+	private readonly console: Console;
 
-    constructor(console: Console)
-    {
-        this.console = console;
-    }
+	constructor(console: Console)
+	{
+		super();
+		this.console = console;
+	}
 
-    printHelloWorld()
-    {
-        this.console.log("Hello World!")
-    }
+	printHelloWorld()
+	{
+		this.console.log("Hello World!")
+	}
 
-    printText(text: string)
-    {
-        this.console.log(text)
-    }
+	printText(text: string)
+	{
+		this.console.log(text)
+	}
 }
 
 //-----------------------------------------
 
 const collection = new ServiceCollection();
 
-collection.addTransient(getType<IPrinter>(), getType<ConsolePrinter>());
+collection.addTransient<IPrinter, ConsolePrinter>(undefined, undefined); // Working generic!! Just a little fix needed -> it's not working without those "undefined" for optional parameters. 
 collection.addTransient(getType<Console>(), console);
 
 const provider = new ServiceProvider(collection);
@@ -131,15 +141,19 @@ printer.printText("And good bye!");
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tst_reflect_1 = require("tst-reflect");
-tst_reflect_1.getType({ n: "Console", fn: "..\\..\\..\\..\\lib.dom.d.ts:Console", props: [{ n: "memory", t: tst_reflect_1.getType({ n: "any", fn: "any", k: 2 }) }], k: 0 }, 20580);
-tst_reflect_1.getType({ n: "IPrinter", fn: "..\\example1.ts:IPrinter", k: 0 }, 22988);
-tst_reflect_1.getType({ n: "ConsolePrinter", fn: "..\\example1.ts:ConsolePrinter", props: [{ n: "console", t: tst_reflect_1.getType(20580) }], ctors: [{ params: [{ n: "console", t: tst_reflect_1.getType(20580) }] }], k: 1, ctor: () => ConsolePrinter }, 22990);
+tst_reflect_1.getType({ n: "Console", fn: "W:/tst-reflect/dev/node_modules/typescript/lib/lib.dom.d.ts:Console", props: [{ n: "memory", t: tst_reflect_1.getType({ n: "any", fn: "any", k: 2 }) }], k: 0 }, 20580);
+tst_reflect_1.getType({ n: "IPrinter", fn: "W:/tst-reflect/dev/example1.ts:IPrinter", k: 0 }, 23131);
+tst_reflect_1.getType({ n: "BasePrinter", fn: "W:/tst-reflect/dev/example1.ts:BasePrinter", ctors: [{ params: [] }], k: 1, iface: tst_reflect_1.getType(23131) }, 23133);
+tst_reflect_1.getType({ n: "ConsolePrinter", fn: "W:/tst-reflect/dev/example1.ts:ConsolePrinter", props: [{ n: "console", t: tst_reflect_1.getType(20580) }], ctors: [{ params: [{ n: "console", t: tst_reflect_1.getType(20580) }] }], k: 1, ctor: () => ConsolePrinter, bt: tst_reflect_1.getType(23133) }, 23139);
 class ServiceCollection {
     constructor() {
         this.services = [];
     }
-    addTransient(dependencyType, dependencyImplementation) {
-        this.services.push([dependencyType, dependencyImplementation]);
+    foo(foo, __genericParams__) {
+        return __genericParams__.A;
+    }
+    addTransient(dependencyType, dependencyImplementation, __genericParams__) {
+        this.services.push([dependencyType ?? __genericParams__.TDep, dependencyImplementation ?? __genericParams__.TImp]);
     }
 }
 class ServiceProvider {
@@ -165,8 +179,11 @@ class ServiceProvider {
         return Reflect.construct(impl.ctor, args);
     }
 }
-class ConsolePrinter {
+class BasePrinter {
+}
+class ConsolePrinter extends BasePrinter {
     constructor(console) {
+        super();
         this.console = console;
     }
     printHelloWorld() {
@@ -177,10 +194,10 @@ class ConsolePrinter {
     }
 }
 const collection = new ServiceCollection();
-collection.addTransient(tst_reflect_1.getType(22988), tst_reflect_1.getType(22990));
+collection.addTransient(undefined, undefined, { TDep: tst_reflect_1.getType(23131), TImp: tst_reflect_1.getType(23139) });
 collection.addTransient(tst_reflect_1.getType(20580), console);
 const provider = new ServiceProvider(collection);
-const printer = provider.getService(tst_reflect_1.getType(22988));
+const printer = provider.getService(tst_reflect_1.getType(23131));
 console.log("printer is instanceof ConsolePrinter:", printer instanceof ConsolePrinter);
 printer.printHelloWorld();
 printer.printText("Try it on repl.it");

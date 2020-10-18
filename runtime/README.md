@@ -143,6 +143,8 @@ import {ServiceProvider}   from "./serviceProvider";
 
 const serviceCollection = new ServiceCollection();
 serviceCollection.addTransient(getType<IService>(), getType<Service>());
+// or
+serviceCollection.addTransient<IService, Service>(); // Generic working too!
 
 const serviceProvider = new ServiceProvider(serviceCollection);
 

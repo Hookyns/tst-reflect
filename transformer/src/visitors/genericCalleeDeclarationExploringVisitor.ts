@@ -54,15 +54,10 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
  */
 function exploreGetTypeCalls(node: ts.Node, context: Context)
 {
-	let genericTypeNode: false | ts.TypeNode | undefined;
+	let genericTypeNode: false | ts.TypeNode;
 
 	if ((genericTypeNode = isGetTypeCall(node, context)) !== false)
 	{
-		if (genericTypeNode === undefined)
-		{
-			return node;
-		}
-
 		let genericType = context.checker.getTypeAtLocation(genericTypeNode);
 
 		// Parameter is another generic type

@@ -94,10 +94,8 @@ class ConsolePrinter extends BasePrinter implements IPrinter
 
 const collection = new ServiceCollection();
 
-collection.addTransient<IPrinter, ConsolePrinter>();
+collection.addTransient<IPrinter, ConsolePrinter>(undefined, undefined); // Working generic!!
 collection.addTransient(getType<Console>(), console);
-
-collection.foo<Console>();
 
 const provider = new ServiceProvider(collection);
 
