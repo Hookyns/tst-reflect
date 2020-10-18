@@ -5,9 +5,19 @@ import {getConfig} from "./config";
 
 const rootDir = getConfig().rootDir;
 
+/**
+ * Name of parameter for method/function declarations containing geneic getType() calls
+ */
+export const GENERIC_PARAMS = "__genericParams__";
+
+/**
+ * Get type of symbol
+ * @param symbol
+ * @param checker
+ */
 export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 {
-	if (symbol.flags == ts.SymbolFlags.Interface)
+	if (symbol.flags == ts.SymbolFlags.Interface || symbol.flags == ts.SymbolFlags.Alias)
 	{
 		return checker.getDeclaredTypeOfSymbol(symbol);
 	}
@@ -15,24 +25,10 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 	return checker.getTypeOfSymbolAtLocation(symbol, symbol.declarations[0]);
 }
 
-export function getSymbol(node: ts.Node, checker: ts.TypeChecker): ts.Symbol | undefined
-{
-	let name;
-
-	if ((node as any)["typeName"] != undefined)
-	{
-		name = (node as any).typeName;
-	}
-
-	if ((node as any)["getName"] != undefined)
-	{
-		name = (node as any).getName();
-
-	}
-
-	return checker.getSymbolAtLocation(name);
-}
-
+/**
+ * Get Kind of type
+ * @param symbol
+ */
 export function getTypeKind(symbol: ts.Symbol)
 {
 	if (symbol.flags == ts.SymbolFlags.Class)
@@ -48,6 +44,11 @@ export function getTypeKind(symbol: ts.Symbol)
 	throw new Error("Unknown type kind");
 }
 
+/**
+ * Get full name of type
+ * @param type
+ * @param typeSymbol
+ */
 export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 {
 	typeSymbol = typeSymbol || type.getSymbol();
@@ -67,6 +68,10 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 	return filePath + ":" + typeSymbol.getName()
 }
 
+/**
+ * Check that Type is native type (string, number, boolean, ...)
+ * @param type
+ */
 export function isNativeType(type: ts.Type)
 {
 	return (type as any)["intrinsicName"] !== undefined;
@@ -78,6 +83,10 @@ export function isNativeType(type: ts.Type)
 	// ].includes(flag);
 }
 
+/**
+ * Check that value is TS Expression
+ * @param value
+ */
 export function isExpression(value: any)
 {
 	return value.hasOwnProperty("kind") && (value.constructor.name == "NodeObject" || value.constructor.name == "IdentifierObject");

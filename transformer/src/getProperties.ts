@@ -2,7 +2,14 @@ import * as ts                                        from "typescript";
 import {getType}                                      from "./helpers";
 import getTypeCall                                    from "./getTypeCall";
 import {PropertyDescriptionSource, SourceFileContext} from "./declarations";
+import {getDecorators}                                from "./getDecorators";
 
+/**
+ * Return properties of type
+ * @param symbol
+ * @param checker
+ * @param sourceFileContext
+ */
 export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChecker, sourceFileContext: SourceFileContext): Array<PropertyDescriptionSource> | undefined
 {
 	if (symbol?.members)
@@ -11,10 +18,13 @@ export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChe
 
 		const properties = members
 			.filter(m => m.flags == ts.SymbolFlags.Property || m.flags == ts.SymbolFlags.GetAccessor)
-			.map((memberSymbol: ts.Symbol) => ({
-				n: memberSymbol.escapedName.toString(),
-				t: getTypeCall(memberSymbol, getType(memberSymbol, checker), checker, sourceFileContext)
-			}));
+			.map((memberSymbol: ts.Symbol) => {
+				return {
+					n: memberSymbol.escapedName.toString(),
+					t: getTypeCall(memberSymbol, getType(memberSymbol, checker), checker, sourceFileContext),
+					d: getDecorators(memberSymbol, checker)
+				};
+			});
 
 		return properties.length ? properties : undefined;
 	}

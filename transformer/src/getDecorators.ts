@@ -26,10 +26,6 @@ export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array
 
 			let decoratorType = checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
 
-			// let callSignatures = decoratorType.getCallSignatures();
-			// let details = serializeSymbol(symbol);
-			// details.constructors = callSignatures.map(serializeSignature);
-
 			decorators.push({
 				n: symbol.escapedName.toString(),
 				fn: getTypeFullName(decoratorType)

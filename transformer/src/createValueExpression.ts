@@ -34,11 +34,11 @@ export function createValueExpression(value: any): ts.Expression
 				// Ignoring properties assigned to undefined
 				if (value.hasOwnProperty(prop) && value[prop] !== undefined)
 				{
-					propertyAssignments.push(ts.createPropertyAssignment(prop, createValueExpression(value[prop])));
+					propertyAssignments.push(ts.factory.createPropertyAssignment(prop, createValueExpression(value[prop])));
 				}
 			}
 
-			return ts.createObjectLiteral(propertyAssignments);
+			return ts.factory.createObjectLiteralExpression(propertyAssignments);
 		}
 
 		if (isExpression(value))

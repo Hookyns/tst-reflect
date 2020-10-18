@@ -14,6 +14,7 @@
   "include": [
     "./src/**/*.ts",
     "./src/*.ts",
-    "./index.ts"
+    "./index.ts",
+    "./generics.ts"
   ]
 }

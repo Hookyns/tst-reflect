@@ -11,6 +11,7 @@
     ],
     "plugins": [
       { "transform": "../transformer/index.js" }
+//      { "transform": "../transformer/generics.js" }
     ]
   },
   "include": [

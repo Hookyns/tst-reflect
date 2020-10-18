@@ -1,11 +1,12 @@
-import * as ts                                                 from "typescript";
-import {TypeKind}                                              from "tst-reflect";
-import {GetTypeCall, SourceFileContext, TypePropertiesSource}  from "./declarations";
-import {getSymbol, getTypeFullName, getTypeKind, isNativeType} from "./helpers";
-import {createValueExpression}                                 from "./createValueExpression";
-import {getProperties}                                         from "./getProperties";
-import {getDecorators}                                         from "./getDecorators";
-import {getConstructors}                                       from "./getConstructors";
+import * as ts                                                from "typescript";
+import {TypeKind}                                             from "tst-reflect";
+import {GetTypeCall, SourceFileContext, TypePropertiesSource} from "./declarations";
+import {getType, getTypeFullName, getTypeKind, isNativeType}  from "./helpers";
+import {createValueExpression}                                from "./createValueExpression";
+import {getProperties}                                        from "./getProperties";
+import {getDecorators}                                        from "./getDecorators";
+import {getConstructors}                                      from "./getConstructors";
+import {SyntaxKind}                                           from "typescript";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 
@@ -34,7 +35,7 @@ function getTypeProperties(symbol: ts.Symbol | undefined, type: ts.Type, checker
 	}
 
 	if (symbol?.valueDeclaration && (
-		ts.isPropertyDeclaration(symbol.valueDeclaration) || ts.isVariableDeclaration(symbol.valueDeclaration)
+		ts.isPropertyDeclaration(symbol.valueDeclaration) || ts.isPropertySignature(symbol.valueDeclaration) || ts.isVariableDeclaration(symbol.valueDeclaration)
 	))
 	{
 		let isUnion = false, isIntersection = false;
@@ -45,7 +46,7 @@ function getTypeProperties(symbol: ts.Symbol | undefined, type: ts.Type, checker
 		{
 			const types = symbol.valueDeclaration.type.types
 				.map(typeNode => getTypeCall(
-					getSymbol(typeNode, checker),
+					checker.getSymbolAtLocation(typeNode),
 					checker.getTypeAtLocation(typeNode),
 					checker,
 					sourceFileContext
@@ -62,25 +63,65 @@ function getTypeProperties(symbol: ts.Symbol | undefined, type: ts.Type, checker
 		}
 	}
 
-	const typeSymbol = type.getSymbol();
+	let typeSymbol = type.getSymbol();
 
 	if (!typeSymbol)
 	{
-		throw new Error("Enable to resolve type's symbol.");
+		throw new Error("Unable to resolve type's symbol.");
 	}
 
 	const decorators = getDecorators(typeSymbol, checker);
 	const kind = getTypeKind(typeSymbol);
+	const symbolType = getType(typeSymbol, checker);
 
-	return {
+	const properties: TypePropertiesSource = {
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, typeSymbol),
 		props: getProperties(symbol, checker, sourceFileContext),
-		ctors: getConstructors(type, checker, sourceFileContext),
+		ctors: getConstructors(symbolType, checker, sourceFileContext),
 		decs: decorators,
 		k: kind,
-		ctor: kind == TypeKind.Class ? createTypeGetter(typeCtor) : undefined
+		ctor: kind == TypeKind.Class ? createTypeGetter(typeCtor) : undefined,
+		// bt: , // TODO: 
+		// iface: 
 	};
+
+	if (kind == TypeKind.Class)
+	{
+		properties.ctor = createTypeGetter(typeCtor)
+	}
+
+	const declaration = typeSymbol.declarations[0];
+
+	if (ts.isClassDeclaration(declaration) || ts.isInterfaceDeclaration(declaration))
+	{
+		if (declaration.heritageClauses)
+		{
+			const ext = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ExtendsKeyword)[0];
+			const impl = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ImplementsKeyword)[0];
+
+			if (ext)
+			{
+				properties.bt = getTypeCall(
+					checker.getSymbolAtLocation(ext.types[0]),
+					checker.getTypeAtLocation(ext.types[0]),
+					checker,
+					sourceFileContext
+				);
+			}
+			else if (impl)
+			{
+				properties.iface = getTypeCall(
+					checker.getSymbolAtLocation(impl.types[0]),
+					checker.getTypeAtLocation(impl.types[0]),
+					checker,
+					sourceFileContext
+				);
+			}
+		}
+	}
+
+	return properties;
 }
 
 export default function getTypeCall(symbol: ts.Symbol | undefined, type: ts.Type, checker: ts.TypeChecker, sourceFileContext: SourceFileContext, typeCtor?: ts.EntityName): GetTypeCall

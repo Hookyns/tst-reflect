@@ -340,5 +340,8 @@ serviceProvider.Resolve<ILog>();
 
 Where resolve() take care about constructors parameters, based on their types, and resolve everything.
 
+## Known Issues
+ * Order of generated meta can be wrong is case of circular modules.
+
 ## License
 This project is licensed under the MIT license.

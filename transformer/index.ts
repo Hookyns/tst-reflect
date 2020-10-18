@@ -1,15 +1,69 @@
-import * as ts                   from "typescript";
-import {ConfigObject, setConfig} from "./src/config";
+import * as ts       from "typescript";
+import {setConfig}   from "./src/config";
+import {Context}     from "./src/visitors/Context";
+import {mainVisitor} from "./src/visitors/mainVisitor";
 
-export default function transform<T extends ts.Node>(program: ts.Program, config?: ConfigObject): ts.TransformerFactory<T>
+export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
 {
-	config ??= {};
-	config.rootDir ??= program.getCurrentDirectory();
-	setConfig(config);
+	setConfig({
+		rootDir: program.getCompilerOptions().rootDir || program.getCurrentDirectory()
+	});
 
-	const {getVisitor} = require("./src/visitation");
-
-	return (context) => {
+	return (context): ts.Transformer<ts.SourceFile> =>
+	{
 		return (node) => ts.visitNode(node, getVisitor(context, program));
 	};
+}
+
+/**
+ * @param context
+ * @param program
+ */
+function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.Visitor
+{
+	let checker: ts.TypeChecker = program.getTypeChecker();
+
+	return node =>
+	{
+		console.log("tst-reflect: getType call visitation started in", (node as any).fileName);
+		const tstContext: Context = new Context(context, program, checker, {
+			typesProperties: [],
+			visitor: node => mainVisitor(node, tstContext)
+		});
+
+		const visitedNode = tstContext.sourceFileContext.visitor(node);
+
+		const typesIds = Object.keys(tstContext.sourceFileContext.typesProperties) as any as number[];
+
+		if (visitedNode && !(visitedNode instanceof Array) && ts.isSourceFile(visitedNode) && typesIds.length)
+		{
+			const propertiesStatements = [];
+			const typesProperties = tstContext.sourceFileContext.typesProperties;
+
+			for (let typeId of typesIds)
+			{
+				propertiesStatements.push(ts.factory.createExpressionStatement(
+					ts.factory.createCallExpression(tstContext.sourceFileContext?.getTypeIdentifier!, [], [typesProperties[typeId], ts.factory.createNumericLiteral(typeId)])
+				));
+			}
+
+			const importsCount = visitedNode.statements.findIndex(s => !ts.isImportDeclaration(s));
+
+			if (importsCount == -1)
+			{
+				console.warn("Reflection: getType<T>() used, but no import found.");
+			}
+
+			return ts.factory.updateSourceFile(
+				visitedNode,
+				importsCount == -1
+					? [...propertiesStatements, ...visitedNode.statements]
+					: visitedNode.statements.slice(0, importsCount).concat(propertiesStatements).concat(visitedNode.statements.slice(importsCount))
+			);
+		}
+
+		console.log("tst-reflect: getType call visitation ended in", (node as any).fileName);
+
+		return visitedNode;
+	}
 }

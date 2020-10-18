@@ -3,10 +3,14 @@ import {getType, Type} from "tst-reflect";
 class ServiceCollection
 {
 	public readonly services: Array<[Type, any]> = [];
+	
+	foo<A>(foo?: any) {
+		return getType<A>();
+	}
 
-	addTransient(dependencyType: Type, dependencyImplementation: Type | any)
+	addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any)
 	{
-		this.services.push([dependencyType, dependencyImplementation]);
+		this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
 	}
 }
 
@@ -60,12 +64,18 @@ interface IPrinter {
 	printText(text: string);
 }
 
-class ConsolePrinter implements IPrinter
+abstract class BasePrinter implements IPrinter {
+	abstract printHelloWorld();
+	abstract printText(text: string);
+}
+
+class ConsolePrinter extends BasePrinter implements IPrinter
 {
 	private readonly console: Console;
 
 	constructor(console: Console)
 	{
+		super();
 		this.console = console;
 	}
 
@@ -84,8 +94,10 @@ class ConsolePrinter implements IPrinter
 
 const collection = new ServiceCollection();
 
-collection.addTransient(getType<IPrinter>(), getType<ConsolePrinter>());
+collection.addTransient<IPrinter, ConsolePrinter>();
 collection.addTransient(getType<Console>(), console);
+
+collection.foo<Console>();
 
 const provider = new ServiceProvider(collection);
 

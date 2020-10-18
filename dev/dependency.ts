@@ -1,7 +1,8 @@
-import {getType}            from "../types";
+import {getType}            from "../runtime";
 import {inject, injectable} from "./decorators";
 
-export interface ILogger {
+export interface ILogger
+{
 	log(msg: string);
 }
 
@@ -23,7 +24,8 @@ export class Service implements IService
 	@inject()
 	private readonly logger: ILogger;
 
-	public get Logger() {
+	public get Logger()
+	{
 		return this.logger;
 	}
 
@@ -43,3 +45,13 @@ export class Service implements IService
 
 	static staticProp: string;
 }
+
+
+export function myFunc2<T, U = any>(val: U)
+{
+	const t = getType<T>();
+	console.log(val, t);
+}
+
+myFunc2<IService>("service interface");
+myFunc2<Service>("service:");

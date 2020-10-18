@@ -1,5 +1,8 @@
 const PACKAGE_ID: string = "tst-reflect"﻿
 
+/**
+ * Kind of type
+ */
 export enum TypeKind
 {
 	/**
@@ -32,25 +35,35 @@ export interface ParameterDescription
 	t: Type
 }
 
-export interface MethodParameter
-{
-	name: string;
-	type: Type
-}
-
 /**
  * @internal
  */
 export interface PropertyDescription
 {
 	n: string;
-	t: Type
+	t: Type;
+	d?: Array<DecoratorDescription>;
 }
 
+/**
+ * Property description
+ */
 export interface Property
 {
+	/**
+	 * Property name
+	 */
 	name: string;
-	type: Type
+
+	/**
+	 * Property type
+	 */
+	type: Type;
+
+	/**
+	 * Property decorators
+	 */
+	decorators: Array<Decorator>;
 }
 
 /**
@@ -62,10 +75,36 @@ export interface DecoratorDescription
 	fn: string;
 }
 
+/**
+ * Decoration description
+ */
 export interface Decorator
 {
+	/**
+	 * Decorator name
+	 */
 	name: string;
+
+	/**
+	 * Decorator full name
+	 */
 	fullName?: string;
+}
+
+/**
+ * Method parameter description
+ */
+export interface MethodParameter
+{
+	/**
+	 * Parameter name
+	 */
+	name: string;
+	
+	/**
+	 * Parameter type
+	 */
+	type: Type
 }
 
 /**
@@ -76,8 +115,14 @@ export interface ConstructorDescription
 	params: Array<ParameterDescription>
 }
 
+/**
+ * Constructor description object
+ */
 export interface Constructor
 {
+	/**
+	 * Constructor parameters
+	 */
 	parameters: Array<MethodParameter>
 }
 
@@ -96,6 +141,8 @@ export interface TypeProperties
 	inter?: boolean;
 	types?: Array<Type>;
 	ctor?: () => Function;
+	bt?: Type;
+	iface?: Type;
 }
 
 const typesMetaCache: { [key: number]: Type } = {};
@@ -105,6 +152,13 @@ const typesMetaCache: { [key: number]: Type } = {};
  */
 export class Type
 {
+	private static readonly objectType = new Type({
+		n: "Object",
+		fn: "Object",
+		ctor: Object,
+		k: TypeKind.Native
+	});
+	
 	private readonly _ctor?: () => Function;
 	private readonly _kind: TypeKind;
 	private readonly _name: string;
@@ -115,6 +169,8 @@ export class Type
 	private readonly _properties: Array<Property>;
 	private readonly _decorators: Array<Decorator>;
 	private readonly _constructors: Array<Constructor>;
+	private readonly _baseType?: Type;
+	private readonly _interface?: Type;
 
 	/**
 	 * Internal Type constructor
@@ -134,6 +190,8 @@ export class Type
 		this._properties = description.props?.map(Type.mapProperties) || [];
 		this._decorators = description.decs?.map(Type.mapDecorators) || [];
 		this._ctor = description.ctor;
+		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.objectType);
+		this._interface = description.iface;
 
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
@@ -150,7 +208,7 @@ export class Type
 
 		if (!type)
 		{
-			throw new Error("Unknown type identifier. Metadata not found.");
+			throw new Error(`Unknown type identifier '${typeId}'. Metadata not found.`);
 		}
 
 		return type;
@@ -181,7 +239,7 @@ export class Type
 	 */
 	private static mapProperties(p: PropertyDescription)
 	{
-		return ({name: p.n, type: p.t});
+		return ({name: p.n, type: p.t, decorators: p.d?.map(Type.mapDecorators)});
 	}
 
 	/**
@@ -227,6 +285,15 @@ export class Type
 	get ctor(): Function | undefined
 	{
 		return this._ctor?.();
+	}
+
+	// noinspection JSUnusedGlobalSymbols
+	/**
+	 * Base type
+	 */
+	get baseType(): Type | undefined
+	{
+		return this._baseType;
 	}
 
 	// noinspection JSUnusedGlobalSymbols
@@ -301,6 +368,15 @@ export class Type
 
 	// noinspection JSUnusedGlobalSymbols
 	/**
+	 * Returns interface which this type implements
+	 */
+	getInterface(): Type | undefined
+	{
+		return this._interface;
+	}
+
+	// noinspection JSUnusedGlobalSymbols
+	/**
 	 * Returns array of properties
 	 */
 	getProperties(): Array<Property>
@@ -352,6 +428,17 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
 }
 
-// To identify getType function in transformer
+
+/**
+ * Decorator for marking methods as they accept generic parameters as arguments
+ */
+export function reflectGeneric()
+{
+	return function (target, propertyKey) {
+	}
+}
+
+// To identify functions by package
 export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
+reflectGeneric.__tst_reflect__ = true;
 getType.__tst_reflect__ = true;
