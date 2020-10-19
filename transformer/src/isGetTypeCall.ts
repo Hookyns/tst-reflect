@@ -1,5 +1,5 @@
 import * as ts                 from "typescript";
-import {TYPE_ID_PROPERTY_NAME} from "tst-reflect/index";
+import {TYPE_ID_PROPERTY_NAME} from "tst-reflect";
 import {Context}               from "./visitors/Context";
 
 /**

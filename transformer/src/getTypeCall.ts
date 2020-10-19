@@ -6,7 +6,6 @@ import {createValueExpression}                                from "./createValu
 import {getProperties}                                        from "./getProperties";
 import {getDecorators}                                        from "./getDecorators";
 import {getConstructors}                                      from "./getConstructors";
-import {SyntaxKind}                                           from "typescript";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 
