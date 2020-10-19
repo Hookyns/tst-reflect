@@ -3,6 +3,7 @@
     "module": "commonjs",
     "target": "ES6",
     "sourceMap": false,
+    "strict": true,
     "stripInternal": true,
     "declaration": true,
     "typeRoots": [
@@ -12,6 +13,6 @@
   "include": [
     "./src/**/*.ts",
     "./src/*.ts",
-    "./index.ts"
+    "./reflect.ts"
   ]
 }

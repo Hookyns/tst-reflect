@@ -152,12 +152,7 @@ const typesMetaCache: { [key: number]: Type } = {};
  */
 export class Type
 {
-	private static readonly objectType = new Type({
-		n: "Object",
-		fn: "Object",
-		ctor: Object,
-		k: TypeKind.Native
-	});
+	public static readonly Object: Type;
 	
 	private readonly _ctor?: () => Function;
 	private readonly _kind: TypeKind;
@@ -190,7 +185,7 @@ export class Type
 		this._properties = description.props?.map(Type.mapProperties) || [];
 		this._decorators = description.decs?.map(Type.mapDecorators) || [];
 		this._ctor = description.ctor;
-		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.objectType);
+		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = description.iface;
 
 		this._isUnion = description.union || false;
@@ -228,7 +223,7 @@ export class Type
 	 * @internal
 	 * @param d
 	 */
-	private static mapDecorators(d: DecoratorDescription)
+	private static mapDecorators(d: DecoratorDescription): Decorator
 	{
 		return ({name: d.n, fullName: d.fn});
 	}
@@ -237,16 +232,16 @@ export class Type
 	 * @internal
 	 * @param p
 	 */
-	private static mapProperties(p: PropertyDescription)
+	private static mapProperties(p: PropertyDescription): Property
 	{
-		return ({name: p.n, type: p.t, decorators: p.d?.map(Type.mapDecorators)});
+		return ({name: p.n, type: p.t, decorators: p.d?.map(Type.mapDecorators) || []});
 	}
 
 	/**
 	 * @internal
 	 * @param c
 	 */
-	private static mapConstructors(c: ConstructorDescription)
+	private static mapConstructors(c: ConstructorDescription): Constructor
 	{
 		return ({parameters: c.params.map(p => ({name: p.n, type: p.t}))});
 	}
@@ -398,6 +393,13 @@ class TypeActivator extends Type
 {
 }
 
+(Type as any).Object = Reflect.construct(Type, [{
+	n: "Object",
+	fn: "Object",
+	ctor: Object,
+	k: TypeKind.Native
+}], TypeActivator);
+
 /**
  * Returns Type of generic parameter
  */
@@ -428,17 +430,16 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
 }
 
-
-/**
- * Decorator for marking methods as they accept generic parameters as arguments
- */
-export function reflectGeneric()
-{
-	return function (target, propertyKey) {
-	}
-}
+// /**
+//  * Decorator for marking methods as they accept generic parameters as arguments
+//  */
+// export function reflectGeneric()
+// {
+// 	return function (target: any, propertyKey: string) {
+// 	}
+// }
 
 // To identify functions by package
 export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
-reflectGeneric.__tst_reflect__ = true;
+// reflectGeneric.__tst_reflect__ = true;
 getType.__tst_reflect__ = true;

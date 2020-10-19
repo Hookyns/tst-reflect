@@ -134,38 +134,60 @@ It generates object literals describing referred types and instances of `Type` a
 
 It use some kind of cache (per file; it's impossible for TS to get main runtime module and create cache there under GlobalThis; so it's in every file).
 
-> index.ts
+> example.ts
 ```typescript
-import {getType}           from "tst-reflect";
+import {getType, Type}     from "tst-reflect";
 import {IService, Service} from "./dependency";
-import {ServiceCollection} from "./ServiceCollection";
-import {ServiceProvider}   from "./serviceProvider";
+
+class ServiceCollection {
+	public readonly services: Array<[Type, any]> = [];
+
+	addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any) {
+		this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
+	}
+}
+
+class ServiceProvider {
+	// ...
+}
 
 const serviceCollection = new ServiceCollection();
 serviceCollection.addTransient(getType<IService>(), getType<Service>());
-// or
-serviceCollection.addTransient<IService, Service>(); // Generic working too!
+// or with generic
+serviceCollection.addTransient<IService, Service>();
 
 const serviceProvider = new ServiceProvider(serviceCollection);
 
-const s1 = serviceProvider.getService<IService>(getType<IService>());
+const s1 = serviceProvider.getService<IService>();
 console.log("Type created using reflection: ", s1);
+console.log("s1 is instanceof Service: ", s1 instanceof Service); // true
 ```
 
 Generated output
 ```javascript
-"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-const types_1 = require("tst-reflect");
+const tst_reflect_1 = require("tst-reflect");
 const dependency_1 = require("./dependency");
-const ServiceCollection_1 = require("./ServiceCollection");
-const serviceProvider_1 = require("./serviceProvider");
-types_1.getType({ n: "ILogger", fn: "..\\dependency.ts:ILogger", decs: [], k: 0 }, 30613);
-types_1.getType({ n: "IService", fn: "..\\dependency.ts:IService", k: 0}, 30614);
-types_1.getType({ n: "Service", fn: "..\\dependency.ts:Service", ctors: [{ params: [{ n: "logger", t: types_1.getType(30613) }] }], decs: [{ n: "injectable" }], k: 1, ctor: () => dependency_1.Service }, 30617);
-const serviceCollection = new ServiceCollection_1.ServiceCollection();
-serviceCollection.addTransient(types_1.getType(30614), types_1.getType(30617));
-const serviceProvider = new serviceProvider_1.ServiceProvider(serviceCollection);
+tst_reflect_1.getType({ n: "ILogger", fn: "W:/tst-reflect/dev/dependency.ts:ILogger", k: 0 }, 22961);
+tst_reflect_1.getType({ n: "IService", fn: "W:/tst-reflect/dev/dependency.ts:IService", props: [{ n: "prop", t: tst_reflect_1.getType({ k: 3, types: [tst_reflect_1.getType({ n: "string", fn: "string", k: 2 }), tst_reflect_1.getType({ n: "number", fn: "number", k: 2 })], union: true, inter: false }) }], k: 0 }, 22963);
+tst_reflect_1.getType({ n: "Service", fn: "W:/tst-reflect/dev/dependency.ts:Service", props: [{ n: "prop", t: tst_reflect_1.getType({ k: 3, types: [tst_reflect_1.getType({ n: "string", fn: "string", k: 2 }), tst_reflect_1.getType({ n: "number", fn: "number", k: 2 })], union: true, inter: false }) }, { n: "logger", t: tst_reflect_1.getType(22961), d: [{ n: "inject" }] }, { n: "Logger", t: tst_reflect_1.getType(22961) }], ctors: [{ params: [{ n: "logger", t: tst_reflect_1.getType(22961) }] }], decs: [{ n: "injectable" }], k: 1, ctor: () => dependency_1.Service, iface: tst_reflect_1.getType(22963) }, 22965);
+class ServiceCollection {
+    constructor() {
+        this.services = [];
+    }
+    addTransient(dependencyType, dependencyImplementation, __genericParams__) {
+        this.services.push([dependencyType ?? __genericParams__.TDep, dependencyImplementation ?? __genericParams__.TImp]);
+    }
+}
+class ServiceProvider {
+    // ...
+}
+const serviceCollection = new ServiceCollection();
+serviceCollection.addTransient(tst_reflect_1.getType(22963), tst_reflect_1.getType(22965));
+serviceCollection.addTransient({ TDep: tst_reflect_1.getType(22963), TImp: tst_reflect_1.getType(22965) });
+const serviceProvider = new ServiceProvider(serviceCollection);
+const s1 = serviceProvider.getService({ TDependency: tst_reflect_1.getType(22963) });
+console.log("Type created using reflection: ", s1);
+console.log("s1 is instanceof Service: ", s1 instanceof dependency_1.Service);
 ```
 
 ## License
