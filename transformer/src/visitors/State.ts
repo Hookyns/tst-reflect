@@ -30,4 +30,9 @@ export interface State
 	 * Indexes of generic parameters in declaration
 	 */
 	indexesOfGenericParameters?: Array<number>;
+
+	/**
+	 * Number of declared parameters/expected arguments
+	 */
+	declaredParametersCount?: number;
 }

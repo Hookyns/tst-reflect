@@ -46,6 +46,14 @@ export function processGenericCallExpression(node: ts.CallExpression, context: C
 			i++;
 		}
 		
+		const callArgs = [...node.arguments];
+		
+		if (callArgs.length < state.declaredParametersCount!) {
+			for (let i = state.declaredParametersCount! - callArgs.length; i >= 0; ++i) {
+				callArgs.push(ts.factory.createIdentifier("undefined"));
+			}
+		}
+		
 		return ts.factory.updateCallExpression(
 			node,
 			node.expression,

@@ -32,7 +32,8 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 		const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
 		const state: State = {
 			usedGenericParameters: context.usedGenericParameters,
-			indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p))
+			indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
+			declaredParametersCount: node.parameters.length
 		};
 		context.usedGenericParameters = undefined;
 
