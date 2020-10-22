@@ -1,4 +1,4 @@
-import {getType, Type}              from "../runtime";
+import {getType, Type}              from "tst-reflect";
 import {IService, myFunc2, Service} from "./dependency";
 
 export function myFunc<T, U = any>(val: U)

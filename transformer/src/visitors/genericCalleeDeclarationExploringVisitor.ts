@@ -17,6 +17,8 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 
 	context.usedGenericParameters = [];
 
+	// TODO: Debug; node.name.escapedText == "printType"; 
+	
 	// Set new visitor into context
 	const oldVisitor = context.visitor;
 	context.visitor = (node) => exploreGetTypeCalls(node, context);

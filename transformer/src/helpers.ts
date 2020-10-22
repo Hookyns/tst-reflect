@@ -11,6 +11,11 @@ const rootDir = getConfig().rootDir;
 export const GENERIC_PARAMS = "__genericParams__";
 
 /**
+ * Package name/identifier
+ */
+export const PACKAGE_ID = "tst-reflect-transformer";
+
+/**
  * Get type of symbol
  * @param symbol
  * @param checker

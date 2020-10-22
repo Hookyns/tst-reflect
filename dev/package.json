@@ -11,10 +11,9 @@
   "license": "MIT",
   "devDependencies": {
     "typescript": "^4.0.3",
-    "ttypescript": "^1.5.10",
-    "tst-reflect-transformer": "^0.1.0"
+    "ttypescript": "^1.5.10"
   },
   "dependencies": {
-    "tst-reflect": "^0.1.4"
+    "tst-reflect": "^0.2.1"
   }
 }

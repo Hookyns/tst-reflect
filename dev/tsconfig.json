@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "esnext",
+    "target": "ES2020",
     "removeComments": true,
     "sourceMap": true,
     "experimentalDecorators": true,
@@ -11,11 +11,10 @@
     ],
     "plugins": [
       { "transform": "../transformer/index.js" }
-//      { "transform": "../transformer/generics.js" }
     ]
   },
   "include": [
-    "./**/*.ts",
-    "../global.d.ts"
+//    "example1.ts"
+    "./**/*.ts"
   ]
 }

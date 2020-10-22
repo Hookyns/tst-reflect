@@ -1,7 +1,5 @@
 import * as ts       from "typescript";
 import {setConfig}   from "./src/config";
-import {Context}     from "./src/visitors/Context";
-import {mainVisitor} from "./src/visitors/mainVisitor";
 
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
 {
@@ -22,16 +20,14 @@ export default function transform(program: ts.Program): ts.TransformerFactory<ts
 function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.Visitor
 {
 	let checker: ts.TypeChecker = program.getTypeChecker();
+	const {Context} = require("./src/visitors/Context");
 
 	return node =>
 	{
 		console.log("tst-reflect: getType call visitation started in", (node as any).fileName);
-		const tstContext: Context = new Context(context, program, checker, {
-			typesProperties: [],
-			visitor: node => mainVisitor(node, tstContext)
-		});
+		const tstContext: typeof Context = new Context(context, program, checker);
 
-		const visitedNode = tstContext.sourceFileContext.visitor(node);
+		let visitedNode = tstContext.sourceFileContext.visitor(node);
 
 		const typesIds = Object.keys(tstContext.sourceFileContext.typesProperties) as any as number[];
 
@@ -54,7 +50,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 				console.warn("Reflection: getType<T>() used, but no import found.");
 			}
 
-			return ts.factory.updateSourceFile(
+			visitedNode = ts.factory.updateSourceFile(
 				visitedNode,
 				importsCount == -1
 					? [...propertiesStatements, ...visitedNode.statements]

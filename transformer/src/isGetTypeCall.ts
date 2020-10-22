@@ -1,6 +1,7 @@
 import * as ts                 from "typescript";
 import {TYPE_ID_PROPERTY_NAME} from "tst-reflect";
 import {Context}               from "./visitors/Context";
+import {getError}              from "./getError";
 
 /**
  * Function detecting right getType() call
@@ -37,7 +38,7 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 
 		if (!genericTypeNode)
 		{
-			throw new Error("Type argument of function getType<T>() is missing.");
+			throw getError(node, "Type argument of function getType<T>() is missing.");
 		}
 
 		return genericTypeNode;

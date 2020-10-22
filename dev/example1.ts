@@ -1,14 +1,11 @@
-import {getType, Type} from "tst-reflect";
+import {getType, Type}  from "tst-reflect";
+import {reflectGeneric} from "../runtime/reflect";
 
 class ServiceCollection
 {
 	public readonly services: Array<[Type, any]> = [];
-	
-	foo<A>(foo?: any) {
-		return getType<A>();
-	}
 
-	addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any)
+	addTransient<TDep, TImp = undefined>(dependencyType?: Type, dependencyImplementation?: Type | any)
 	{
 		this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
 	}
@@ -23,10 +20,13 @@ class ServiceProvider
 		this.serviceCollection = serviceCollection;
 	}
 
-	getService<TDependency>(type: Type): TDependency
+	getService<TDependency>(type?: Type): TDependency
 	{
+		type = type || getType<TDependency>();
+
 		// Find implementation of type
-		const [, impl] = this.serviceCollection.services.find(([dep]) => dep.is(type));
+		const arr = this.serviceCollection.services.find(([dep]) => dep.is(type));
+		const impl = arr[1];
 
 		if (!impl)
 		{
@@ -61,12 +61,15 @@ class ServiceProvider
 
 interface IPrinter {
 	printHelloWorld();
-	printText(text: string);
+	print(...args: any[]);
+	printType<T>(...args: any[]);
 }
 
+@reflectGeneric()
 abstract class BasePrinter implements IPrinter {
 	abstract printHelloWorld();
-	abstract printText(text: string);
+	abstract print(...args: any[]);
+	abstract printType<T>(...args: any[]);
 }
 
 class ConsolePrinter extends BasePrinter implements IPrinter
@@ -81,12 +84,17 @@ class ConsolePrinter extends BasePrinter implements IPrinter
 
 	printHelloWorld()
 	{
-		this.console.log("Hello World!")
+		this.console.log("Hello World!");
 	}
 
-	printText(text: string)
+	print(...args: any[])
 	{
-		this.console.log(text)
+		this.console.log(...args);
+	}
+
+	printType<T>(...args: any[])
+	{
+		this.console.log(...args, getType<T>());
 	}
 }
 
@@ -94,16 +102,18 @@ class ConsolePrinter extends BasePrinter implements IPrinter
 
 const collection = new ServiceCollection();
 
-collection.addTransient<IPrinter, ConsolePrinter>(undefined, undefined); // Working generic!!
-collection.addTransient(getType<Console>(), console);
+collection.addTransient<IPrinter, ConsolePrinter>(undefined, getType<ConsolePrinter>());
+collection.addTransient<BasePrinter, ConsolePrinter>(); // Working generic!!
+collection.addTransient<Console>(undefined, console);
 
 const provider = new ServiceProvider(collection);
 
 //-----------------------------------------
 
-const printer = provider.getService<IPrinter>(getType<IPrinter>());
+const printer = provider.getService<IPrinter>();
 console.log("printer is instanceof ConsolePrinter:", printer instanceof ConsolePrinter);
 
 printer.printHelloWorld();
-printer.printText("Try it on repl.it");
-printer.printText("And good bye!");
+printer.print("Try it on repl.it");
+printer.print("And good bye!", getType<IPrinter>());
+(printer as ConsolePrinter).printType<ConsolePrinter>("ConsolePrinter: ");

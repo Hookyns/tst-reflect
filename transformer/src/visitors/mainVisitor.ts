@@ -5,6 +5,7 @@ import {declarationVisitor}           from "./declarationVisitor";
 import {Context}                      from "./Context";
 import {processGenericCallExpression} from "../processGenericCallExpression";
 import {processGetTypeCallExpression} from "../processGetTypeCallExpression";
+import {getError}                     from "../getError";
 
 /**
  * Main visitor, splitting visitation into specific parts
@@ -29,6 +30,12 @@ export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefine
 		// To speed up, check it is getType call
 		if (ts.isIdentifier(node.expression) && node.expression.escapedText == "getType")
 		{
+			// If it's created node, it should not be visited
+			if (node.pos == -1)
+			{
+				return node;
+			}
+
 			// Function/method type
 			const fncType = context.checker.getTypeAtLocation(node.expression);
 
@@ -50,10 +57,12 @@ export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefine
 
 			if (res)
 			{
-				return res;
+				node = res;
+				// return res;
 			}
 		}
 	}
 
 	return ts.visitEachChild(node, context.sourceFileContext.visitor, context.transformationContext);
+
 }

@@ -2,9 +2,12 @@ import * as ts          from "typescript";
 import {Context}        from "./visitors/Context";
 import {GENERIC_PARAMS} from "./helpers";
 import getTypeCall      from "./getTypeCall";
+import {getError}       from "./getError";
 
 export function processGetTypeCallExpression(node: ts.CallExpression, context: Context)
 {
+	// TODO: Use isGetTypeCall()
+	
 	// Add identifier into context; will be used for all calls
 	if (!context.sourceFileContext.getTypeIdentifier)
 	{
@@ -15,7 +18,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 
 	if (!genericTypeNode)
 	{
-		throw new Error("Type argument of function getType<T>() is missing.");
+		throw getError(node, "Type argument of function getType<T>() is missing.");
 	}
 
 	let genericType = context.checker.getTypeAtLocation(genericTypeNode);
@@ -38,7 +41,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 
 		if (!genericTypeSymbol)
 		{
-			throw new Error("Symbol of generic type argument not found.")
+			throw getError(node, "Symbol of generic type argument not found.")
 		}
 
 		return getTypeCall(

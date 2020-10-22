@@ -430,14 +430,14 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
 }
 
-// /**
-//  * Decorator for marking methods as they accept generic parameters as arguments
-//  */
-// export function reflectGeneric()
-// {
-// 	return function (target: any, propertyKey: string) {
-// 	}
-// }
+/**
+ * Decorator for marking methods as they accept generic parameters as arguments
+ */
+export function reflectGeneric()
+{
+	return function (target: any, propertyKey?: string) {
+	}
+}
 
 // To identify functions by package
 export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";

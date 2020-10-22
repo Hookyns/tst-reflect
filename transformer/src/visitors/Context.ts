@@ -1,5 +1,6 @@
-import {SourceFileContext} from "../declarations";
 import * as ts             from "typescript";
+import {SourceFileContext} from "../declarations";
+import {mainVisitor}       from "./mainVisitor";
 
 /**
  * Context of visitors
@@ -44,13 +45,23 @@ export class Context
 	 * @param transformationContext
 	 * @param program
 	 * @param checker
-	 * @param sourceFileContext
 	 */
-	constructor(transformationContext: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker, sourceFileContext: SourceFileContext)
+	constructor(transformationContext: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker)
 	{
 		this.transformationContext = transformationContext;
 		this.program = program;
 		this.checker = checker;
-		this.sourceFileContext = sourceFileContext;
+
+		this.sourceFileVisitor = this.sourceFileVisitor.bind(this);
+
+		this.sourceFileContext = {
+			typesProperties: [],
+			visitor: this.sourceFileVisitor
+		};
+	}
+
+	private sourceFileVisitor(node: ts.Node)
+	{
+		return mainVisitor(node, this);
 	}
 }
