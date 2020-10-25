@@ -72,6 +72,12 @@ export declare class Type {
      */
     get ctor(): Function | undefined;
 
+	/**
+	 * Base type
+	 * @description Base type from which this type extends from or undefined if type is Object.
+	 */
+	get baseType(): Type | undefined;
+
     /**
      * Get type full-name
      * @description Contains file path base to project root. It is unique identifier.
@@ -109,6 +115,11 @@ export declare class Type {
      */
     getConstructors(): Array<Constructor> | undefined;
 
+	/**
+	 * Returns interface which this type implements
+	 */
+	getInterface(): Type | undefined;
+
     /**
      * Returns array of properties
      */
@@ -118,6 +129,12 @@ export declare class Type {
      * Returns array of decorators
      */
     getDecorators(): Array<Decorator>;
+
+    /**
+     * Returns true if this type is assignable to target type
+     * @param target
+     */
+    isAssignableTo(target: Type): boolean;
 }
 ```
 

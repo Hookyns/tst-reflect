@@ -100,7 +100,7 @@ export interface MethodParameter
 	 * Parameter name
 	 */
 	name: string;
-	
+
 	/**
 	 * Parameter type
 	 */
@@ -153,7 +153,7 @@ const typesMetaCache: { [key: number]: Type } = {};
 export class Type
 {
 	public static readonly Object: Type;
-	
+
 	private readonly _ctor?: () => Function;
 	private readonly _kind: TypeKind;
 	private readonly _name: string;
@@ -285,6 +285,7 @@ export class Type
 	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Base type
+	 * @description Base type from which this type extends from or undefined if type is Object.
 	 */
 	get baseType(): Type | undefined
 	{
@@ -387,18 +388,43 @@ export class Type
 	{
 		return this._decorators;
 	}
+
+	// noinspection JSUnusedGlobalSymbols
+	/**
+	 * Returns true if this type is assignable to target type
+	 * @param target
+	 */
+	isAssignableTo(target: Type): boolean
+	{
+		let tmpType: Type | undefined = this;
+		
+		do
+		{
+			if (target.fullName == tmpType.fullName)
+			{
+				return true;
+			}
+
+			tmpType = tmpType.baseType
+		}
+		while (tmpType !== undefined);
+		
+		return false;
+	}
 }
 
 class TypeActivator extends Type
 {
 }
 
-(Type as any).Object = Reflect.construct(Type, [{
-	n: "Object",
-	fn: "Object",
-	ctor: Object,
-	k: TypeKind.Native
-}], TypeActivator);
+(Type as any).Object = Reflect.construct(Type, [
+	{
+		n: "Object",
+		fn: "Object",
+		ctor: Object,
+		k: TypeKind.Native
+	}
+], TypeActivator);
 
 /**
  * Returns Type of generic parameter
@@ -430,8 +456,15 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
 }
 
+getType.__tst_reflect__ = true
+
 /**
- * Decorator for marking methods as they accept generic parameters as arguments
+ * To identify functions by package
+ */
+export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
+
+/**
+ * Decorator for marking methods as they use type of generic parameters
  */
 export function reflectGeneric()
 {
@@ -439,7 +472,9 @@ export function reflectGeneric()
 	}
 }
 
-// To identify functions by package
-export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
-// reflectGeneric.__tst_reflect__ = true;
-getType.__tst_reflect__ = true;
+reflectGeneric.__tst_reflect__ = true;
+
+/**
+ * Name of decorator or JSDoc comment marking method as it use type of generic parameter
+ */
+export const REFLECT_GENERIC_DECORATOR = "reflectGeneric";
