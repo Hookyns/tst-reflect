@@ -42,7 +42,6 @@ export function getTypeDescription(
 	{
 		return {
 			n: (type as any).intrinsicName,
-			fn: (type as any).intrinsicName,
 			k: TypeKind.Native,
 			ctors: undefined,
 			decs: undefined,
@@ -50,36 +49,73 @@ export function getTypeDescription(
 		};
 	}
 
-	if (symbol?.valueDeclaration && (
-		ts.isPropertyDeclaration(symbol.valueDeclaration) || ts.isPropertySignature(symbol.valueDeclaration) || ts.isVariableDeclaration(symbol.valueDeclaration)
-	))
+	if (type.flags == ts.TypeFlags.Object)
 	{
-		let isUnion = false, isIntersection = false;
+		return {
+			k: TypeKind.Object,
+			props: getProperties(symbol, type, checker, sourceFileContext)
+		};
+	}
 
-		if (symbol.valueDeclaration.type && (
-			(isUnion = ts.isUnionTypeNode(symbol.valueDeclaration.type)) || (isIntersection = ts.isIntersectionTypeNode(symbol.valueDeclaration.type))
-		))
-		{
-			const types = symbol.valueDeclaration.type.types
-				.map(typeNode => getTypeCall(
-					checker.getSymbolAtLocation(typeNode),
-					checker.getTypeAtLocation(typeNode),
-					checker,
-					sourceFileContext
-					)
-				);
-
-			return {
-				k: TypeKind.Container,
-
-				types: types,
-				union: isUnion,
-				inter: isIntersection
-			}
-		}
+	if ((type.flags & ts.TypeFlags.Literal) != 0)
+	{
+		return {
+			k: TypeKind.LiteralType,
+			v: (type as any).value,
+		};
 	}
 
 	let typeSymbol = type.getSymbol();
+
+	if (symbol?.valueDeclaration && (
+		ts.isPropertyDeclaration(symbol.valueDeclaration)
+		|| ts.isPropertySignature(symbol.valueDeclaration)
+		|| ts.isVariableDeclaration(symbol.valueDeclaration)
+	))
+	{
+		if (symbol.valueDeclaration.type)
+		{
+			if (ts.isTypeReferenceNode(symbol.valueDeclaration.type)
+				&& typeSymbol && (typeSymbol.flags & ts.SymbolFlags.Transient) == ts.SymbolFlags.Transient)
+			{
+				return {
+					k: TypeKind.TransientTypeReference,
+					n: (symbol.valueDeclaration.type.typeName as any).escapedText,
+					args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
+						checker.getSymbolAtLocation(typeNode),
+						checker.getTypeAtLocation(typeNode),
+						checker,
+						sourceFileContext
+						)
+					) || [],
+				}
+			}
+
+			let isUnion = false, isIntersection = false
+
+			if (
+				(isUnion = ts.isUnionTypeNode(symbol.valueDeclaration.type))
+				|| (isIntersection = ts.isIntersectionTypeNode(symbol.valueDeclaration.type))
+			)
+			{
+				const types = symbol.valueDeclaration.type.types
+					.map(typeNode => getTypeCall(
+						checker.getSymbolAtLocation(typeNode),
+						checker.getTypeAtLocation(typeNode),
+						checker,
+						sourceFileContext
+						)
+					);
+
+				return {
+					k: TypeKind.Container,
+					types: types,
+					union: isUnion,
+					inter: isIntersection
+				}
+			}
+		}
+	}
 
 	if (!typeSymbol)
 	{
@@ -93,13 +129,11 @@ export function getTypeDescription(
 	const properties: TypePropertiesSource = {
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, typeSymbol),
-		props: getProperties(symbol, checker, sourceFileContext),
+		props: getProperties(symbol, type, checker, sourceFileContext),
 		ctors: getConstructors(symbolType, checker, sourceFileContext),
 		decs: decorators,
 		k: kind,
-		ctor: kind == TypeKind.Class ? createCtorGetter(typeCtor) : undefined,
-		// bt: , // TODO: 
-		// iface: 
+		ctor: kind == TypeKind.Class ? createCtorGetter(typeCtor) : undefined
 	};
 
 	if (kind == TypeKind.Class)

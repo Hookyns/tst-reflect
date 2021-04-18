@@ -74,6 +74,11 @@ export interface TypePropertiesSource
 	k: TypeKind;
 
 	/**
+	 * Value of literal type in case that kind is {@link TypeKind.LiteralType}
+	 */
+	v?: string | number | boolean;
+
+	/**
 	 * Constructors
 	 */
 	ctors?: Array<ConstructorDescriptionSource>;
@@ -117,4 +122,10 @@ export interface TypePropertiesSource
 	 * Interface
 	 */
 	iface?: GetTypeCall;
+
+	/**
+	 * Type arguments
+	 * @description In case of generic type description
+	 */
+	args?: Array<GetTypeCall>;
 }

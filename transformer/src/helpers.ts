@@ -77,7 +77,7 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
  * Check that Type is native type (string, number, boolean, ...)
  * @param type
  */
-export function isNativeType(type: ts.Type)
+export function isNativeType(type: ts.Type): boolean
 {
 	return (type as any)["intrinsicName"] !== undefined;
 

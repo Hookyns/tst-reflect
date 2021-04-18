@@ -1,6 +1,6 @@
 {
   "name": "tst-reflect-transformer",
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "TypeScript Transformer for Runtime Types & Reflection",
   "main": "index.js",
   "scripts": {
@@ -28,7 +28,7 @@
     "@types/node": "^14.0.0"
   },
   "dependencies": {
-    "tst-reflect": "^0.2.1",
+    "tst-reflect": "^0.3.2",
     "typescript": "^4.0.0"
   },
   "repository": {

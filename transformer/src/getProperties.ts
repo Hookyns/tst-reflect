@@ -7,10 +7,11 @@ import {getDecorators}                                from "./getDecorators";
 /**
  * Return properties of type
  * @param symbol
+ * @param type
  * @param checker
  * @param sourceFileContext
  */
-export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChecker, sourceFileContext: SourceFileContext): Array<PropertyDescriptionSource> | undefined
+export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, checker: ts.TypeChecker, sourceFileContext: SourceFileContext): Array<PropertyDescriptionSource> | undefined
 {
 	if (symbol?.members)
 	{
@@ -23,6 +24,21 @@ export function getProperties(symbol: ts.Symbol | undefined, checker: ts.TypeChe
 					n: memberSymbol.escapedName.toString(),
 					t: getTypeCall(memberSymbol, getType(memberSymbol, checker), checker, sourceFileContext),
 					d: getDecorators(memberSymbol, checker)
+				};
+			});
+
+		return properties.length ? properties : undefined;
+	}
+	
+	// If type is Array
+	const resolvedTypeArguments: Array<ts.Type> = (type as any).resolvedTypeArguments;
+	
+	if (resolvedTypeArguments)
+	{
+		const properties = resolvedTypeArguments.map((type: ts.Type, index: number) => {
+				return {
+					n: index.toString(),
+					t: getTypeCall(undefined, type, checker, sourceFileContext)
 				};
 			});
 
