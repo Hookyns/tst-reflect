@@ -1,4 +1,4 @@
-const PACKAGE_ID: string = "tst-reflect"﻿
+const PACKAGE_ID: string = "tst-reflect"
 
 /**
  * Kind of type
@@ -429,9 +429,9 @@ class TypeActivator extends Type
 /**
  * Returns Type of generic parameter
  */
-export function getType<T>(): Type
+export function getType<T>(): Type | undefined
 /** @internal */
-export function getType<T>(description?: TypeProperties | number, typeId?: number): Type
+export function getType<T>(description?: TypeProperties | number, typeId?: number): Type | undefined
 {
 	// Return type from storage
 	if (typeof description == "number")
@@ -453,7 +453,7 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 		return type;
 	}
 
-	throw new Error(`Cannot be called. Call of this function should be replaced by Type while TS compilation. Check if '${PACKAGE_ID}' transformer is used.`);
+	return undefined;
 }
 
 getType.__tst_reflect__ = true
