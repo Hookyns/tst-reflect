@@ -3,7 +3,7 @@
   "version": "0.3.0",
   "description": "Runtime of TypeScript Transformer for Runtime Types & Reflection",
   "main": "reflect.js",
-  "type": "reflect.ts",
+  "types": "reflect.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "npx tsc"
