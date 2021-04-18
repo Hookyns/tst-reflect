@@ -62,6 +62,11 @@ class ServiceProvider
 interface IPrinter {
 	printHelloWorld();
 	print(...args: any[]);
+
+	/**
+	 * @reflectGeneric
+	 * @param args
+	 */
 	printType<T>(...args: any[]);
 }
 

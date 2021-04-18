@@ -14,7 +14,8 @@
     ]
   },
   "include": [
+    "logger.ts"
 //    "example1.ts"
-    "./**/*.ts"
+//    "./**/*.ts"
   ]
 }
