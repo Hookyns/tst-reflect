@@ -201,7 +201,7 @@ export class Type
 		}
 
 		this._name = description.n || "";
-		this._fullName = description.fn || "";
+		this._fullName = description.fn || description.n || "";
 		this._kind = description.k;
 		this._constructors = description.ctors?.map(Type.mapConstructors) || [];
 		this._properties = description.props?.map(Type.mapProperties) || [];
