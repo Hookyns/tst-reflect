@@ -23,7 +23,25 @@ export enum TypeKind
 	/**
 	 * Container for other types in case of types union or intersection
 	 */
-	Container
+	Container,
+
+	/**
+	 * Type reference created during type checking
+	 * @description Usually Array<...>, ReadOnly<...> etc.
+	 */
+	TransientTypeReference,
+
+	/**
+	 * Some specific object
+	 * @description Eg. "{ foo: string, bar: boolean }"
+	 */
+	Object,
+
+	/**
+	 * Some subtype
+	 * @description Eg. type Foo = "hello world" | "hello". String "hello world" is literal type and it is subtype of string.
+	 */
+	LiteralType,
 }
 
 /**
@@ -143,6 +161,8 @@ export interface TypeProperties
 	ctor?: () => Function;
 	bt?: Type;
 	iface?: Type;
+	v?: any
+	args?: Array<Type>
 }
 
 const typesMetaCache: { [key: number]: Type } = {};
@@ -166,6 +186,8 @@ export class Type
 	private readonly _constructors: Array<Constructor>;
 	private readonly _baseType?: Type;
 	private readonly _interface?: Type;
+	private readonly _literalValue?: any;
+	private readonly _typeArgs: Array<Type>;
 
 	/**
 	 * Internal Type constructor
@@ -187,10 +209,11 @@ export class Type
 		this._ctor = description.ctor;
 		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = description.iface;
-
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
 		this._types = description.types;
+		this._literalValue = description.v;
+		this._typeArgs = description.args || [];
 	}
 
 	/**
@@ -250,7 +273,7 @@ export class Type
 	/**
 	 * Returns a value indicating whether the Type is container for unified Types or not
 	 */
-	get isUnion(): boolean
+	get union(): boolean
 	{
 		return this._isUnion;
 	}
@@ -259,7 +282,7 @@ export class Type
 	/**
 	 * Returns a value indicating whether the Type is container for intersecting Types or not
 	 */
-	get isIntersection(): boolean
+	get intersection(): boolean
 	{
 		return this._isIntersection;
 	}
@@ -348,6 +371,38 @@ export class Type
 		return this.kind == TypeKind.Interface;
 	}
 
+	/**
+	 * Returns a value indicating whether the Type is an literal or not
+	 */
+	isLiteral(): boolean
+	{
+		return this._kind == TypeKind.LiteralType;
+	}
+
+	/**
+	 * Get underlying value in case of literal type
+	 */
+	getLiteralValue(): any
+	{
+		return this._literalValue;
+	}
+
+	/**
+	 * Returns a value indicating whether the Type is an object literal or not
+	 */
+	isObjectLiteral(): boolean
+	{
+		return this._kind == TypeKind.LiteralType;
+	}
+
+	/**
+	 * Return type arguments in case of generic type
+	 */
+	getTypeArguments(): Array<Type>
+	{
+		return this._typeArgs;
+	}
+
 	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns constructor description when Type is a class
@@ -397,7 +452,7 @@ export class Type
 	isAssignableTo(target: Type): boolean
 	{
 		let tmpType: Type | undefined = this;
-		
+
 		do
 		{
 			if (target.fullName == tmpType.fullName)
@@ -408,7 +463,7 @@ export class Type
 			tmpType = tmpType.baseType
 		}
 		while (tmpType !== undefined);
-		
+
 		return false;
 	}
 }
