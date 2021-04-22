@@ -4,7 +4,37 @@
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
-This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working at runtime, providing meta data about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
+This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working at runtime, providing metadata about types such as list of properties and their types, list of constructors
+and their parameters and their types and much more.
+
+**Working runtime generics!**
+
+Simple example:
+
+```typescipt
+import { getType } from "tst-reflect";
+
+function inferType<TType>() {
+    return getType<TType>().name;
+}
+
+const variable = 5;
+inferType<typeof variable>(); // "number" - but it is and number literal with value 5, more info in docs
+```
+
+or
+
+```typescipt
+import { getType } from "tst-reflect";
+
+/** @reflectGeneric */
+function inferType<TType>(val: TType) {
+    return getType<TType>().name;
+}
+
+const variable = 5;
+inferType(variable); // "number"; thanks to @reflect generic, you don't have to pass generic param, but it is not recomended.
+```
 
 More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder too.
 
@@ -29,7 +59,8 @@ Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
 }
 ```
 
-and with Webpack
+or with Webpack
+
 ```javascript
 {
     test: /\.(ts|tsx)$/,
@@ -52,89 +83,109 @@ To get `Type` instance, just call `getType<InterfaceOrClassOrSomeType>()`.
  * Object representing TypeScript type in memory
  */
 export declare class Type {
-    /**
-     * Returns a value indicating whether the Type is container for unified Types or not
-     */
-    get isUnion(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is container for intersecting Types or not
-     */
-    get isIntersection(): boolean;
-
-    /**
-     * List of underlying types in case Type is union or intersection
-     */
-    get types(): Array<Type> | undefined;
-
-    /**
-     * Constructor function in case that Type is class
-     */
-    get ctor(): Function | undefined;
-
+	/**
+	 * Returns a value indicating whether the Type is container for unified Types or not
+	 */
+	get union(): boolean;
+	
+	/**
+	 * Returns a value indicating whether the Type is container for intersecting Types or not
+	 */
+	get intersection(): boolean;
+	
+	/**
+	 * List of underlying types in case Type is union or intersection
+	 */
+	get types(): Array<Type> | undefined;
+	
+	/**
+	 * Constructor function in case Type is class
+	 */
+	get ctor(): Function | undefined;
+	
 	/**
 	 * Base type
 	 * @description Base type from which this type extends from or undefined if type is Object.
 	 */
 	get baseType(): Type | undefined;
-
-    /**
-     * Get type full-name
-     * @description Contains file path base to project root. It is unique identifier.
-     */
-    get fullName(): string;
-
-    /**
-     * Get type name
-     */
-    get name(): string;
-
-    /**
-     * Get kind of type
-     */
-    get kind(): TypeKind;
-
-    /**
-     * Returns true if types are equals
-     * @param type
-     */
-    is(type: Type): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is a class or not
-     */
-    isClass(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is a interface or not
-     */
-    isInterface(): boolean;
-
-    /**
-     * Returns constructor description when Type is a class
-     */
-    getConstructors(): Array<Constructor> | undefined;
-
+	
+	/**
+	 * Get type full-name
+	 * @description Contains file path base to project root
+	 */
+	get fullName(): string;
+	
+	/**
+	 * Get type name
+	 */
+	get name(): string;
+	
+	/**
+	 * Get kind of type
+	 */
+	get kind(): TypeKind;
+	
+	/**
+	 * Returns true if types are equals
+	 * @param type
+	 */
+	is(type: Type): boolean;
+	
+	/**
+	 * Returns a value indicating whether the Type is a class or not
+	 */
+	isClass(): boolean;
+	
+	/**
+	 * Returns a value indicating whether the Type is a interface or not
+	 */
+	isInterface(): boolean;
+	
+	/**
+	 * Returns a value indicating whether the Type is an literal or not
+	 */
+	isLiteral(): boolean;
+	
+	/**
+	 * Get underlying value in case of literal type
+	 */
+	getLiteralValue(): any;
+	
+	/**
+	 * Returns a value indicating whether the Type is an object literal or not
+	 */
+	isObjectLiteral(): boolean;
+	
+	/**
+	 * Return type arguments in case of generic type
+	 */
+	getTypeArguments(): Array<Type>;
+	
+	/**
+	 * Returns constructor description when Type is a class
+	 */
+	getConstructors(): Array<Constructor> | undefined;
+	
 	/**
 	 * Returns interface which this type implements
 	 */
 	getInterface(): Type | undefined;
-
-    /**
-     * Returns array of properties
-     */
-    getProperties(): Array<Property>;
-
-    /**
-     * Returns array of decorators
-     */
-    getDecorators(): Array<Decorator>;
-
-    /**
-     * Returns true if this type is assignable to target type
-     * @param target
-     */
-    isAssignableTo(target: Type): boolean;
+	
+	/**
+	 * Returns array of properties
+	 */
+	getProperties(): Array<Property>;
+	
+	/**
+	 * Returns array of decorators
+	 */
+	getDecorators(): Array<Decorator>;
+	
+	/**
+	 * Returns true if this type is assignable to target type
+	 * @param target
+	 */
+	isAssignableTo(target: Type): boolean;
 }
 ```
 
