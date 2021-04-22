@@ -6,6 +6,7 @@ import {getDecorators}                                       from "./getDecorato
 import {getProperties}                                       from "./getProperties";
 import {getConstructors}                                     from "./getConstructors";
 import getTypeCall                                           from "./getTypeCall";
+import getLiteralName                                        from "./getLiteralName";
 
 /**
  * Return getter (arrow function/lambda) for runtime type's Ctor.
@@ -53,6 +54,7 @@ export function getTypeDescription(
 	{
 		return {
 			k: TypeKind.LiteralType,
+			n: getLiteralName(type),
 			v: (type as any).value,
 		};
 	}
