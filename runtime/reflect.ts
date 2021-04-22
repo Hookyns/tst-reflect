@@ -392,7 +392,7 @@ export class Type
 	 */
 	isObjectLiteral(): boolean
 	{
-		return this._kind == TypeKind.LiteralType;
+		return this._kind == TypeKind.Object;
 	}
 
 	/**
