@@ -25,7 +25,7 @@ export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined
 
 	if (!typePropertiesObjectLiteral)
 	{
-		const props = getTypeDescription(symbol, type, checker, sourceFileContext, typeCtor);
+		const props = getTypeDescription(type, symbol, checker, sourceFileContext, typeCtor);
 		typePropertiesObjectLiteral = createValueExpression(props) as ts.ObjectLiteralExpression;
 	}
 

@@ -30,8 +30,8 @@ function createCtorGetter(typeCtor: ts.EntityName | undefined)
  * @param typeCtor
  */
 export function getTypeDescription(
-	symbol: ts.Symbol | undefined,
 	type: ts.Type,
+	symbol: ts.Symbol | undefined,
 	checker: ts.TypeChecker,
 	sourceFileContext: SourceFileContext,
 	typeCtor?: ts.EntityName
@@ -49,14 +49,6 @@ export function getTypeDescription(
 		};
 	}
 
-	if (type.flags == ts.TypeFlags.Object)
-	{
-		return {
-			k: TypeKind.Object,
-			props: getProperties(symbol, type, checker, sourceFileContext)
-		};
-	}
-
 	if ((type.flags & ts.TypeFlags.Literal) != 0)
 	{
 		return {
@@ -67,51 +59,67 @@ export function getTypeDescription(
 
 	let typeSymbol = type.getSymbol();
 
-	if (symbol?.valueDeclaration && (
-		ts.isPropertyDeclaration(symbol.valueDeclaration)
-		|| ts.isPropertySignature(symbol.valueDeclaration)
-		|| ts.isVariableDeclaration(symbol.valueDeclaration)
-	))
+	if (!symbol && typeSymbol)
 	{
-		if (symbol.valueDeclaration.type)
+		symbol = typeSymbol;
+	}
+
+	if (symbol)
+	{
+		if (symbol.flags == ts.SymbolFlags.TypeLiteral && type.flags == ts.TypeFlags.Object)
 		{
-			if (ts.isTypeReferenceNode(symbol.valueDeclaration.type)
-				&& typeSymbol && (typeSymbol.flags & ts.SymbolFlags.Transient) == ts.SymbolFlags.Transient)
+			return {
+				k: TypeKind.Object,
+				props: getProperties(symbol, type, checker, sourceFileContext)
+			};
+		}
+
+		if (symbol.valueDeclaration && (
+			ts.isPropertyDeclaration(symbol.valueDeclaration)
+			|| ts.isPropertySignature(symbol.valueDeclaration)
+			|| ts.isVariableDeclaration(symbol.valueDeclaration)
+		))
+		{
+			if (symbol.valueDeclaration.type)
 			{
-				return {
-					k: TypeKind.TransientTypeReference,
-					n: (symbol.valueDeclaration.type.typeName as any).escapedText,
-					args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
-						checker.getSymbolAtLocation(typeNode),
-						checker.getTypeAtLocation(typeNode),
-						checker,
-						sourceFileContext
-						)
-					) || [],
+				if (ts.isTypeReferenceNode(symbol.valueDeclaration.type)
+					&& typeSymbol && (typeSymbol.flags & ts.SymbolFlags.Transient) == ts.SymbolFlags.Transient)
+				{
+					return {
+						k: TypeKind.TransientTypeReference,
+						n: (symbol.valueDeclaration.type.typeName as any).escapedText,
+						args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
+							checker.getTypeAtLocation(typeNode),
+							checker.getSymbolAtLocation(typeNode),
+							checker,
+							sourceFileContext
+							)
+						) || [],
+					}
 				}
-			}
 
-			let isUnion = false, isIntersection = false
+				let isUnion = false, isIntersection = false
 
-			if (
-				(isUnion = ts.isUnionTypeNode(symbol.valueDeclaration.type))
-				|| (isIntersection = ts.isIntersectionTypeNode(symbol.valueDeclaration.type))
-			)
-			{
-				const types = symbol.valueDeclaration.type.types
-					.map(typeNode => getTypeCall(
-						checker.getSymbolAtLocation(typeNode),
-						checker.getTypeAtLocation(typeNode),
-						checker,
-						sourceFileContext
-						)
-					);
+				if (
+					(isUnion = ts.isUnionTypeNode(symbol.valueDeclaration.type))
+					|| (isIntersection = ts.isIntersectionTypeNode(symbol.valueDeclaration.type))
+				)
+				{
+					const types = symbol.valueDeclaration.type.types
+						.map(typeNode => getTypeCall(
+							checker.getTypeAtLocation(typeNode),
+							checker.getSymbolAtLocation(typeNode),
+							checker,
+							sourceFileContext
+							)
+						);
 
-				return {
-					k: TypeKind.Container,
-					types: types,
-					union: isUnion,
-					inter: isIntersection
+					return {
+						k: TypeKind.Container,
+						types: types,
+						union: isUnion,
+						inter: isIntersection
+					}
 				}
 			}
 		}
@@ -119,6 +127,14 @@ export function getTypeDescription(
 
 	if (!typeSymbol)
 	{
+		if (type.flags == ts.TypeFlags.Object)
+		{
+			return {
+				k: TypeKind.Object,
+				props: getProperties(symbol, type, checker, sourceFileContext)
+			};
+		}
+
 		throw new Error("Unable to resolve type's symbol.");
 	}
 
@@ -145,6 +161,7 @@ export function getTypeDescription(
 
 	if (ts.isClassDeclaration(declaration) || ts.isInterfaceDeclaration(declaration))
 	{
+		// extends & implements
 		if (declaration.heritageClauses)
 		{
 			const ext = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ExtendsKeyword)[0];
@@ -153,8 +170,8 @@ export function getTypeDescription(
 			if (ext)
 			{
 				properties.bt = getTypeCall(
-					checker.getSymbolAtLocation(ext.types[0]),
 					checker.getTypeAtLocation(ext.types[0]),
+					checker.getSymbolAtLocation(ext.types[0]),
 					checker,
 					sourceFileContext
 				);
@@ -162,8 +179,8 @@ export function getTypeDescription(
 			else if (impl)
 			{
 				properties.iface = getTypeCall(
-					checker.getSymbolAtLocation(impl.types[0]),
 					checker.getTypeAtLocation(impl.types[0]),
+					checker.getSymbolAtLocation(impl.types[0]),
 					checker,
 					sourceFileContext
 				);
