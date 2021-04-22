@@ -10,7 +10,7 @@
   "author": "Roman Jámbor",
   "license": "MIT",
   "dependencies": {
-    "tst-reflect": "^0.1.4"
+    "tst-reflect": "^0.3.3"
   },
   "devDependencies": {
     "@types/node": "^14.11.8",
