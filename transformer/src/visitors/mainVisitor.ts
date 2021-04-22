@@ -1,11 +1,10 @@
-import * as ts                        from "typescript";
-import {TYPE_ID_PROPERTY_NAME}        from "tst-reflect";
-import {getType}                      from "../helpers";
-import {declarationVisitor}           from "./declarationVisitor";
-import {Context}                      from "./Context";
-import {processGenericCallExpression} from "../processGenericCallExpression";
-import {processGetTypeCallExpression} from "../processGetTypeCallExpression";
-import {getError}                     from "../getError";
+import * as ts                                  from "typescript";
+import {TYPE_ID_PROPERTY_NAME}                  from "tst-reflect";
+import {getType, hasReflectJsDocWithStateStore} from "../helpers";
+import {declarationVisitor}                     from "./declarationVisitor";
+import {Context}                                from "./Context";
+import {processGenericCallExpression}           from "../processGenericCallExpression";
+import {processGetTypeCallExpression}           from "../processGetTypeCallExpression";
 
 /**
  * Main visitor, splitting visitation into specific parts
@@ -51,14 +50,18 @@ export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefine
 			}
 		}
 		// Call to something else, generic function or method; (can be call on property access)
-		else if (node.typeArguments?.length)
+		else
 		{
-			const res = processGenericCallExpression(node, context);
+			const type = context.checker.getTypeAtLocation(node.expression);
 
-			if (res)
+			if (node.typeArguments?.length || hasReflectJsDocWithStateStore(context.checker.getTypeAtLocation(node.expression)))
 			{
-				node = res;
-				// return res;
+				const res = processGenericCallExpression(node, type, context);
+
+				if (res)
+				{
+					node = res;
+				}
 			}
 		}
 	}

@@ -35,4 +35,9 @@ export interface State
 	 * Number of declared parameters/expected arguments
 	 */
 	declaredParametersCount?: number;
+
+	/**
+	 * Requested generic arguments passing
+	 */
+	requestedGenericsReflection?: boolean;
 }

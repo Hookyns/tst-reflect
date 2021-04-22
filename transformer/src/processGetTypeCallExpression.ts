@@ -45,8 +45,8 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 		}
 
 		return getTypeCall(
-			genericTypeSymbol,
 			genericType,
+			genericTypeSymbol,
 			context.checker,
 			context.sourceFileContext,
 			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined

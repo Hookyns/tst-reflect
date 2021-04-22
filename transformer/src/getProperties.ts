@@ -22,7 +22,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, chec
 			.map((memberSymbol: ts.Symbol) => {
 				return {
 					n: memberSymbol.escapedName.toString(),
-					t: getTypeCall(memberSymbol, getType(memberSymbol, checker), checker, sourceFileContext),
+					t: getTypeCall(getType(memberSymbol, checker), memberSymbol, checker, sourceFileContext),
 					d: getDecorators(memberSymbol, checker)
 				};
 			});
@@ -38,7 +38,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, chec
 		const properties = resolvedTypeArguments.map((type: ts.Type, index: number) => {
 				return {
 					n: index.toString(),
-					t: getTypeCall(undefined, type, checker, sourceFileContext)
+					t: getTypeCall(type, undefined, checker, sourceFileContext)
 				};
 			});
 

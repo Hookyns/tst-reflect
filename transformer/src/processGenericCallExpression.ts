@@ -4,11 +4,8 @@ import {State, STATE_PROP, StateNode}             from "./visitors/State";
 import {genericCalleeDeclarationExploringVisitor} from "./visitors/genericCalleeDeclarationExploringVisitor";
 import getTypeCall                                from "./getTypeCall";
 
-export function processGenericCallExpression(node: ts.CallExpression, context: Context): ts.CallExpression | undefined
+export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
-	// Function/method type
-	const fncType = context.checker.getTypeAtLocation(node.expression);
-
 	// Method/function declaration
 	const declaration = fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
 
@@ -27,19 +24,34 @@ export function processGenericCallExpression(node: ts.CallExpression, context: C
 
 		for (let genericParamName of state.usedGenericParameters)
 		{
-			const genericTypeNode = node.typeArguments![state.indexesOfGenericParameters[i]];
+			let genericTypeNode = node.typeArguments?.[state.indexesOfGenericParameters[i]];
 			let typePropertyVal: ts.Expression;
+			let genericType;
 
-			if (genericTypeNode)
+			if (genericTypeNode == undefined && state.requestedGenericsReflection)
 			{
-				const genericType = context.checker.getTypeAtLocation(genericTypeNode);
+				const argsIndex = declaration.parameters
+					.findIndex(p => p.type && ts.isTypeReferenceNode(p.type) && p.type.typeName.getText() == genericParamName);
+
+				genericType = context.checker.getTypeAtLocation(node.arguments[argsIndex]);
+				let symbol = context.checker.getSymbolAtLocation(node.arguments[0]);
+
+				if (symbol)
+				{
+					genericTypeNode = (symbol.valueDeclaration as any)?.type; // TODO: This is not enough. This works only when the type is declared explicitly. 
+				}
+			}
+
+			if (genericTypeNode || genericType)
+			{
+				genericType ??= context.checker.getTypeAtLocation(genericTypeNode!);
 				const genericTypeSymbol = genericType.getSymbol();
 				typePropertyVal = getTypeCall(
-					genericTypeSymbol,
 					genericType,
+					genericTypeSymbol,
 					context.checker,
 					context.sourceFileContext,
-					ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
+					genericTypeNode && ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 				);
 			}
 			else

@@ -2,6 +2,7 @@ import * as ts                        from "typescript";
 import {Context}                      from "./Context";
 import {State, STATE_PROP, StateNode} from "./State";
 import {isGetTypeCall}                from "../isGetTypeCall";
+import {REFLECT_GENERIC_DECORATOR}    from "tst-reflect/reflect";
 
 /**
  * This visitor is just for exploration of declaration, not for modifications.
@@ -15,10 +16,32 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 		return;
 	}
 
+	const symbol = context.checker.getTypeAtLocation(node).getSymbol();
+
+	if (symbol !== undefined)
+	{
+		const jsdoc = symbol.getJsDocTags();
+
+		// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
+		if (jsdoc.some(tag => tag.name === REFLECT_GENERIC_DECORATOR))
+		{
+			const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
+			const state: State = {
+				usedGenericParameters: genericParams,
+				indexesOfGenericParameters: genericParams.map((_, index) => index),
+				declaredParametersCount: node.parameters.length,
+				requestedGenericsReflection: true
+			};
+
+			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
+			(node as unknown as StateNode)[STATE_PROP] = state;
+
+			return state;
+		}
+	}
+
 	context.usedGenericParameters = [];
 
-	// TODO: Debug; node.name.escapedText == "printType"; 
-	
 	// Set new visitor into context
 	const oldVisitor = context.visitor;
 	context.visitor = (node) => exploreGetTypeCalls(node, context);

@@ -11,7 +11,7 @@ export type GetTypeCall = ts.CallExpression;
  */
 export interface SourceFileContext
 {
-	typesProperties: { [typeId: number]: ts.ObjectLiteralExpression };
+	typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>;
 	visitor: ts.Visitor;
 	getTypeIdentifier?: ts.Identifier;
 }
@@ -112,7 +112,7 @@ export interface TypePropertiesSource
 	 * Constructor return function
 	 */
 	ctor?: ts.ArrowFunction;
-	
+
 	/**
 	 * Base type
 	 */

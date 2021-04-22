@@ -17,5 +17,9 @@
     "logger.ts"
 //    "example1.ts"
 //    "./**/*.ts"
-  ]
+  ],
+  "reflection": {
+//    "metadata": false,
+    "debugMode": true
+  }
 }

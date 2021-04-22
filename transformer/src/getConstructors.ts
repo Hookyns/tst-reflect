@@ -19,7 +19,7 @@ export function getConstructors(type: ts.Type, checker: ts.TypeChecker, sourceFi
 
 			params.push({
 				n: paramSymbol.getName(),
-				t: getTypeCall(paramSymbol, paramType, checker, sourceFileContext)
+				t: getTypeCall(paramType, paramSymbol, checker, sourceFileContext)
 			});
 		}
 

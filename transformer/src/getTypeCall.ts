@@ -13,7 +13,7 @@ const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts
  * @param sourceFileContext
  * @param typeCtor
  */
-export default function getTypeCall(symbol: ts.Symbol | undefined, type: ts.Type, checker: ts.TypeChecker, sourceFileContext: SourceFileContext, typeCtor?: ts.EntityName): GetTypeCall
+export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, checker: ts.TypeChecker, sourceFileContext: SourceFileContext, typeCtor?: ts.EntityName): GetTypeCall
 {
 	const id: number | undefined = (type.symbol as any)?.["id"];
 	let typePropertiesObjectLiteral: ts.ObjectLiteralExpression | undefined = undefined;
@@ -31,7 +31,7 @@ export default function getTypeCall(symbol: ts.Symbol | undefined, type: ts.Type
 
 	if (id && sourceFileContext)
 	{
-		sourceFileContext.typesProperties[id] = typePropertiesObjectLiteral;
+		sourceFileContext.typesProperties.push([id, typePropertiesObjectLiteral]);
 
 		// Just call getType() with typeId; Type is gonna be take from storage
 		return ts.factory.createCallExpression(sourceFileContext?.getTypeIdentifier!, [], [ts.factory.createNumericLiteral(id)]);
