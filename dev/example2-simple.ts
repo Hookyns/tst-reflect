@@ -1,27 +1,47 @@
 import {getType, Type}     from "tst-reflect";
 import {IService, Service} from "./dependency";
 
-class ServiceCollection {
+class ServiceCollection
+{
 	public readonly services: Array<[Type, any]> = [];
 
-	addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any) {
+	addTransient<TDep, TImp = any>(dependencyType?: Type, dependencyImplementation?: Type | any)
+	{
 		this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
 	}
 }
 
-class ServiceProvider {
-	constructor(serviceCollection: ServiceCollection) { /* ... */ }
-
-	getService<TDependency>(type?: Type): TDependency {
-		type ??= getType<TDependency>();
-		// ...
-		return (null as TDependency);
-	}
+class ServiceProvider
+{
+	private serviceCollection: ServiceCollection;
 	
-	getServiceGenericOnly<TDependency = undefined>(): TDependency {
-		const type = getType<TDependency>();
-		// ...
-		return (null as TDependency);
+	constructor(serviceCollection: ServiceCollection)
+	{
+		this.serviceCollection = serviceCollection;
+	}
+
+	getService<TDependency>(type?: Type): TDependency
+	{
+		type ??= getType<TDependency>();
+		
+		const arr = this.serviceCollection.services.find(([dep]) => dep.is(type));
+		const impl = arr[1];
+
+		if (!impl)
+		{
+			throw new Error(`No implementation registered for '${type.name}'`);
+		}
+		
+		if (impl instanceof Type) {
+			return Reflect.construct(impl.ctor, []);
+		}
+		
+		return impl;
+	}
+
+	getServiceGenericOnly<TDependency>(): TDependency
+	{
+		return this.getService(getType<TDependency>());
 	}
 }
 

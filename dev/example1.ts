@@ -1,5 +1,4 @@
 import {getType, Type}  from "tst-reflect";
-import {reflectGeneric} from "../runtime/reflect";
 
 class ServiceCollection
 {
@@ -70,10 +69,10 @@ interface IPrinter {
 	printType<T>(...args: any[]);
 }
 
-@reflectGeneric()
 abstract class BasePrinter implements IPrinter {
 	abstract printHelloWorld();
 	abstract print(...args: any[]);
+	/** @reflectGeneric */
 	abstract printType<T>(...args: any[]);
 }
 

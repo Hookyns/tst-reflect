@@ -1,5 +1,6 @@
 {
-  "name": "dev",
+  "private": true,
+  "name": "example1",
   "version": "0.0.1",
   "description": "Dev scripts",
   "main": "index.js",
@@ -11,9 +12,10 @@
   "license": "MIT",
   "devDependencies": {
     "typescript": "^4.0.3",
-    "ttypescript": "^1.5.10"
+    "ttypescript": "^1.5.12"
   },
   "dependencies": {
-    "tst-reflect": "^0.3.2"
+    "tst-reflect": "^0.3.2",
+    "tst-reflect-transformer": "^0.4.0"
   }
 }

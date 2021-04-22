@@ -11,7 +11,6 @@ export interface IService
 	prop: string | number;
 
 	whoAmI();
-
 	method2();
 }
 

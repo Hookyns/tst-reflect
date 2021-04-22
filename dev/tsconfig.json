@@ -14,12 +14,17 @@
     ]
   },
   "include": [
-    "logger.ts"
-//    "example1.ts"
+//    "logger.ts",
+//    "example1.ts",
+    "example2-simple.ts",
+    "dependency.ts",
 //    "./**/*.ts"
   ],
+  "exclude": [
+    "examples"
+  ],
   "reflection": {
-//    "metadata": false,
+    "metadata": false,
     "debugMode": true
   }
 }
