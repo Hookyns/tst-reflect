@@ -186,6 +186,21 @@ export declare class Type {
 	 * @param target
 	 */
 	isAssignableTo(target: Type): boolean;
+
+	/**
+	 * Check if this type is string
+	 */
+	isString(): boolean;
+
+	/**
+	 * Check if this type is number
+	 */
+	isNumber(): boolean;
+
+	/**
+	 * Check if this type is boolean
+	 */
+	isBoolean(): boolean;
 }
 ```
 

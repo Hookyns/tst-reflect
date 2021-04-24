@@ -466,6 +466,27 @@ export class Type
 
 		return false;
 	}
+
+	/**
+	 * Check if this type is string
+	 */
+	isString(): boolean {
+		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "string";
+	}
+
+	/**
+	 * Check if this type is number
+	 */
+	isNumber(): boolean {
+		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "number";
+	}
+
+	/**
+	 * Check if this type is boolean
+	 */
+	isBoolean(): boolean {
+		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "boolean";
+	}
 }
 
 class TypeActivator extends Type
