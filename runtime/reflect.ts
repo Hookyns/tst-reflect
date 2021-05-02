@@ -554,3 +554,8 @@ reflectGeneric.__tst_reflect__ = true;
  * Name of decorator or JSDoc comment marking method as it use type of generic parameter
  */
 export const REFLECT_GENERIC_DECORATOR = "reflectGeneric";
+
+/**
+ * Name of the getType() function
+ */
+export const GET_TYPE_FNC_NAME = "getType";
