@@ -423,15 +423,10 @@ and with Webpack
 ```javascript
 {
 	test: /\.(ts|tsx)$/,
-		loader
-:
-	require.resolve("awesome-typescript-loader"),
-		// or
-		loader
-:
-	require.resolve("ts-loader"),
-		options
-:
+	loader: require.resolve("awesome-typescript-loader"),
+	// or
+	loader: require.resolve("ts-loader"),
+	options:
 	{
 		compiler: "ttypescript"
 	}
