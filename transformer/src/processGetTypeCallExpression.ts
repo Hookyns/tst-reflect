@@ -9,19 +9,20 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 	// TODO: Use isGetTypeCall()
 	
 	// Add identifier into context; will be used for all calls
-	if (!context.sourceFileContext.getTypeIdentifier)
+	if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
 	{
-		context.sourceFileContext.getTypeIdentifier = node.expression as ts.Identifier;
+		console.log("tst-reflect: Identifier of existing getType() call stored inside context.");
 	}
 
 	let genericTypeNode = node.typeArguments?.[0];
 
 	if (!genericTypeNode)
 	{
+		// TODO: Allow calls like "getType(variable)"
 		throw getError(node, "Type argument of function getType<T>() is missing.");
 	}
 
-	let genericType = context.checker.getTypeAtLocation(genericTypeNode);
+	let genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
 
 	// Parameter is another generic type; replace by "__genericParam__.X", where X is name of generic parameter
 	if (genericType.flags == ts.TypeFlags.TypeParameter)
@@ -47,8 +48,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 		return getTypeCall(
 			genericType,
 			genericTypeSymbol,
-			context.checker,
-			context.sourceFileContext,
+			context,
 			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 		);
 	}

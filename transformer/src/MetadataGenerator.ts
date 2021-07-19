@@ -1,5 +1,41 @@
-import * as ts from "typescript";
-import * as fs from "fs";
+import * as ts             from "typescript";
+import * as fs             from "fs";
+import {nodeGenerator}     from "./NodeGenerator";
+import {GET_TYPE_FNC_NAME} from "tst-reflect/reflect";
+
+function replaceGetTypeIdentifiersVisitor(getTypeIdentifier: ts.Identifier, transformationContext: ts.TransformationContext): ts.Visitor
+{
+	return node => {
+		if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
+		{
+			return ts.factory.updateCallExpression(
+				node,
+				getTypeIdentifier,
+				node.typeArguments,
+				ts.visitNodes(node.arguments, replaceGetTypeIdentifiersVisitor(getTypeIdentifier, transformationContext))
+			);
+		}
+
+		return ts.visitEachChild(node, replaceGetTypeIdentifiersVisitor(getTypeIdentifier, transformationContext), transformationContext);
+	};
+
+
+	// return ts.visitEachChild(properties, node => {
+	// 	if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
+	// 	{
+	// 		arguments = ts.visitNodes(node.arguments, )
+	//		
+	// 		return ts.factory.updateCallExpression(
+	// 			node, 
+	// 			getTypeIdentifier, 
+	// 			node.typeArguments,
+	// 			replaceGetTypeIdentifiers(node.arguments, getTypeIdentifier, transformationContext) as NodeArray<Expression>
+	// 		);
+	// 	}
+	//
+	// 	return replaceGetTypeIdentifiers(node, getTypeIdentifier, transformationContext);
+	// }, transformationContext)
+}
 
 export default class MetadataGenerator
 {
@@ -21,48 +57,12 @@ export default class MetadataGenerator
 	public recreateLibFile()
 	{
 		this._tsPrinter = ts.createPrinter();
-		this._getTypeIdentifier = ts.factory.createIdentifier("getType");
+		const {statement, getTypeIdentifier} = nodeGenerator.createGetTypeImport();
+		this._getTypeIdentifier = getTypeIdentifier;
 
 		// SourceFile with import {getType} from "tst-reflect"
 		const initialSourceFile = ts.factory.createSourceFile([
-				// const {getType} = require("tst-reflect");
-				ts.factory.createVariableStatement(
-					undefined,
-					[
-						ts.factory.createVariableDeclaration(
-							ts.factory.createObjectBindingPattern([
-								ts.factory.createBindingElement(
-									undefined,
-									undefined,
-									this._getTypeIdentifier,
-									undefined
-								)
-							]),
-							undefined,
-							undefined,
-							ts.factory.createCallExpression(
-								ts.factory.createIdentifier("require"),
-								undefined,
-								[
-									ts.factory.createStringLiteral("tst-reflect")
-								]
-							)
-						)
-					])
-
-				// import {getType} from "tst-reflect"
-				// ts.factory.createImportDeclaration(
-				// 	undefined,
-				// 	undefined,
-				// 	ts.factory.createImportClause(
-				// 		false,
-				// 		undefined,
-				// 		ts.factory.createNamedImports([
-				// 			ts.factory.createImportSpecifier(undefined, this._getTypeIdentifier!)
-				// 		])
-				// 	),
-				// 	ts.factory.createStringLiteral("tst-reflect")
-				// )
+				statement
 			],
 			ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
 			ts.NodeFlags.None
@@ -75,18 +75,29 @@ export default class MetadataGenerator
 	/**
 	 * Add types properties into metadata library.
 	 * @param typesProperties
+	 * @param typesCtors
+	 * @param transformationContext
 	 */
-	addTypesProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>)
+	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ts.EntityName>, transformationContext: ts.TransformationContext)
 	{
 		if (!this._getTypeIdentifier || !this._tsPrinter)
 		{
 			throw new Error("TransformerContext has not been initiated yet.");
 		}
 
-		const propertiesStatements = [];
+		const propertiesStatements: Array<ts.Statement> = [];
 
+		for (let ctor of typesCtors)
+		{
+			propertiesStatements.push(nodeGenerator.createCtorImport(ctor));
+		}
+		
 		for (let [typeId, properties] of typesProperties)
 		{
+			// Replace all getType identifier by metadata getType identifier
+			properties = ts.visitEachChild(properties, replaceGetTypeIdentifiersVisitor(this._getTypeIdentifier, transformationContext), transformationContext) as ts.ObjectLiteralExpression;
+			// properties = replaceGetTypeIdentifiers(properties, this._getTypeIdentifier, transformationContext) as ts.ObjectLiteralExpression;
+
 			propertiesStatements.push(ts.factory.createExpressionStatement(
 				ts.factory.createCallExpression(this._getTypeIdentifier, [], [properties, ts.factory.createNumericLiteral(typeId)])
 			));

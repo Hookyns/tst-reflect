@@ -1,20 +1,41 @@
 import * as ts          from "typescript";
 import {TypeKind, Type} from "tst-reflect";
+import type {Context}   from "./visitors/Context";
 
 /**
  * @internal
  */
 export type GetTypeCall = ts.CallExpression;
 
+// /**
+//  * @internal
+//  */
+// export interface SourceFileContext
+// {
+// 	typesMetadata: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>;
+// 	visitor: ts.Visitor;
+// 	getTypeIdentifier?: ts.Identifier;
+// }
+
 /**
  * @internal
  */
-export interface SourceFileContext
-{
-	typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>;
-	visitor: ts.Visitor;
-	getTypeIdentifier?: ts.Identifier;
-}
+export type TransformerVisitor = (node: ts.Node, context: Context) => ts.Node | undefined;
+
+/**
+ * @internal
+ */
+export type MetadataEntry = [number, ts.ObjectLiteralExpression];
+
+/**
+ * @internal
+ */
+export type MetadataLibrary = Array<MetadataEntry>;
+
+/**
+ * @internal
+ */
+export type CtorsLibrary = Array<ts.EntityName>;
 
 /**
  * @internal

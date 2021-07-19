@@ -45,7 +45,10 @@ export class Service implements IService
 	static staticProp: string;
 }
 
-
+/**
+ * @reflectGeneric
+ * @param val
+ */
 export function myFunc2<T, U = any>(val: U)
 {
 	const t = getType<T>();

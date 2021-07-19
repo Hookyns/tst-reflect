@@ -16,7 +16,7 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 		return;
 	}
 
-	const symbol = context.checker.getTypeAtLocation(node).getSymbol();
+	const symbol = context.typeChecker.getTypeAtLocation(node).getSymbol();
 
 	if (symbol !== undefined)
 	{
@@ -39,34 +39,57 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 			return state;
 		}
 	}
+	
+	context.createNestedContext(exploreGetTypeCalls, context => {
+		context.visitEachChild(node);
+		
+		// If something found
+		if (context.usedGenericParameters?.length)
+		{
+			const genericParams = node.typeParameters!.map(p => p.name.escapedText.toString());
+			const state: State = {
+				usedGenericParameters: context.usedGenericParameters,
+				indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
+				declaredParametersCount: node.parameters.length
+			};
+			context.usedGenericParameters = undefined;
 
-	context.usedGenericParameters = [];
+			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
+			(node as unknown as StateNode)[STATE_PROP] = state;
 
-	// Set new visitor into context
-	const oldVisitor = context.visitor;
-	context.visitor = (node) => exploreGetTypeCalls(node, context);
+			return state;
+		}
+	});
 
-	ts.visitEachChild(node, context.visitor, context.transformationContext);
+	// context.usedGenericParameters = [];
+	
+	// context.visitEachChildNestContext(node, exploreGetTypeCalls);
 
-	// Set old visitor back
-	context.visitor = oldVisitor;
+	// // Set new visitor into context
+	// const oldVisitor = context.visitor;
+	// context.visitor = (node) => exploreGetTypeCalls(node, context);
+	//
+	// ts.visitEachChild(node, context.visitor, context.transformationContext);
+	//
+	// // Set old visitor back
+	// context.visitor = oldVisitor;
 
-	// If something found
-	if (context.usedGenericParameters.length)
-	{
-		const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
-		const state: State = {
-			usedGenericParameters: context.usedGenericParameters,
-			indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
-			declaredParametersCount: node.parameters.length
-		};
-		context.usedGenericParameters = undefined;
-
-		// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
-		(node as unknown as StateNode)[STATE_PROP] = state;
-
-		return state;
-	}
+	// // If something found
+	// if (context.usedGenericParameters.length)
+	// {
+	// 	const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
+	// 	const state: State = {
+	// 		usedGenericParameters: context.usedGenericParameters,
+	// 		indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
+	// 		declaredParametersCount: node.parameters.length
+	// 	};
+	// 	context.usedGenericParameters = undefined;
+	//
+	// 	// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
+	// 	(node as unknown as StateNode)[STATE_PROP] = state;
+	//
+	// 	return state;
+	// }
 
 	// Store empty state; means it was visited
 	(node as unknown as StateNode)[STATE_PROP] = {};
@@ -84,7 +107,7 @@ function exploreGetTypeCalls(node: ts.Node, context: Context)
 
 	if ((genericTypeNode = isGetTypeCall(node, context)) !== false)
 	{
-		let genericType = context.checker.getTypeAtLocation(genericTypeNode);
+		let genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
 
 		// Parameter is another generic type
 		if (genericType.flags == ts.TypeFlags.TypeParameter

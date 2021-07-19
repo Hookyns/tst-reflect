@@ -2,9 +2,7 @@ import * as ts                               from "typescript";
 import * as path                             from "path";
 import {REFLECT_GENERIC_DECORATOR, TypeKind} from "tst-reflect";
 import {State, STATE_PROP, StateNode}        from "./visitors/State";
-import {transformerContext}                  from "./TransformerContext";
-
-const rootDir = transformerContext.config.rootDir;
+import TransformerContext                  from "./TransformerContext";
 
 /**
  * Name of parameter for method/function declarations containing geneic getType() calls
@@ -64,11 +62,12 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 		return undefined;
 	}
 
+	const root = TransformerContext.instance.config.rootDir;
 	let filePath = typeSymbol.declarations[0].getSourceFile().fileName;
 
-	if (rootDir)
+	if (root)
 	{
-		filePath = path.join(path.relative(filePath, rootDir), path.basename(filePath));
+		filePath = path.join(path.relative(filePath, root), path.basename(filePath));
 	}
 
 	return filePath + ":" + typeSymbol.getName()

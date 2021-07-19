@@ -33,8 +33,8 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 				const argsIndex = declaration.parameters
 					.findIndex(p => p.type && ts.isTypeReferenceNode(p.type) && p.type.typeName.getText() == genericParamName);
 
-				genericType = context.checker.getTypeAtLocation(node.arguments[argsIndex]);
-				let symbol = context.checker.getSymbolAtLocation(node.arguments[0]);
+				genericType = context.typeChecker.getTypeAtLocation(node.arguments[argsIndex]);
+				let symbol = context.typeChecker.getSymbolAtLocation(node.arguments[0]);
 
 				if (symbol)
 				{
@@ -44,13 +44,12 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 
 			if (genericTypeNode || genericType)
 			{
-				genericType ??= context.checker.getTypeAtLocation(genericTypeNode!);
+				genericType ??= context.typeChecker.getTypeAtLocation(genericTypeNode!);
 				const genericTypeSymbol = genericType.getSymbol();
 				typePropertyVal = getTypeCall(
 					genericType,
 					genericTypeSymbol,
-					context.checker,
-					context.sourceFileContext,
+					context,
 					genericTypeNode && ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 				);
 			}

@@ -1,7 +1,7 @@
-import * as ts                 from "typescript";
-import {TYPE_ID_PROPERTY_NAME} from "tst-reflect";
-import {Context}               from "./visitors/Context";
-import {getError}              from "./getError";
+import * as ts                                    from "typescript";
+import {GET_TYPE_FNC_NAME, TYPE_ID_PROPERTY_NAME} from "tst-reflect";
+import {Context}                                  from "./visitors/Context";
+import {getError}                                 from "./getError";
 
 /**
  * Function detecting right getType() call
@@ -14,19 +14,19 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 	if (ts.isCallExpression(node))
 	{
 		// Return if it's not getType()
-		if ((node.expression as any).escapedText != "getType")
+		if ((node.expression as any).escapedText != GET_TYPE_FNC_NAME)
 		{
 			return false;
 		}
 
 		// Add identifier into context; will be used for all calls
-		if (!context.sourceFileContext.getTypeIdentifier)
+		if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
 		{
-			context.sourceFileContext.getTypeIdentifier = node.expression as ts.Identifier;
+			console.log("tst-reflect: Identifier of existing getType() call stored inside context.");
 		}
 
 		// Function/method type
-		const fncType = context.checker.getTypeAtLocation(node.expression);
+		const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
 		// Check if it's our getType()
 		if (!fncType.getProperty(TYPE_ID_PROPERTY_NAME))

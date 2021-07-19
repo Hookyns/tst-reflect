@@ -1,12 +1,27 @@
 import * as ts                      from "typescript";
-import * as fs                      from "fs";
 import {ConfigObject, createConfig} from "./config";
 import MetadataGenerator            from "./MetadataGenerator";
 
-class TransformerContext
+const InstanceKey: symbol = Symbol.for("tst-reflect.TransformerContext");
+let instance: TransformerContext = (global as any)[InstanceKey] || null;
+
+export default class TransformerContext
 {
 	private _config?: ConfigObject;
 	private _metadataGenerator?: MetadataGenerator;
+
+	/**
+	 * Get singleton instance of TransformerContext.
+	 */
+	static get instance(): TransformerContext
+	{
+		if (!instance)
+		{
+			instance = Reflect.construct(TransformerContext, [], Activator);
+		}
+
+		return instance;
+	}
 
 	/**
 	 * Metadata library generator.
@@ -17,7 +32,7 @@ class TransformerContext
 	}
 
 	/**
-	 * Configuration object
+	 * Configuration object.
 	 */
 	get config(): ConfigObject
 	{
@@ -30,7 +45,19 @@ class TransformerContext
 	}
 
 	/**
-	 * Init context
+	 * Protected constructor.
+	 * @protected
+	 */
+	protected constructor()
+	{
+		if (new.target != Activator)
+		{
+			throw new Error("This constructor is protected.");
+		}
+	}
+
+	/**
+	 * Init context.
 	 * @param program
 	 */
 	init(program: ts.Program)
@@ -58,4 +85,6 @@ class TransformerContext
 	}
 }
 
-export const transformerContext = new TransformerContext();
+class Activator extends TransformerContext
+{
+}

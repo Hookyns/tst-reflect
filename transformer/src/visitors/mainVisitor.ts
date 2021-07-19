@@ -1,10 +1,10 @@
-import * as ts                                  from "typescript";
-import {TYPE_ID_PROPERTY_NAME}                  from "tst-reflect";
-import {getType, hasReflectJsDocWithStateStore} from "../helpers";
-import {declarationVisitor}                     from "./declarationVisitor";
-import {Context}                                from "./Context";
-import {processGenericCallExpression}           from "../processGenericCallExpression";
-import {processGetTypeCallExpression}           from "../processGetTypeCallExpression";
+import * as ts                                    from "typescript";
+import {TYPE_ID_PROPERTY_NAME, GET_TYPE_FNC_NAME} from "tst-reflect";
+import {hasReflectJsDocWithStateStore}            from "../helpers";
+import DeclarationVisitor                         from "./declarationVisitor";
+import {Context}                                  from "./Context";
+import {processGenericCallExpression}             from "../processGenericCallExpression";
+import {processGetTypeCallExpression}             from "../processGetTypeCallExpression";
 
 /**
  * Main visitor, splitting visitation into specific parts
@@ -13,7 +13,7 @@ import {processGetTypeCallExpression}           from "../processGetTypeCallExpre
  */
 export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefined
 {
-	const declarationVisitResult = declarationVisitor(node, context)
+	const declarationVisitResult = DeclarationVisitor.instance.visitDeclaration(node, context);
 
 	if (declarationVisitResult === undefined)
 	{
@@ -27,16 +27,16 @@ export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefine
 	if (ts.isCallExpression(node))
 	{
 		// To speed up, check it is getType call
-		if (ts.isIdentifier(node.expression) && node.expression.escapedText == "getType")
+		if (ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
 		{
-			// If it's created node, it should not be visited
+			// If it's generated getType() call node, do not visit it.
 			if (node.pos == -1)
 			{
 				return node;
 			}
 
 			// Function/method type
-			const fncType = context.checker.getTypeAtLocation(node.expression);
+			const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
 			// Check if it's our getType<T>()
 			if (fncType.getProperty(TYPE_ID_PROPERTY_NAME))
@@ -49,12 +49,12 @@ export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefine
 				}
 			}
 		}
-		// Call to something else, generic function or method; (can be call on property access)
+		// Call to something else, generic function or method; (can be called on property access)
 		else
 		{
-			const type = context.checker.getTypeAtLocation(node.expression);
+			const type = context.typeChecker.getTypeAtLocation(node.expression);
 
-			if (node.typeArguments?.length || hasReflectJsDocWithStateStore(context.checker.getTypeAtLocation(node.expression)))
+			if (node.typeArguments?.length || hasReflectJsDocWithStateStore(context.typeChecker.getTypeAtLocation(node.expression)))
 			{
 				const res = processGenericCallExpression(node, type, context);
 
@@ -66,6 +66,6 @@ export function mainVisitor(node: ts.Node, context: Context): ts.Node | undefine
 		}
 	}
 
-	return ts.visitEachChild(node, context.sourceFileContext.visitor, context.transformationContext);
+	return ts.visitEachChild(node, context.visitor, context.transformationContext);
 
 }

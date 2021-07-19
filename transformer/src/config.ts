@@ -62,9 +62,14 @@ function readConfig(configPath: string, projectPath: string, rootDir: string): {
 	}
 
 	const reflection = result.config?.reflection;
-
+	const useMetadata = !["false", "0"].includes(reflection?.metadata?.toString());
+	
+	if (useMetadata && reflection.metadata != undefined && (typeof reflection.metadata != "string" || !reflection.metadata.endsWith(".js"))) {
+		throw new Error("tsconfig.json error: 'reflection.metadata' must be falsy or it must be path to .js file.");
+	}
+	
 	return {
-		useMetadata: !["false", "0"].includes(reflection?.metadata?.toString()),
+		useMetadata: useMetadata,
 		metadataFilePath: reflection?.metadata ? resolve(projectPath, reflection.metadata) : join(rootDir, "metadata.lib.js"),
 		debugMode: ["true", "1"].includes(reflection?.debugMode?.toString()),
 	}

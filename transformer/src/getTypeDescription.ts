@@ -1,12 +1,13 @@
 import * as ts                                               from "typescript";
 import {TypeKind}                                            from "tst-reflect";
-import {SourceFileContext, TypePropertiesSource}             from "./declarations";
+import {TypePropertiesSource}                                from "./declarations";
 import {getType, getTypeFullName, getTypeKind, isNativeType} from "./helpers";
 import {getDecorators}                                       from "./getDecorators";
 import {getProperties}                                       from "./getProperties";
 import {getConstructors}                                     from "./getConstructors";
 import getTypeCall                                           from "./getTypeCall";
 import getLiteralName                                        from "./getLiteralName";
+import {Context}                                             from "./visitors/Context";
 
 /**
  * Return getter (arrow function/lambda) for runtime type's Ctor.
@@ -26,15 +27,13 @@ function createCtorGetter(typeCtor: ts.EntityName | undefined)
  * Return TypePropertiesSource object describing given type
  * @param symbol
  * @param type
- * @param checker
- * @param sourceFileContext
+ * @param context
  * @param typeCtor
  */
 export function getTypeDescription(
 	type: ts.Type,
 	symbol: ts.Symbol | undefined,
-	checker: ts.TypeChecker,
-	sourceFileContext: SourceFileContext,
+	context: Context,
 	typeCtor?: ts.EntityName
 )
 	: TypePropertiesSource
@@ -65,6 +64,8 @@ export function getTypeDescription(
 	{
 		symbol = typeSymbol;
 	}
+	
+	const checker = context.typeChecker;
 
 	if (symbol)
 	{
@@ -72,7 +73,7 @@ export function getTypeDescription(
 		{
 			return {
 				k: TypeKind.Object,
-				props: getProperties(symbol, type, checker, sourceFileContext)
+				props: getProperties(symbol, type, context)
 			};
 		}
 
@@ -93,8 +94,7 @@ export function getTypeDescription(
 						args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
 							checker.getTypeAtLocation(typeNode),
 							checker.getSymbolAtLocation(typeNode),
-							checker,
-							sourceFileContext
+							context
 							)
 						) || [],
 					}
@@ -111,8 +111,7 @@ export function getTypeDescription(
 						.map(typeNode => getTypeCall(
 							checker.getTypeAtLocation(typeNode),
 							checker.getSymbolAtLocation(typeNode),
-							checker,
-							sourceFileContext
+							context
 							)
 						);
 
@@ -133,7 +132,7 @@ export function getTypeDescription(
 		{
 			return {
 				k: TypeKind.Object,
-				props: getProperties(symbol, type, checker, sourceFileContext)
+				props: getProperties(symbol, type, context)
 			};
 		}
 
@@ -147,16 +146,16 @@ export function getTypeDescription(
 	const properties: TypePropertiesSource = {
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, typeSymbol),
-		props: getProperties(symbol, type, checker, sourceFileContext),
-		ctors: getConstructors(symbolType, checker, sourceFileContext),
+		props: getProperties(symbol, type, context),
+		ctors: getConstructors(symbolType, context),
 		decs: decorators,
 		k: kind,
 		ctor: kind == TypeKind.Class ? createCtorGetter(typeCtor) : undefined
 	};
 
-	if (kind == TypeKind.Class)
+	if (kind == TypeKind.Class && typeCtor)
 	{
-		properties.ctor = createCtorGetter(typeCtor)
+		context.addTypeCtor(typeCtor);
 	}
 
 	const declaration = typeSymbol.declarations[0];
@@ -174,8 +173,7 @@ export function getTypeDescription(
 				properties.bt = getTypeCall(
 					checker.getTypeAtLocation(ext.types[0]),
 					checker.getSymbolAtLocation(ext.types[0]),
-					checker,
-					sourceFileContext
+					context
 				);
 			}
 			else if (impl)
@@ -183,8 +181,7 @@ export function getTypeDescription(
 				properties.iface = getTypeCall(
 					checker.getTypeAtLocation(impl.types[0]),
 					checker.getSymbolAtLocation(impl.types[0]),
-					checker,
-					sourceFileContext
+					context
 				);
 			}
 		}
