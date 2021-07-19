@@ -447,7 +447,7 @@ Where resolve() take care about constructors parameters, based on their types, a
 
 ## Known Issues
 
-* Order of generated meta can be wrong is case of circular modules.
+* Order of generated meta can be wrong in case of circular modules.
 
 ## License
 
