@@ -26,6 +26,11 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 		return checker.getDeclaredTypeOfSymbol(symbol);
 	}
 
+	if (!symbol.declarations)
+	{
+		throw new Error("Unable to resolve declarations of symbol.");
+	}
+
 	return checker.getTypeOfSymbolAtLocation(symbol, symbol.declarations[0]);
 }
 
@@ -59,7 +64,14 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 
 	if (!typeSymbol)
 	{
+		// TODO: Log in debug mode
 		return undefined;
+	}
+
+	if (!typeSymbol.declarations)
+	{
+		// TOOD: Log in debug mode
+		throw new Error("Unable to resolve declarations of symbol.");
 	}
 
 	const root = TransformerContext.instance.config.rootDir;
@@ -118,9 +130,9 @@ export function hasReflectJsDocWithStateStore(fncType: ts.Type): boolean
 		// Here we know that it has reflect JSoc
 
 		// Method/function declaration
-		const declaration = fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
+		const declaration = fncType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
 
-		if (!declaration.typeParameters?.length)
+		if (!declaration?.typeParameters?.length)
 		{
 			return false;
 		}

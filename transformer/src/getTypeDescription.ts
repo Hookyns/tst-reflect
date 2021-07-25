@@ -158,9 +158,11 @@ export function getTypeDescription(
 		context.addTypeCtor(typeCtor);
 	}
 
-	const declaration = typeSymbol.declarations[0];
+	const declaration = typeSymbol.declarations?.[0];
 
-	if (ts.isClassDeclaration(declaration) || ts.isInterfaceDeclaration(declaration))
+	if (declaration && (
+		ts.isClassDeclaration(declaration) || ts.isInterfaceDeclaration(declaration)
+	))
 	{
 		// extends & implements
 		if (declaration.heritageClauses)

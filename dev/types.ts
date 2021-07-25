@@ -1,3 +1,5 @@
+import {getType} from "../runtime";
+
 interface Interface
 {
 	stringProp: string;
@@ -19,4 +21,4 @@ class Clss
 	initializedArrayProp: Array<string> = ["string"];
 }
 
-console.log(getType);
+console.log(getType<Clss>());

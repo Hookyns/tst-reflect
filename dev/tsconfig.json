@@ -5,7 +5,7 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"experimentalDecorators": true,
-		"rootDir": ".",
+		"rootDir": "..",
 		"typeRoots": [
 			"node_modules/@types"
 		],

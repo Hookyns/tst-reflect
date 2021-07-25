@@ -505,9 +505,9 @@ class TypeActivator extends Type
 /**
  * Returns Type of generic parameter
  */
-export function getType<T>(): Type | undefined
+export function getType<T = void>(..._: T extends void ? ["You must provide a type parameter"] : []): Type | undefined
 /** @internal */
-export function getType<T>(description?: TypeProperties | number, typeId?: number): Type | undefined
+export function getType<T>(description?: TypeProperties | number | string, typeId?: number): Type | undefined
 {
 	// Return type from storage
 	if (typeof description == "number")

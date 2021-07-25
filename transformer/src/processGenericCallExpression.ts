@@ -7,7 +7,12 @@ import getTypeCall                                from "./getTypeCall";
 export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
 	// Method/function declaration
-	const declaration = fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
+	const declaration = fncType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
+
+	if (!declaration)
+	{
+		throw new Error("Unable to resolve declarations of symbol.");
+	}
 
 	// Try to get State
 	let state: State | undefined = (declaration as unknown as StateNode)[STATE_PROP];
