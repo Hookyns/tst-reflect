@@ -6,6 +6,8 @@
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
+
 [Example](#show-me-some-code) | [Synopsis](#synopsis) | [How to start](#how-to-start)
 
 ## About
@@ -423,15 +425,10 @@ and with Webpack
 ```javascript
 {
 	test: /\.(ts|tsx)$/,
-		loader
-:
-	require.resolve("awesome-typescript-loader"),
-		// or
-		loader
-:
-	require.resolve("ts-loader"),
-		options
-:
+	loader: require.resolve("awesome-typescript-loader"),
+	// or
+	loader: require.resolve("ts-loader"),
+	options:
 	{
 		compiler: "ttypescript"
 	}
@@ -452,7 +449,7 @@ Where resolve() take care about constructors parameters, based on their types, a
 
 ## Known Issues
 
-* Order of generated meta can be wrong is case of circular modules.
+* Order of generated meta can be wrong in case of circular modules.
 
 ## License
 
