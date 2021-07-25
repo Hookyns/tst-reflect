@@ -1,5 +1,5 @@
 import * as ts                                    from "typescript";
-import {Context}                                  from "./visitors/Context";
+import {Context}                                  from "./contexts/Context";
 import {State, STATE_PROP, StateNode}             from "./visitors/State";
 import {genericCalleeDeclarationExploringVisitor} from "./visitors/genericCalleeDeclarationExploringVisitor";
 import getTypeCall                                from "./getTypeCall";

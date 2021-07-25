@@ -1,8 +1,8 @@
-import * as ts                from "typescript";
+import * as ts                              from "typescript";
 import {Context}                            from "./Context";
 import type {CtorsLibrary, MetadataLibrary} from "../declarations";
-import {mainVisitor}                        from "./mainVisitor";
-import TransformerContext     from "../TransformerContext";
+import {mainVisitor}                        from "../visitors/mainVisitor";
+import TransformerContext                   from "./TransformerContext";
 
 export default class SourceFileContext
 {
@@ -11,12 +11,12 @@ export default class SourceFileContext
 	 * @private
 	 */
 	private _getTypeIdentifier?: ts.Identifier;
-	
+
 	private _shouldGenerateGetTypeImport: boolean = false;
 	private _typesMetadata: MetadataLibrary = [];
 	private _ctorsLibrary: CtorsLibrary = [];
 	private readonly _context: Context;
-	
+
 	public readonly transformationContext: ts.TransformationContext;
 	public readonly program: ts.Program;
 	public readonly checker: ts.TypeChecker;
@@ -57,16 +57,6 @@ export default class SourceFileContext
 		this.checker = checker;
 
 		this._context = new Context(this, mainVisitor);
-
-		// this._visitor = visitor;
-
-		// this.sourceFileVisitor = this.sourceFileVisitor.bind(this);
-		//
-		// this.sourceFileContext = {
-		// 	typesMetadata: [],
-		// 	visitor: this.sourceFileVisitor,
-		// 	getTypeIdentifier: undefined
-		// };
 	}
 
 	/**
@@ -84,7 +74,7 @@ export default class SourceFileContext
 	}
 
 	/**
-	 * Try set identifier of getType() function for current 
+	 * Try set identifier of getType() function for current
 	 * @param identifier
 	 * @return boolean Returns true if set, false otherwise.
 	 */

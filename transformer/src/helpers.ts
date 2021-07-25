@@ -2,7 +2,7 @@ import * as ts                               from "typescript";
 import * as path                             from "path";
 import {REFLECT_GENERIC_DECORATOR, TypeKind} from "tst-reflect";
 import {State, STATE_PROP, StateNode}        from "./visitors/State";
-import TransformerContext                  from "./TransformerContext";
+import TransformerContext                    from "./contexts/TransformerContext";
 
 /**
  * Name of parameter for method/function declarations containing geneic getType() calls
@@ -35,12 +35,12 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
  */
 export function getTypeKind(symbol: ts.Symbol)
 {
-	if (symbol.flags == ts.SymbolFlags.Class)
+	if ((symbol.flags & ts.SymbolFlags.Class) == ts.SymbolFlags.Class)
 	{
 		return TypeKind.Class;
 	}
 
-	if (symbol.flags == ts.SymbolFlags.Interface)
+	if ((symbol.flags & ts.SymbolFlags.Interface) == ts.SymbolFlags.Interface)
 	{
 		return TypeKind.Interface;
 	}

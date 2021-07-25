@@ -91,7 +91,7 @@ export default class MetadataGenerator
 		{
 			propertiesStatements.push(nodeGenerator.createCtorImport(ctor));
 		}
-		
+
 		for (let [typeId, properties] of typesProperties)
 		{
 			// Replace all getType identifier by metadata getType identifier

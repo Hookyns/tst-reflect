@@ -1,6 +1,6 @@
 import * as ts            from "typescript";
-import TransformerContext from "./src/TransformerContext";
-import SourceFileContext  from "./src/visitors/SourceFileContext";
+import TransformerContext from "./src/contexts/TransformerContext";
+import SourceFileContext  from "./src/contexts/SourceFileContext";
 import {nodeGenerator}    from "./src/NodeGenerator";
 
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
@@ -19,9 +19,7 @@ export default function transform(program: ts.Program): ts.TransformerFactory<ts
  */
 function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.Visitor
 {
-	let typeChecker: ts.TypeChecker = program.getTypeChecker();
-	// const {Context} = require("./src/visitors/Context");
-
+	const typeChecker: ts.TypeChecker = program.getTypeChecker();
 	const transformerContext = TransformerContext.instance;
 	const config = transformerContext.config;
 
@@ -35,10 +33,6 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 		const sourceFileContext = new SourceFileContext(transformerContext, context, program, typeChecker);
 		let visitedNode = sourceFileContext.context.visit(node);
 
-		// const tstContext: VisitContext = new Context(context, program, checker);
-		// let visitedNode = tstContext.sourceFileContext.visitor(node);
-
-
 		if (visitedNode && !(visitedNode instanceof Array) && ts.isSourceFile(visitedNode) && sourceFileContext.typesMetadata.length)
 		{
 			if (config.useMetadata)
@@ -47,7 +41,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 				{
 					throw new Error("MetadataGenerator does not exists.");
 				}
-				
+
 				const propertiesStatements: Array<[number, ts.ObjectLiteralExpression]> = [];
 				const typeIdUniqueObj: { [key: number]: boolean } = {};
 
@@ -61,9 +55,9 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 					typeIdUniqueObj[typeId] = true;
 					propertiesStatements.push([typeId, properties]);
 				}
-				
+
 				const typeCtor = new Set<ts.EntityName>();
-				
+
 				for (let ctor of sourceFileContext.typesCtors)
 				{
 					typeCtor.add(ctor);

@@ -1,5 +1,5 @@
 import * as ts          from "typescript";
-import {Context}        from "./visitors/Context";
+import {Context}        from "./contexts/Context";
 import {GENERIC_PARAMS} from "./helpers";
 import getTypeCall      from "./getTypeCall";
 import {getError}       from "./getError";
@@ -7,7 +7,7 @@ import {getError}       from "./getError";
 export function processGetTypeCallExpression(node: ts.CallExpression, context: Context)
 {
 	// TODO: Use isGetTypeCall()
-	
+
 	// Add identifier into context; will be used for all calls
 	if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
 	{

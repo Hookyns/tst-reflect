@@ -1,6 +1,6 @@
 import * as ts                                    from "typescript";
 import {GET_TYPE_FNC_NAME, TYPE_ID_PROPERTY_NAME} from "tst-reflect";
-import {Context}                                  from "./visitors/Context";
+import {Context}                                  from "./contexts/Context";
 import {getError}                                 from "./getError";
 
 /**

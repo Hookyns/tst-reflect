@@ -1,21 +1,11 @@
 import * as ts          from "typescript";
 import {TypeKind, Type} from "tst-reflect";
-import type {Context}   from "./visitors/Context";
+import type {Context}   from "./contexts/Context";
 
 /**
  * @internal
  */
 export type GetTypeCall = ts.CallExpression;
-
-// /**
-//  * @internal
-//  */
-// export interface SourceFileContext
-// {
-// 	typesMetadata: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>;
-// 	visitor: ts.Visitor;
-// 	getTypeIdentifier?: ts.Identifier;
-// }
 
 /**
  * @internal

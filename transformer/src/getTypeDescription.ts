@@ -7,7 +7,7 @@ import {getProperties}                                       from "./getProperti
 import {getConstructors}                                     from "./getConstructors";
 import getTypeCall                                           from "./getTypeCall";
 import getLiteralName                                        from "./getLiteralName";
-import {Context}                                             from "./visitors/Context";
+import {Context}                                             from "./contexts/Context";
 
 /**
  * Return getter (arrow function/lambda) for runtime type's Ctor.
@@ -64,7 +64,7 @@ export function getTypeDescription(
 	{
 		symbol = typeSymbol;
 	}
-	
+
 	const checker = context.typeChecker;
 
 	if (symbol)

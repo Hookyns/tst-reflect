@@ -2,7 +2,7 @@ import * as ts                                    from "typescript";
 import {TYPE_ID_PROPERTY_NAME, GET_TYPE_FNC_NAME} from "tst-reflect";
 import {hasReflectJsDocWithStateStore}            from "../helpers";
 import DeclarationVisitor                         from "./declarationVisitor";
-import {Context}                                  from "./Context";
+import {Context}                                  from "../contexts/Context";
 import {processGenericCallExpression}             from "../processGenericCallExpression";
 import {processGetTypeCallExpression}             from "../processGetTypeCallExpression";
 

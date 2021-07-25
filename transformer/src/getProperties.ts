@@ -3,7 +3,7 @@ import {getType}                   from "./helpers";
 import getTypeCall                 from "./getTypeCall";
 import {PropertyDescriptionSource} from "./declarations";
 import {getDecorators}             from "./getDecorators";
-import {Context}                   from "./visitors/Context";
+import {Context}                   from "./contexts/Context";
 
 /**
  * Return properties of type

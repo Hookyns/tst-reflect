@@ -1,5 +1,5 @@
 import * as ts                        from "typescript";
-import {Context}                      from "./Context";
+import {Context}                      from "../contexts/Context";
 import {State, STATE_PROP, StateNode} from "./State";
 import {isGetTypeCall}                from "../isGetTypeCall";
 import {REFLECT_GENERIC_DECORATOR}    from "tst-reflect/reflect";
@@ -39,10 +39,10 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 			return state;
 		}
 	}
-	
+
 	context.createNestedContext(exploreGetTypeCalls, context => {
 		context.visitEachChild(node);
-		
+
 		// If something found
 		if (context.usedGenericParameters?.length)
 		{
@@ -62,7 +62,7 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 	});
 
 	// context.usedGenericParameters = [];
-	
+
 	// context.visitEachChildNestContext(node, exploreGetTypeCalls);
 
 	// // Set new visitor into context

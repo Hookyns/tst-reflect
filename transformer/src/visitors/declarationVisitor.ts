@@ -1,5 +1,5 @@
 import * as ts                                    from "typescript";
-import {Context}                                  from "./Context";
+import {Context}                                  from "../contexts/Context";
 import {genericCalleeDeclarationExploringVisitor} from "./genericCalleeDeclarationExploringVisitor";
 import {GENERIC_PARAMS, PACKAGE_ID}               from "../helpers";
 
@@ -20,7 +20,7 @@ export default class DeclarationVisitor
 
 		return instance;
 	}
-	
+
 	visitDeclaration(node: ts.Node, context: Context): ts.Node | undefined
 	{
 		// Update method and function declarations containing getTypes of generic parameter
@@ -33,7 +33,7 @@ export default class DeclarationVisitor
 				{
 					console.log("INF: Visiting declaration without body.")
 				}
-				
+
 				return undefined;
 			}
 
