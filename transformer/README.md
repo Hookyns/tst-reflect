@@ -267,4 +267,4 @@ console.log("Type created using generic reflection: ", s2);
 
 ## License
 
-This project is licensed under the MIT license.
+This project is licensed under the [MIT license](./LICENSE).

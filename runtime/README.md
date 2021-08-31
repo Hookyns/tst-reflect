@@ -274,4 +274,4 @@ console.log("s1 is instanceof Service: ", s1 instanceof dependency_1.Service);
 ```
 
 ## License
-This project is licensed under the MIT license.
+This project is licensed under the [MIT license](./LICENSE).

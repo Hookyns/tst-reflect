@@ -452,5 +452,4 @@ Where resolve() take care about constructors parameters, based on their types, a
 * Order of generated meta can be wrong in case of circular modules.
 
 ## License
-
-This project is licensed under the MIT license.
+This project is licensed under the [MIT license](./LICENSE).
