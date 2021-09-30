@@ -19,7 +19,8 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 
 		const properties = members
 			.filter(m => m.flags == ts.SymbolFlags.Property || m.flags == ts.SymbolFlags.GetAccessor)
-			.map((memberSymbol: ts.Symbol) => {
+			.map((memberSymbol: ts.Symbol) =>
+			{
 				return {
 					n: memberSymbol.escapedName.toString(),
 					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context),
@@ -31,11 +32,13 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 	}
 
 	// If type is Array
-	const resolvedTypeArguments: Array<ts.Type> = (type as any).resolvedTypeArguments;
+	const resolvedTypeArguments: readonly ts.Type[] = context.typeChecker.getTypeArguments(type as ts.TypeReference);//(type as any).resolvedTypeArguments;
 
 	if (resolvedTypeArguments)
 	{
-		const properties = resolvedTypeArguments.map((type: ts.Type, index: number) => {
+		const properties = resolvedTypeArguments.map((type: ts.Type, index: number) =>
+		{
+			// TODO: Returning properties for Array is OK only in case that Array is Literal (eg. [number, string]). If it's generic Array (eg. Array<string>), it has unknown props but known generic type.
 			return {
 				n: index.toString(),
 				t: getTypeCall(type, undefined, context)

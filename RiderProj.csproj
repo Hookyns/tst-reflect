@@ -1,4 +1,1 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
-	<ItemGroup>
-	</ItemGroup>
-</Project>
+<Project Sdk="Microsoft.NET.Sdk.Web" />

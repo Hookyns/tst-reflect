@@ -86,21 +86,6 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 }
 
 /**
- * Check that Type is native type (string, number, boolean, ...)
- * @param type
- */
-export function isNativeType(type: ts.Type): boolean
-{
-	return (type as any)["intrinsicName"] !== undefined;
-
-	// const flag = type.getFlags();
-	//
-	// return [
-	// 	ts.TypeFlags.String
-	// ].includes(flag);
-}
-
-/**
  * Check that value is TS Expression
  * @param value
  */
@@ -152,4 +137,18 @@ export function hasReflectJsDocWithStateStore(fncType: ts.Type): boolean
 	}
 
 	return false;
+}
+
+/**
+ * Return getter (arrow function/lambda) for runtime type's Ctor.
+ * @description Arrow function generated cuz of possible "Type is referenced before declaration".
+ */
+export function createCtorGetter(typeCtor: ts.EntityName | undefined)
+{
+	if (!typeCtor)
+	{
+		return undefined;
+	}
+
+	return ts.factory.createArrowFunction(undefined, undefined, [], undefined, ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), typeCtor as ts.Expression);
 }

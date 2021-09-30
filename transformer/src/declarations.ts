@@ -140,3 +140,20 @@ export interface TypePropertiesSource
 	 */
 	args?: Array<GetTypeCall>;
 }
+
+/**
+ * @internal
+ */
+export type TypeDescriptionResult = {
+	/**
+	 * Type is successfully described
+	 */
+	ok: true;
+
+	/**
+	 * Type description
+	 */
+	typeDescription: TypePropertiesSource;
+} | {
+	ok: false
+};

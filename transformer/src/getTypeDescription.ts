@@ -1,27 +1,19 @@
-import * as ts                                               from "typescript";
-import {TypeKind}                                            from "tst-reflect";
-import {TypePropertiesSource}                                from "./declarations";
-import {getType, getTypeFullName, getTypeKind, isNativeType} from "./helpers";
-import {getDecorators}                                       from "./getDecorators";
-import {getProperties}                                       from "./getProperties";
-import {getConstructors}                                     from "./getConstructors";
-import getTypeCall                                           from "./getTypeCall";
-import getLiteralName                                        from "./getLiteralName";
-import {Context}                                             from "./contexts/Context";
-
-/**
- * Return getter (arrow function/lambda) for runtime type's Ctor.
- * @description Arrow function generated cuz of possible "Type is referenced before declaration".
- */
-function createCtorGetter(typeCtor: ts.EntityName | undefined)
-{
-	if (!typeCtor)
-	{
-		return undefined;
-	}
-
-	return ts.factory.createArrowFunction(undefined, undefined, [], undefined, ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), typeCtor as ts.Expression);
-}
+import { TypeKind }                 from "tst-reflect";
+import * as ts                      from "typescript";
+import { Context }                  from "./contexts/Context";
+import { TypePropertiesSource }     from "./declarations";
+import { getConstructors }          from "./getConstructors";
+import { getDecorators }            from "./getDecorators";
+import getLiteralName               from "./getLiteralName";
+import { getNativeTypeDescription } from "./getNativeTypeDescription";
+import { getProperties }            from "./getProperties";
+import getTypeCall                  from "./getTypeCall";
+import {
+	createCtorGetter,
+	getType,
+	getTypeFullName,
+	getTypeKind
+}                                   from "./helpers";
 
 /**
  * Return TypePropertiesSource object describing given type
@@ -38,15 +30,11 @@ export function getTypeDescription(
 )
 	: TypePropertiesSource
 {
-	if (isNativeType(type))
+	const nativeTypeDescriptionResult = getNativeTypeDescription(type, context);
+
+	if (nativeTypeDescriptionResult.ok)
 	{
-		return {
-			n: (type as any).intrinsicName,
-			k: TypeKind.Native,
-			ctors: undefined,
-			decs: undefined,
-			props: undefined
-		};
+		return nativeTypeDescriptionResult.typeDescription;
 	}
 
 	if ((type.flags & ts.TypeFlags.Literal) != 0)
@@ -71,6 +59,11 @@ export function getTypeDescription(
 	{
 		if (symbol.flags == ts.SymbolFlags.TypeLiteral && type.flags == ts.TypeFlags.Object)
 		{
+			if (context.config.debugMode)
+			{
+				console.log("tst-reflect: Symbol is TypeLiteral of Object type.");
+			}
+
 			return {
 				k: TypeKind.Object,
 				props: getProperties(symbol, type, context)
@@ -81,6 +74,7 @@ export function getTypeDescription(
 			ts.isPropertyDeclaration(symbol.valueDeclaration)
 			|| ts.isPropertySignature(symbol.valueDeclaration)
 			|| ts.isVariableDeclaration(symbol.valueDeclaration)
+			|| ts.isParameter(symbol.valueDeclaration)
 		))
 		{
 			if (symbol.valueDeclaration.type)
@@ -97,10 +91,10 @@ export function getTypeDescription(
 							context
 							)
 						) || [],
-					}
+					};
 				}
 
-				let isUnion = false, isIntersection = false
+				let isUnion, isIntersection = false;
 
 				if (
 					(isUnion = ts.isUnionTypeNode(symbol.valueDeclaration.type))
@@ -120,7 +114,7 @@ export function getTypeDescription(
 						types: types,
 						union: isUnion,
 						inter: isIntersection
-					}
+					};
 				}
 			}
 		}
@@ -128,8 +122,18 @@ export function getTypeDescription(
 
 	if (!typeSymbol)
 	{
-		if (type.flags == ts.TypeFlags.Object)
+		if (context.config.debugMode)
 		{
+			console.log("tst-reflect: 'typeSymbol' is undefined.");
+		}
+
+		if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object)
+		{
+			if (context.config.debugMode)
+			{
+				console.log("tst-reflect: Symbol is TypeLiteral of Object type.");
+			}
+
 			return {
 				k: TypeKind.Object,
 				props: getProperties(symbol, type, context)
@@ -137,6 +141,52 @@ export function getTypeDescription(
 		}
 
 		throw new Error("Unable to resolve type's symbol.");
+	}
+	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.TypeLiteral) == ts.SymbolFlags.TypeLiteral)
+	{
+		if (context.config.debugMode)
+		{
+			console.log("tst-reflect: 'typeSymbol' is TypeLiteral.", type);
+		}
+
+		return {
+			k: TypeKind.Object,
+			props: getProperties(typeSymbol, type, context)
+		};
+	}
+	// Some object literal type, eg. `private foo: { a: string, b: number };`
+	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.ObjectLiteral) == ts.SymbolFlags.ObjectLiteral)
+	{
+		if (context.config.debugMode)
+		{
+			console.log("tst-reflect: 'typeSymbol' is ObjectLiteral.", type);
+		}
+
+		return {
+			k: TypeKind.Object,
+			props: getProperties(typeSymbol, type, context)
+		};
+	}
+	else if ((type.flags & ts.TypeFlags.TypeParameter) == ts.TypeFlags.TypeParameter && (typeSymbol.flags & ts.SymbolFlags.TypeParameter) == ts.SymbolFlags.ObjectLiteral)
+	{
+		if (context.config.debugMode)
+		{
+			console.log("tst-reflect: 'typeSymbol' is TypeParameter.", type);
+		}
+
+		if (typeSymbol.declarations)
+		{
+			const typeParameter = typeSymbol.declarations[0];
+
+			if (ts.isTypeParameterDeclaration(typeParameter))
+			{
+				return {
+					k: TypeKind.
+				}
+			}
+		}
+
+		throw new Error("Unable to resolve TypeParameter's declaration.");
 	}
 
 	const decorators = getDecorators(typeSymbol, checker);
@@ -168,7 +218,6 @@ export function getTypeDescription(
 		if (declaration.heritageClauses)
 		{
 			const ext = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ExtendsKeyword)[0];
-			const impl = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ImplementsKeyword)[0];
 
 			if (ext)
 			{
@@ -178,7 +227,10 @@ export function getTypeDescription(
 					context
 				);
 			}
-			else if (impl)
+
+			const impl = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ImplementsKeyword)[0];
+
+			if (impl)
 			{
 				properties.iface = getTypeCall(
 					checker.getTypeAtLocation(impl.types[0]),
