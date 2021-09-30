@@ -1,7 +1,10 @@
-import * as ts                                    from "typescript";
-import {Context}                                  from "../contexts/Context";
-import {genericCalleeDeclarationExploringVisitor} from "./genericCalleeDeclarationExploringVisitor";
-import {GENERIC_PARAMS, PACKAGE_ID}               from "../helpers";
+import * as ts                         from "typescript";
+import { Context }                     from "../contexts/Context";
+import {
+	GENERIC_PARAMS,
+	PACKAGE_ID
+}                                      from "../helpers";
+import { getGenericParametersDetails } from "../getGenericParametersDetails";
 
 const InstanceKey: symbol = Symbol.for("tst-reflect.DeclarationVisitor");
 let instance: DeclarationVisitor = (global as any)[InstanceKey] || null;
@@ -21,60 +24,66 @@ export default class DeclarationVisitor
 		return instance;
 	}
 
-	visitDeclaration(node: ts.Node, context: Context): ts.Node | undefined
+	/**
+	 * Visitor, which will process (check and update) Method and Function declarations.
+	 * @param node
+	 * @param context
+	 */
+	visitDeclaration<TNode extends ts.Node>(node: TNode, context: Context): ts.MethodDeclaration | ts.FunctionDeclaration | TNode | undefined
 	{
 		// Update method and function declarations containing getTypes of generic parameter
-		if ((ts.isMethodDeclaration(node) || ts.isFunctionDeclaration(node)) && node.typeParameters?.length/* && !(node as unknown as StateNode)[STATE_PROP]*/)
+		if ((ts.isMethodDeclaration(node) || ts.isFunctionDeclaration(node))/* && node.typeParameters?.length && !(node as unknown as StateNode)[STATE_PROP]*/)
 		{
 			// If it has no body, there is nothing to do
 			if (node.body === undefined)
 			{
 				if (context.config.debugMode)
 				{
-					console.log("INF: Visiting declaration without body.")
+					console.log("INF: Visiting declaration without body.");
 				}
 
 				return undefined;
 			}
 
-			const state = genericCalleeDeclarationExploringVisitor(node, context);
+			const genericParametersDetails = getGenericParametersDetails(node, context);
 
-			if (state)
+			// Do NOT continue, if it has no generic parameter's details
+			if (!genericParametersDetails)
 			{
-				const [modParams, modBody] = this.modifyDeclaration(node.parameters, node.body);
-
-				if (ts.isMethodDeclaration(node))
-				{
-					node = ts.factory.updateMethodDeclaration(
-						node,
-						node.decorators,
-						node.modifiers,
-						node.asteriskToken,
-						node.name,
-						node.questionToken,
-						node.typeParameters,
-						modParams,
-						node.type,
-						modBody
-					);
-				}
-				else if (ts.isFunctionDeclaration(node))
-				{
-					node = ts.factory.updateFunctionDeclaration(
-						node,
-						node.decorators,
-						node.modifiers,
-						node.asteriskToken,
-						node.name,
-						node.typeParameters,
-						modParams,
-						node.type,
-						modBody
-					);
-				}
+				return node;
 			}
+			
+			const [modParams, modBody] = DeclarationVisitor.modifyDeclaration(node.parameters, node.body);
 
-			return node;
+			if (ts.isMethodDeclaration(node))
+			{
+				return ts.factory.updateMethodDeclaration(
+					node,
+					node.decorators,
+					node.modifiers,
+					node.asteriskToken,
+					node.name,
+					node.questionToken,
+					node.typeParameters,
+					modParams,
+					node.type,
+					modBody
+				);
+			}
+			else if (ts.isFunctionDeclaration(node))
+			{
+				return ts.factory.updateFunctionDeclaration(
+					node,
+					node.decorators,
+					node.modifiers,
+					node.asteriskToken,
+					node.name,
+					node.typeParameters,
+					modParams,
+					node.type,
+					modBody
+				);
+			}
 		}
 
 		return node;
@@ -86,7 +95,7 @@ export default class DeclarationVisitor
 	 * @param body
 	 * @private
 	 */
-	private modifyDeclaration(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [Array<ts.ParameterDeclaration>, ts.Block]
+	private static modifyDeclaration(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [Array<ts.ParameterDeclaration>, ts.Block]
 	{
 		const lastParam = parameters[parameters.length - 1];
 
@@ -156,7 +165,7 @@ export default class DeclarationVisitor
 		}
 		else if (ts.isObjectBindingPattern(lastParam.name))
 		{
-			// TODO: implement
+			// TODO: Implement
 			throw new Error(`${PACKAGE_ID}: ObjectBindingPattern not supported in generic declarations yet.`);
 		}
 

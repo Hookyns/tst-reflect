@@ -1,11 +1,13 @@
-import * as ts                               from "typescript";
-import * as path                             from "path";
-import {REFLECT_GENERIC_DECORATOR, TypeKind} from "tst-reflect";
-import {State, STATE_PROP, StateNode}        from "./visitors/State";
-import TransformerContext                    from "./contexts/TransformerContext";
+import * as path          from "path";
+import {
+	REFLECT_GENERIC_DECORATOR,
+	TypeKind
+}                         from "tst-reflect";
+import * as ts            from "typescript";
+import TransformerContext from "./contexts/TransformerContext";
 
 /**
- * Name of parameter for method/function declarations containing geneic getType() calls
+ * Name of parameter for method/function declarations containing generic getType() calls
  */
 export const GENERIC_PARAMS = "__genericParams__";
 
@@ -70,7 +72,7 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 
 	if (!typeSymbol.declarations)
 	{
-		// TOOD: Log in debug mode
+		// TODO: Log in debug mode
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
 
@@ -82,7 +84,7 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 		filePath = path.join(path.relative(filePath, root), path.basename(filePath));
 	}
 
-	return filePath + ":" + typeSymbol.getName()
+	return filePath + ":" + typeSymbol.getName();
 }
 
 /**
@@ -95,10 +97,10 @@ export function isExpression(value: any)
 }
 
 /**
- * Check that function-like declaration has JSDoc with @reflectGeneric tag. If it has, store it in state of declaration.
+ * Check that function-like declaration has JSDoc with @reflectGeneric tag.
  * @param fncType
  */
-export function hasReflectJsDocWithStateStore(fncType: ts.Type): boolean
+export function hasReflectJsDoc(fncType: ts.Type): boolean
 {
 	const symbol = fncType.getSymbol();
 
@@ -107,36 +109,8 @@ export function hasReflectJsDocWithStateStore(fncType: ts.Type): boolean
 		return false;
 	}
 
-	const jsdoc = symbol.getJsDocTags();
-
 	// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
-	if (jsdoc.some(tag => tag.name === REFLECT_GENERIC_DECORATOR))
-	{
-		// Here we know that it has reflect JSoc
-
-		// Method/function declaration
-		const declaration = fncType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
-
-		if (!declaration?.typeParameters?.length)
-		{
-			return false;
-		}
-
-		const genericParams = declaration.typeParameters.map(p => p.name.escapedText.toString());
-		const state: State = {
-			usedGenericParameters: genericParams,
-			indexesOfGenericParameters: genericParams.map((_, index) => index),
-			declaredParametersCount: declaration.parameters.length,
-			requestedGenericsReflection: true
-		};
-
-		// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
-		(declaration as unknown as StateNode)[STATE_PROP] = state;
-
-		return true;
-	}
-
-	return false;
+	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_GENERIC_DECORATOR);
 }
 
 /**

@@ -4,7 +4,7 @@ import {GENERIC_PARAMS} from "./helpers";
 import getTypeCall      from "./getTypeCall";
 import {getError}       from "./getError";
 
-export function processGetTypeCallExpression(node: ts.CallExpression, context: Context)
+export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | undefined
 {
 	// TODO: Use isGetTypeCall()
 
@@ -19,7 +19,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 	if (!genericTypeNode)
 	{
 		// TODO: Allow calls like "getType(variable)"
-		throw getError(node, "Type argument of function getType<T>() is missing.");
+		throw getError(node, "Type argument 'TType' of function getType<TType>() is missing.");
 	}
 
 	let genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
@@ -34,6 +34,8 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 				ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
 			);
 		}
+		
+		return undefined;
 	}
 	// Parameter is specific type
 	else

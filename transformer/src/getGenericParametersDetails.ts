@@ -1,19 +1,31 @@
-import * as ts                        from "typescript";
-import {Context}                      from "../contexts/Context";
-import {State, STATE_PROP, StateNode} from "./State";
-import {isGetTypeCall}                from "../isGetTypeCall";
-import {REFLECT_GENERIC_DECORATOR}    from "tst-reflect/reflect";
+import { REFLECT_GENERIC_DECORATOR } from "tst-reflect/reflect";
+import * as ts                       from "typescript";
+import { Context }                   from "./contexts/Context";
+import {
+	FunctionLikeDeclarationGenericParametersDetail,
+	FunctionLikeDeclarationGenericParametersDetailNode,
+	STATE_PROP
+}                                    from "./FunctionLikeDeclarationGenericParametersDetail";
+import { isGetTypeCall }             from "./isGetTypeCall";
 
 /**
  * This visitor is just for exploration of declaration, not for modifications.
  * @param node
  * @param context
  */
-export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDeclarationBase, context: Context): State | undefined
+export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase, context: Context): FunctionLikeDeclarationGenericParametersDetail | undefined
 {
 	if (!node.typeParameters?.length)
 	{
 		return;
+	}
+
+	// Check if details already exists,
+	let genericParametersDetail: FunctionLikeDeclarationGenericParametersDetail | undefined = (node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP];
+
+	if (genericParametersDetail)
+	{
+		return genericParametersDetail;
 	}
 
 	const symbol = context.typeChecker.getTypeAtLocation(node).getSymbol();
@@ -26,7 +38,7 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 		if (jsdoc.some(tag => tag.name === REFLECT_GENERIC_DECORATOR))
 		{
 			const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
-			const state: State = {
+			const state: FunctionLikeDeclarationGenericParametersDetail = {
 				usedGenericParameters: genericParams,
 				indexesOfGenericParameters: genericParams.map((_, index) => index),
 				declaredParametersCount: node.parameters.length,
@@ -34,20 +46,20 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 			};
 
 			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
-			(node as unknown as StateNode)[STATE_PROP] = state;
+			(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = state;
 
 			return state;
 		}
 	}
 
 	context.createNestedContext(exploreGetTypeCalls, context => {
-		context.visitEachChild(node);
+		context.visitFunctionLikeDeclaration(node);
 
 		// If something found
 		if (context.usedGenericParameters?.length)
 		{
 			const genericParams = node.typeParameters!.map(p => p.name.escapedText.toString());
-			const state: State = {
+			const state: FunctionLikeDeclarationGenericParametersDetail = {
 				usedGenericParameters: context.usedGenericParameters,
 				indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
 				declaredParametersCount: node.parameters.length
@@ -55,7 +67,7 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 			context.usedGenericParameters = undefined;
 
 			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
-			(node as unknown as StateNode)[STATE_PROP] = state;
+			(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = state;
 
 			return state;
 		}
@@ -92,7 +104,7 @@ export function genericCalleeDeclarationExploringVisitor(node: ts.FunctionLikeDe
 	// }
 
 	// Store empty state; means it was visited
-	(node as unknown as StateNode)[STATE_PROP] = {};
+	(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = {};
 	context.usedGenericParameters = undefined;
 }
 

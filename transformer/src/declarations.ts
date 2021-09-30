@@ -1,6 +1,6 @@
 import * as ts          from "typescript";
-import {TypeKind, Type} from "tst-reflect";
-import type {Context}   from "./contexts/Context";
+import { TypeKind }     from "tst-reflect";
+import type { Context } from "./contexts/Context";
 
 /**
  * @internal
@@ -33,7 +33,7 @@ export type CtorsLibrary = Array<ts.EntityName>;
 export interface ParameterDescriptionSource
 {
 	n: string;
-	t: GetTypeCall
+	t: GetTypeCall;
 }
 
 /**
@@ -60,7 +60,7 @@ export interface DecoratorDescriptionSource
  */
 export interface ConstructorDescriptionSource
 {
-	params: Array<ParameterDescriptionSource>
+	params: Array<ParameterDescriptionSource>;
 }
 
 /**
@@ -97,12 +97,12 @@ export interface TypePropertiesSource
 	/**
 	 * Properties
 	 */
-	props?: Array<PropertyDescriptionSource>
+	props?: Array<PropertyDescriptionSource>;
 
 	/**
 	 * Decorators
 	 */
-	decs?: Array<DecoratorDescriptionSource>
+	decs?: Array<DecoratorDescriptionSource>;
 
 	/**
 	 * Union

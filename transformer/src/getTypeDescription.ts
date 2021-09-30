@@ -180,9 +180,10 @@ export function getTypeDescription(
 
 			if (ts.isTypeParameterDeclaration(typeParameter))
 			{
-				return {
-					k: TypeKind.
-				}
+				// TODO: Finish this.
+				// return {
+				// 	k: TypeKind.
+				// }
 			}
 		}
 

@@ -1,6 +1,10 @@
-import * as ts                                  from "typescript";
-import SourceFileContext                        from "./SourceFileContext";
-import type {MetadataEntry, TransformerVisitor} from "../declarations";
+import * as ts           from "typescript";
+import { VisitResult }   from "typescript";
+import type {
+	MetadataEntry,
+	TransformerVisitor
+}                        from "../declarations";
+import SourceFileContext from "./SourceFileContext";
 
 /**
  * Context of visitors
@@ -44,7 +48,7 @@ export class Context
 		this._visitor = (node: ts.Node) => visitor(node, this);
 	}
 
-	visit(node: ts.Node)//: ts.Node | undefined
+	visit(node: ts.Node): VisitResult<ts.Node>
 	{
 		return this.visitor(node);
 	}
@@ -59,11 +63,9 @@ export class Context
 		this._sourceFileContext.typesCtors.push(typeCtor);
 	}
 
-	visitEachChild(node: ts.FunctionLikeDeclarationBase)
+	visitFunctionLikeDeclaration(node: ts.FunctionLikeDeclarationBase): void
 	{
-		// const context = new Context(this.sourceFileContext, mainVisitor);
-		const visitedNode = ts.visitEachChild(node, this.visitor, this._sourceFileContext.transformationContext);
-		return visitedNode;
+		ts.visitEachChild(node, this.visitor, this._sourceFileContext.transformationContext);
 	}
 
 	createNestedContext<TReturn = undefined>(visitor: TransformerVisitor, contextAction: (context: Context) => TReturn)

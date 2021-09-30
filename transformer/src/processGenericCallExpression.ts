@@ -1,8 +1,7 @@
-import * as ts                                    from "typescript";
-import {Context}                                  from "./contexts/Context";
-import {State, STATE_PROP, StateNode}             from "./visitors/State";
-import {genericCalleeDeclarationExploringVisitor} from "./visitors/genericCalleeDeclarationExploringVisitor";
-import getTypeCall                                from "./getTypeCall";
+import * as ts                         from "typescript";
+import { Context }                     from "./contexts/Context";
+import getTypeCall                     from "./getTypeCall";
+import { getGenericParametersDetails } from "./getGenericParametersDetails";
 
 export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
@@ -15,12 +14,7 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 	}
 
 	// Try to get State
-	let state: State | undefined = (declaration as unknown as StateNode)[STATE_PROP];
-
-	if (!state)
-	{
-		state = genericCalleeDeclarationExploringVisitor(declaration, context)
-	}
+	const state = getGenericParametersDetails(declaration, context);
 
 	if (state && state.usedGenericParameters && state.indexesOfGenericParameters)
 	{
