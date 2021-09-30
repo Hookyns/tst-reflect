@@ -1,7 +1,7 @@
 {
 	"name": "dev",
 	"version": "0.0.1",
-    "private": true,
+	"private": true,
 	"description": "Dev scripts",
 	"main": "index.js",
 	"scripts": {

@@ -1,4 +1,4 @@
-import { getType } from "../runtime";
+import { getType } from "../../runtime";
 
 type UnionType<TResult> = {
     ok: true,
