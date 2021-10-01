@@ -1,4 +1,4 @@
-# JavaScript(/TypeScript) Runtime Reflection (tst-reflect)
+# JavaScript(/TypeScript) Runtime Reflection and Generics (tst-reflect)
 
 > **The repository of TypeScript runtime reflection packages.**
 
@@ -12,9 +12,9 @@
 
 ## About
 
-Yeap! How the title says, this project is about runtime reflection, achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) and
-runtime stuff (
-package `tst-reflect`).
+Yeap! How the title says, this project is about runtime **reflection** with working **generic** types, 
+achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) 
+and runtime stuff (package `tst-reflect`).
 
 More info inside the corresponding folders, see `transformer`, `runtime`.
 
@@ -36,11 +36,6 @@ class ServiceCollection
 {
     public readonly services: Array<[Type, any]> = [];
 
-    foo<A>(foo?: any)
-    {
-        return getType<A>();
-    }
-
     addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any)
     {
         this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
@@ -56,8 +51,13 @@ class ServiceProvider
         this.serviceCollection = serviceCollection;
     }
 
-    getService<TDependency>(type: Type): TDependency
+    getService<TDependency>(type?: Type): TDependency
     {
+        if (type === undefined) 
+        {
+            type = getType<TDependency>();
+        }
+    
         // Find implementation of type
         const [, impl] = this.serviceCollection.services.find(([dep]) => dep.is(type));
 
@@ -131,14 +131,14 @@ class ConsolePrinter extends BasePrinter implements IPrinter
 
 const collection = new ServiceCollection();
 
-collection.addTransient<IPrinter, ConsolePrinter>(); // Working generic!!
 collection.addTransient(getType<Console>(), console);
+collection.addTransient<IPrinter, ConsolePrinter>(); // Working runtime generic!!
 
 const provider = new ServiceProvider(collection);
 
 //-----------------------------------------
 
-const printer = provider.getService<IPrinter>(getType<IPrinter>());
+const printer = provider.getService<IPrinter>();
 console.log("printer is instanceof ConsolePrinter:", printer instanceof ConsolePrinter);
 
 printer.printHelloWorld();
