@@ -17,6 +17,11 @@ export const GENERIC_PARAMS = "__genericParams__";
 export const PACKAGE_ID = "tst-reflect-transformer";
 
 /**
+ * Name of decorator or JSDoc comment marking method for tracing
+ */
+export const TRACE_DECORATOR = "trace";
+
+/**
  * Get type of symbol
  * @param symbol
  * @param checker
@@ -111,6 +116,23 @@ export function hasReflectJsDoc(fncType: ts.Type): boolean
 
 	// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
 	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_GENERIC_DECORATOR);
+}
+
+/**
+ * Check that function-like declaration has JSDoc with @trace tag.
+ * @param fncType
+ */
+export function hasTraceJsDoc(fncType: ts.Type): boolean
+{
+	const symbol = fncType.getSymbol();
+
+	if (!symbol)
+	{
+		return false;
+	}
+
+	// If declaration contains @trace in JSDoc comment, pass all generic arguments
+	return symbol.getJsDocTags().some(tag => tag.name === TRACE_DECORATOR);
 }
 
 /**

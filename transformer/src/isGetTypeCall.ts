@@ -2,6 +2,7 @@ import * as ts                                    from "typescript";
 import {GET_TYPE_FNC_NAME, TYPE_ID_PROPERTY_NAME} from "tst-reflect";
 import {Context}                                  from "./contexts/Context";
 import {getError}                                 from "./getError";
+import { log }                                    from "./log";
 
 /**
  * Function detecting right getType() call
@@ -22,7 +23,7 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 		// Add identifier into context; will be used for all calls
 		if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
 		{
-			console.log("tst-reflect: Identifier of existing getType() call stored inside context.");
+			log.info("Identifier of existing getType() call stored inside context.");
 		}
 
 		// Function/method type

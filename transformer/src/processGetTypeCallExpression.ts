@@ -3,6 +3,7 @@ import {Context}        from "./contexts/Context";
 import {GENERIC_PARAMS} from "./helpers";
 import getTypeCall      from "./getTypeCall";
 import {getError}       from "./getError";
+import { log }          from "./log";
 
 export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | undefined
 {
@@ -11,7 +12,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 	// Add identifier into context; will be used for all calls
 	if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
 	{
-		console.log("tst-reflect: Identifier of existing getType() call stored inside context.");
+		log.info("Identifier of existing getType() call stored inside context.");
 	}
 
 	let genericTypeNode = node.typeArguments?.[0];

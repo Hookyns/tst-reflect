@@ -5,6 +5,7 @@ import {
 	PACKAGE_ID
 }                                      from "../helpers";
 import { getGenericParametersDetails } from "../getGenericParametersDetails";
+import { log }                         from "../log";
 
 const InstanceKey: symbol = Symbol.for("tst-reflect.DeclarationVisitor");
 let instance: DeclarationVisitor = (global as any)[InstanceKey] || null;
@@ -39,7 +40,7 @@ export default class DeclarationVisitor
 			{
 				if (context.config.debugMode)
 				{
-					console.log("INF: Visiting declaration without body.");
+					log.info("Visiting declaration without body.");
 				}
 
 				return undefined;

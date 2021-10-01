@@ -1,8 +1,13 @@
 import * as ts            from "typescript";
-import TransformerContext from "./src/contexts/TransformerContext";
 import SourceFileContext  from "./src/contexts/SourceFileContext";
+import TransformerContext from "./src/contexts/TransformerContext";
 import { PACKAGE_ID }     from "./src/helpers";
-import {nodeGenerator}    from "./src/NodeGenerator";
+import {
+    color,
+    log,
+    LogLevel
+}                         from "./src/log";
+import { nodeGenerator }  from "./src/NodeGenerator";
 
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
 {
@@ -34,21 +39,11 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 		
 		if (config.debugMode)
 		{
-			console.log(`${PACKAGE_ID}: Visitation of file ${node.fileName} started.`);
+			log.log(LogLevel.Trace, color.cyan, `${PACKAGE_ID}: Visitation of file ${node.fileName} started.`);
 		}
 
 		const sourceFileContext = new SourceFileContext(transformerContext, context, program, typeChecker);
 		let visitedNode = sourceFileContext.context.visit(node) as ts.SourceFile;
-
-		// TODO: Temporary checks. It should be always, just make sure through some test cases.
-		if (visitedNode instanceof Array) 
-		{
-			throw new Error("Node processed and returned by SourceFileContext is not a SourceFile, it is some Array.");
-		}
-		else if (!ts.isSourceFile(visitedNode))
-		{
-			throw new Error("Node processed and returned by SourceFileContext is not a SourceFile.");
-		}
 
 		if (visitedNode && sourceFileContext.typesMetadata.length)
 		{
@@ -88,7 +83,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 
 		if (config.debugMode)
 		{
-			console.log(`${PACKAGE_ID}: Visitation of file ${node.fileName} has been finished.`);
+			log.trace(`${PACKAGE_ID}: Visitation of file ${node.fileName} has been finished.`);
 		}
 
 		return visitedNode;
@@ -131,7 +126,7 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 
 	if (importsCount == -1)
 	{
-		console.warn("Reflection: getType<T>() used, but no import found.");
+		log.warn("Reflection: getType<T>() used, but no import found.");
 	}
 
 	return ts.factory.updateSourceFile(

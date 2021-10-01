@@ -14,6 +14,7 @@ import {
 	getTypeFullName,
 	getTypeKind
 }                                   from "./helpers";
+import { log }                      from "./log";
 
 /**
  * Return TypePropertiesSource object describing given type
@@ -61,7 +62,7 @@ export function getTypeDescription(
 		{
 			if (context.config.debugMode)
 			{
-				console.log("tst-reflect: Symbol is TypeLiteral of Object type.");
+				log.info("Symbol is TypeLiteral of Object type.");
 			}
 
 			return {
@@ -124,14 +125,14 @@ export function getTypeDescription(
 	{
 		if (context.config.debugMode)
 		{
-			console.log("tst-reflect: 'typeSymbol' is undefined.");
+			log.info("'typeSymbol' is undefined.");
 		}
 
 		if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object)
 		{
 			if (context.config.debugMode)
 			{
-				console.log("tst-reflect: Symbol is TypeLiteral of Object type.");
+				log.info("Symbol is TypeLiteral of Object type.");
 			}
 
 			return {
@@ -146,7 +147,7 @@ export function getTypeDescription(
 	{
 		if (context.config.debugMode)
 		{
-			console.log("tst-reflect: 'typeSymbol' is TypeLiteral.", type);
+			log.info("'typeSymbol' is TypeLiteral.", type);
 		}
 
 		return {
@@ -159,7 +160,7 @@ export function getTypeDescription(
 	{
 		if (context.config.debugMode)
 		{
-			console.log("tst-reflect: 'typeSymbol' is ObjectLiteral.", type);
+			log.info("'typeSymbol' is ObjectLiteral.", type);
 		}
 
 		return {
@@ -171,7 +172,7 @@ export function getTypeDescription(
 	{
 		if (context.config.debugMode)
 		{
-			console.log("tst-reflect: 'typeSymbol' is TypeParameter.", type);
+			log.info("'typeSymbol' is TypeParameter.", type);
 		}
 
 		if (typeSymbol.declarations)

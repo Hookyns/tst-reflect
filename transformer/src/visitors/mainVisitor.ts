@@ -50,11 +50,12 @@ export function mainVisitor<TNode extends ts.Node = ts.Node>(nodeToVisit: TNode,
 				}
 			}
 		}
-		// It is call of some other function, generic function or method, or it has our special JSDoc comment. (can be called on property access)
+		// It is call of some other function. 
 		else
 		{
 			const type = context.typeChecker.getTypeAtLocation(node.expression);
 
+            // It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
 			if (node.typeArguments?.length || hasReflectJsDoc(type))
 			{
 				const res = processGenericCallExpression(node, type, context);
