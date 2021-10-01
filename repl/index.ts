@@ -1,50 +1,53 @@
-import {getType}           from "tst-reflect";
-import {ServiceCollection} from "./ServiceCollection";
-import {ServiceProvider}   from "./ServiceProvider";
+import { getType }           from "tst-reflect";
+import { ServiceCollection } from "./ServiceCollection";
+import { ServiceProvider }   from "./ServiceProvider";
 
 interface ILog
 {
-	log(message: string);
+    log(...args: any[]);
 }
 
 class Log implements ILog
 {
-	log(message: string)
-	{
-		console.log(message);
-	}
+    log(...args: any[])
+    {
+        console.log.apply(undefined, args);
+    }
 }
 
 interface IService
 {
-	doJob();
+    doJob(number: number);
 }
 
 class Service implements IService
 {
-	private log: ILog;
+    private log: ILog;
 
-	constructor(log: ILog)
-	{
-		this.log = log;
-	}
+    constructor(log: ILog)
+    {
+        this.log = log;
+    }
 
-	doJob()
-	{
-		const job = 1 + 1;
-		this.log.log(`1 + 1 = ${job}`);
-	}
+    doJob(number: number)
+    {
+        const job = number + number;
+        this.log.log(`${number} + ${number} = ${job}`);
+    }
 }
 
 const serviceCollection = new ServiceCollection();
 serviceCollection.addTransient(getType<ILog>(), getType<Log>());
-serviceCollection.addTransient(getType<IService>(), getType<Service>());
+serviceCollection.addTransient<IService, Service>();
 
 const serviceProvider = new ServiceProvider(serviceCollection);
 
-const s1 = serviceProvider.getService<IService>(getType<IService>());
-console.log("Type created using reflection: ", s1);
+const logger = serviceProvider.getService<ILog>();
+const service = serviceProvider.getService<IService>();
 
-if (s1) {
-	s1.doJob();
+logger.log("Type constructed using reflection: ", service);
+
+if (service)
+{
+    service.doJob(Math.E);
 }
