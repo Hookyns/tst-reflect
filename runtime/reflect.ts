@@ -580,7 +580,9 @@ class TypeActivator extends Type
 /**
  * Returns Type of generic parameter
  */
-export function getType<T = void>(..._: T extends void ? ["You must provide a type parameter"] : []): Type | undefined
+export function getType<T>(): Type | undefined
+// TODO: Uncomment and use this line. Waiting for TypeScript issue to be resolved. https://github.com/microsoft/TypeScript/issues/46155
+// export function getType<T = void>(..._: (T extends void ? ["You must provide a type parameter"] : [])): Type | undefined
 /** @internal */
 export function getType<T>(description?: TypeProperties | number | string, typeId?: number): Type | undefined
 {
