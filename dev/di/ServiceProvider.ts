@@ -1,7 +1,7 @@
 import {
     Type,
     getType
-} from "tst-reflect";
+} from "../../runtime";
 import { ServiceCollection } from "./ServiceCollection";
 
 /**
@@ -25,6 +25,7 @@ export class ServiceProvider
 
     /**
      * Get service instance
+     * @reflectGeneric
      * @param type
      */
     getServices<TDependency>(type?: Type): Iterable<TDependency>
@@ -69,6 +70,7 @@ export class ServiceProvider
 
     /**
      * Get service instance.
+     * @reflectGeneric
      * @param type
      */
     getService<TDependency>(type?: Type): TDependency | null

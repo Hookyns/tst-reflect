@@ -1,7 +1,8 @@
-import * as ts                          from "typescript";
-import {GetTypeCall, SourceFileContext} from "./declarations";
-import {createValueExpression}          from "./createValueExpression";
-import {getTypeDescription}             from "./getTypeDescription";
+import * as ts                 from "typescript";
+import {GetTypeCall}           from "./declarations";
+import {createValueExpression} from "./createValueExpression";
+import {getTypeDescription}    from "./getTypeDescription";
+import {Context}               from "./contexts/Context";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 
@@ -9,11 +10,10 @@ const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts
  * Return call expression of runtime getType() with description and/or type id
  * @param symbol
  * @param type
- * @param checker
- * @param sourceFileContext
+ * @param context
  * @param typeCtor
  */
-export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, checker: ts.TypeChecker, sourceFileContext: SourceFileContext, typeCtor?: ts.EntityName): GetTypeCall
+export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName): GetTypeCall
 {
 	const id: number | undefined = (type.symbol as any)?.["id"];
 	let typePropertiesObjectLiteral: ts.ObjectLiteralExpression | undefined = undefined;
@@ -25,18 +25,21 @@ export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined
 
 	if (!typePropertiesObjectLiteral)
 	{
-		const props = getTypeDescription(type, symbol, checker, sourceFileContext, typeCtor);
+		const props = getTypeDescription(type, symbol, context, typeCtor);
 		typePropertiesObjectLiteral = createValueExpression(props) as ts.ObjectLiteralExpression;
 	}
 
-	if (id && sourceFileContext)
+	const getTypeIdentifier = context.getGetTypeIdentifier();
+
+	if (id)
 	{
-		sourceFileContext.typesProperties.push([id, typePropertiesObjectLiteral]);
+		context.addTypeMetadata([id, typePropertiesObjectLiteral]);
+		// sourceFileContext.typesMetadata.push([id, typePropertiesObjectLiteral]);
 
 		// Just call getType() with typeId; Type is gonna be take from storage
-		return ts.factory.createCallExpression(sourceFileContext?.getTypeIdentifier!, [], [ts.factory.createNumericLiteral(id)]);
+		return ts.factory.createCallExpression(getTypeIdentifier, [], [ts.factory.createNumericLiteral(id)]);
 	}
 
 	// Type is not registered (no Id or no sourceFileContext) so direct type construction returned
-	return ts.factory.createCallExpression(sourceFileContext?.getTypeIdentifier!, [], [typePropertiesObjectLiteral]);
+	return ts.factory.createCallExpression(getTypeIdentifier, [], [typePropertiesObjectLiteral]);
 }

@@ -1,5 +1,6 @@
 import * as ts          from "typescript";
-import {TypeKind, Type} from "tst-reflect";
+import { TypeKind }     from "tst-reflect";
+import type { Context } from "./contexts/Context";
 
 /**
  * @internal
@@ -9,12 +10,22 @@ export type GetTypeCall = ts.CallExpression;
 /**
  * @internal
  */
-export interface SourceFileContext
-{
-	typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>;
-	visitor: ts.Visitor;
-	getTypeIdentifier?: ts.Identifier;
-}
+export type TransformerVisitor = (node: ts.Node, context: Context) => ts.Node | undefined;
+
+/**
+ * @internal
+ */
+export type MetadataEntry = [number, ts.ObjectLiteralExpression];
+
+/**
+ * @internal
+ */
+export type MetadataLibrary = Array<MetadataEntry>;
+
+/**
+ * @internal
+ */
+export type CtorsLibrary = Array<ts.EntityName>;
 
 /**
  * @internal
@@ -22,7 +33,7 @@ export interface SourceFileContext
 export interface ParameterDescriptionSource
 {
 	n: string;
-	t: GetTypeCall
+	t: GetTypeCall;
 }
 
 /**
@@ -49,7 +60,28 @@ export interface DecoratorDescriptionSource
  */
 export interface ConstructorDescriptionSource
 {
-	params: Array<ParameterDescriptionSource>
+	params: Array<ParameterDescriptionSource>;
+}
+
+/**
+ * @internal
+ */
+interface ConditionalTypeDescriptionSource
+{
+	/**
+	 * Extends type
+	 */
+	e: GetTypeCall;
+
+	/**
+	 * True type
+	 */
+	tt: GetTypeCall;
+
+	/**
+	 * False type
+	 */
+	ft: GetTypeCall;
 }
 
 /**
@@ -86,12 +118,12 @@ export interface TypePropertiesSource
 	/**
 	 * Properties
 	 */
-	props?: Array<PropertyDescriptionSource>
+	props?: Array<PropertyDescriptionSource>;
 
 	/**
 	 * Decorators
 	 */
-	decs?: Array<DecoratorDescriptionSource>
+	decs?: Array<DecoratorDescriptionSource>;
 
 	/**
 	 * Union
@@ -128,4 +160,41 @@ export interface TypePropertiesSource
 	 * @description In case of generic type description
 	 */
 	args?: Array<GetTypeCall>;
+
+	/**
+	 * Type parameters
+	 */
+	tp?: Array<GetTypeCall>;
+	
+	/**
+	 * Constraining type
+	 */
+	con?: GetTypeCall;
+
+	/**
+	 * Default type
+	 */
+	def?: GetTypeCall;	
+	
+	/**
+	 * Conditional type description
+	 */
+	ct?: ConditionalTypeDescriptionSource;
 }
+
+/**
+ * @internal
+ */
+export type TypeDescriptionResult = {
+	/**
+	 * Type is successfully described
+	 */
+	ok: true;
+
+	/**
+	 * Type description
+	 */
+	typeDescription: TypePropertiesSource;
+} | {
+	ok: false
+};

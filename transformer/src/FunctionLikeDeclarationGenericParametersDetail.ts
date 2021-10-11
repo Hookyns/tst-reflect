@@ -8,16 +8,16 @@ export const STATE_PROP = "__tstStateProp__";
 /**
  * Interface for ts.Node holding state
  */
-export interface StateNode extends ts.Node
+export interface FunctionLikeDeclarationGenericParametersDetailNode extends ts.Node
 {
-	[STATE_PROP]: State
+	[STATE_PROP]: FunctionLikeDeclarationGenericParametersDetail
 }
 
 /**
  * State object storing some props on ts.Node
  * If State exists, it mean's node was visited already
  */
-export interface State
+export interface FunctionLikeDeclarationGenericParametersDetail
 {
 	/**
 	 * Names of generic parameters

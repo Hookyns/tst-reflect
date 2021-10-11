@@ -9,6 +9,7 @@ export interface ILogger
 export interface IService
 {
 	prop: string | number;
+	arrayProp: string[];
 
 	whoAmI();
 	method2();
@@ -19,6 +20,7 @@ export interface IService
 export class Service implements IService
 {
 	prop: string | number;
+	arrayProp: string[];
 
 	@inject()
 	private readonly logger: ILogger;
@@ -45,7 +47,10 @@ export class Service implements IService
 	static staticProp: string;
 }
 
-
+/**
+ * @reflectGeneric
+ * @param val
+ */
 export function myFunc2<T, U = any>(val: U)
 {
 	const t = getType<T>();

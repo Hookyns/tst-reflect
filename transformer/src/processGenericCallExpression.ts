@@ -1,21 +1,20 @@
-import * as ts                                    from "typescript";
-import {Context}                                  from "./visitors/Context";
-import {State, STATE_PROP, StateNode}             from "./visitors/State";
-import {genericCalleeDeclarationExploringVisitor} from "./visitors/genericCalleeDeclarationExploringVisitor";
-import getTypeCall                                from "./getTypeCall";
+import * as ts                         from "typescript";
+import { Context }                     from "./contexts/Context";
+import getTypeCall                     from "./getTypeCall";
+import { getGenericParametersDetails } from "./getGenericParametersDetails";
 
 export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
 	// Method/function declaration
-	const declaration = fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
+	const declaration = fncType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
+
+	if (!declaration)
+	{
+		throw new Error("Unable to resolve declarations of symbol.");
+	}
 
 	// Try to get State
-	let state: State | undefined = (declaration as unknown as StateNode)[STATE_PROP];
-
-	if (!state)
-	{
-		state = genericCalleeDeclarationExploringVisitor(declaration, context)
-	}
+	const state = getGenericParametersDetails(declaration, context);
 
 	if (state && state.usedGenericParameters && state.indexesOfGenericParameters)
 	{
@@ -33,8 +32,8 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 				const argsIndex = declaration.parameters
 					.findIndex(p => p.type && ts.isTypeReferenceNode(p.type) && p.type.typeName.getText() == genericParamName);
 
-				genericType = context.checker.getTypeAtLocation(node.arguments[argsIndex]);
-				let symbol = context.checker.getSymbolAtLocation(node.arguments[0]);
+				genericType = context.typeChecker.getTypeAtLocation(node.arguments[argsIndex]);
+				let symbol = context.typeChecker.getSymbolAtLocation(node.arguments[0]);
 
 				if (symbol)
 				{
@@ -44,13 +43,12 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 
 			if (genericTypeNode || genericType)
 			{
-				genericType ??= context.checker.getTypeAtLocation(genericTypeNode!);
+				genericType ??= context.typeChecker.getTypeAtLocation(genericTypeNode!);
 				const genericTypeSymbol = genericType.getSymbol();
 				typePropertyVal = getTypeCall(
 					genericType,
 					genericTypeSymbol,
-					context.checker,
-					context.sourceFileContext,
+					context,
 					genericTypeNode && ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 				);
 			}
@@ -89,4 +87,6 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 			]
 		);
 	}
+	
+	return undefined;
 }

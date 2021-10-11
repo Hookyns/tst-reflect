@@ -1,53 +1,48 @@
-import * as ts                                               from "typescript";
-import {TypeKind}                                            from "tst-reflect";
-import {SourceFileContext, TypePropertiesSource}             from "./declarations";
-import {getType, getTypeFullName, getTypeKind, isNativeType} from "./helpers";
-import {getDecorators}                                       from "./getDecorators";
-import {getProperties}                                       from "./getProperties";
-import {getConstructors}                                     from "./getConstructors";
-import getTypeCall                                           from "./getTypeCall";
-import getLiteralName                                        from "./getLiteralName";
-
-/**
- * Return getter (arrow function/lambda) for runtime type's Ctor.
- * @description Arrow function generated cuz of possible "Type is referenced before declaration".
- */
-function createCtorGetter(typeCtor: ts.EntityName | undefined)
-{
-	if (!typeCtor)
-	{
-		return undefined;
-	}
-
-	return ts.factory.createArrowFunction(undefined, undefined, [], undefined, ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), typeCtor as ts.Expression);
-}
+import { TypeKind }                 from "tst-reflect";
+import { ConditionalType }          from "typescript";
+import * as ts                      from "typescript";
+import { Context }                  from "./contexts/Context";
+import { TypePropertiesSource }     from "./declarations";
+import { getConstructors }          from "./getConstructors";
+import { getDecorators }            from "./getDecorators";
+import getLiteralName               from "./getLiteralName";
+import { getNativeTypeDescription } from "./getNativeTypeDescription";
+import { getNodeLocationText }      from "./getNodeLocationText";
+import { getProperties }            from "./getProperties";
+import getTypeCall                  from "./getTypeCall";
+import {
+	createCtorGetter,
+	getType,
+	getTypeFullName,
+	getTypeKind
+}                                   from "./helpers";
+import { log }                      from "./log";
 
 /**
  * Return TypePropertiesSource object describing given type
  * @param symbol
  * @param type
- * @param checker
- * @param sourceFileContext
+ * @param context
  * @param typeCtor
  */
 export function getTypeDescription(
 	type: ts.Type,
 	symbol: ts.Symbol | undefined,
-	checker: ts.TypeChecker,
-	sourceFileContext: SourceFileContext,
+	context: Context,
 	typeCtor?: ts.EntityName
 )
 	: TypePropertiesSource
 {
-	if (isNativeType(type))
+	if (context.config.debugMode && symbol?.declarations)
 	{
-		return {
-			n: (type as any).intrinsicName,
-			k: TypeKind.Native,
-			ctors: undefined,
-			decs: undefined,
-			props: undefined
-		};
+		log.trace(getNodeLocationText(symbol.declarations[0]));
+	}
+
+	const nativeTypeDescriptionResult = getNativeTypeDescription(type, context);
+
+	if (nativeTypeDescriptionResult.ok)
+	{
+		return nativeTypeDescriptionResult.typeDescription;
 	}
 
 	if ((type.flags & ts.TypeFlags.Literal) != 0)
@@ -66,13 +61,20 @@ export function getTypeDescription(
 		symbol = typeSymbol;
 	}
 
+	const checker = context.typeChecker;
+
 	if (symbol)
 	{
 		if (symbol.flags == ts.SymbolFlags.TypeLiteral && type.flags == ts.TypeFlags.Object)
 		{
+			if (context.config.debugMode)
+			{
+				log.info("Symbol is TypeLiteral of Object type.");
+			}
+
 			return {
 				k: TypeKind.Object,
-				props: getProperties(symbol, type, checker, sourceFileContext)
+				props: getProperties(symbol, type, context)
 			};
 		}
 
@@ -80,6 +82,7 @@ export function getTypeDescription(
 			ts.isPropertyDeclaration(symbol.valueDeclaration)
 			|| ts.isPropertySignature(symbol.valueDeclaration)
 			|| ts.isVariableDeclaration(symbol.valueDeclaration)
+			|| ts.isParameter(symbol.valueDeclaration)
 		))
 		{
 			if (symbol.valueDeclaration.type)
@@ -91,16 +94,15 @@ export function getTypeDescription(
 						k: TypeKind.TransientTypeReference,
 						n: (symbol.valueDeclaration.type.typeName as any).escapedText,
 						args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
-							checker.getTypeAtLocation(typeNode),
-							checker.getSymbolAtLocation(typeNode),
-							checker,
-							sourceFileContext
+								checker.getTypeAtLocation(typeNode),
+								checker.getSymbolAtLocation(typeNode),
+								context
 							)
 						) || [],
-					}
+					};
 				}
 
-				let isUnion = false, isIntersection = false
+				let isUnion, isIntersection = false;
 
 				if (
 					(isUnion = ts.isUnionTypeNode(symbol.valueDeclaration.type))
@@ -109,10 +111,9 @@ export function getTypeDescription(
 				{
 					const types = symbol.valueDeclaration.type.types
 						.map(typeNode => getTypeCall(
-							checker.getTypeAtLocation(typeNode),
-							checker.getSymbolAtLocation(typeNode),
-							checker,
-							sourceFileContext
+								checker.getTypeAtLocation(typeNode),
+								checker.getSymbolAtLocation(typeNode),
+								context
 							)
 						);
 
@@ -121,7 +122,7 @@ export function getTypeDescription(
 						types: types,
 						union: isUnion,
 						inter: isIntersection
-					}
+					};
 				}
 			}
 		}
@@ -129,15 +130,96 @@ export function getTypeDescription(
 
 	if (!typeSymbol)
 	{
-		if (type.flags == ts.TypeFlags.Object)
+		if (context.config.debugMode)
 		{
+			log.info("'typeSymbol' is undefined.");
+		}
+
+		if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object)
+		{
+			if (context.config.debugMode)
+			{
+				log.info("Symbol is TypeLiteral of Object type.");
+			}
+
 			return {
 				k: TypeKind.Object,
-				props: getProperties(symbol, type, checker, sourceFileContext)
+				props: getProperties(symbol, type, context)
+			};
+		}
+		else if ((type.flags & ts.TypeFlags.Conditional) == ts.TypeFlags.Conditional)
+		{
+			const ct = (type as ConditionalType).root.node;
+			const extendsType = checker.getTypeAtLocation(ct.extendsType);
+			const trueType = checker.getTypeAtLocation(ct.trueType);
+
+			return {
+				k: TypeKind.ConditionalType,
+				ct: {
+					e: getTypeCall(extendsType, extendsType.symbol, context),
+					tt: getTypeCall(trueType, trueType.symbol, context),
+					ft: getTypeCall(checker.getTypeAtLocation(ct.falseType), checker.getSymbolAtLocation(ct.falseType), context)
+				}
 			};
 		}
 
 		throw new Error("Unable to resolve type's symbol.");
+	}
+	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.TypeLiteral) == ts.SymbolFlags.TypeLiteral)
+	{
+		if (context.config.debugMode)
+		{
+			log.info("'typeSymbol' is TypeLiteral.", type);
+		}
+
+		return {
+			k: TypeKind.Object,
+			props: getProperties(typeSymbol, type, context)
+		};
+	}
+	// Some object literal type, eg. `private foo: { a: string, b: number };`
+	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.ObjectLiteral) == ts.SymbolFlags.ObjectLiteral)
+	{
+		if (context.config.debugMode)
+		{
+			log.info("'typeSymbol' is ObjectLiteral.", type);
+		}
+
+		return {
+			k: TypeKind.Object,
+			props: getProperties(typeSymbol, type, context)
+		};
+	}
+	else if ((type.flags & ts.TypeFlags.TypeParameter) == ts.TypeFlags.TypeParameter && (typeSymbol.flags & ts.SymbolFlags.TypeParameter) == ts.SymbolFlags.TypeParameter)
+	{
+		if (context.config.debugMode)
+		{
+			log.info("'typeSymbol' is TypeParameter.");
+		}
+
+		if (typeSymbol.declarations)
+		{
+			const typeParameter = typeSymbol.declarations[0];
+
+			if (ts.isTypeParameterDeclaration(typeParameter))
+			{
+				return {
+					k: TypeKind.TypeParameter,
+					con: typeParameter.constraint && getTypeCall(
+						checker.getTypeAtLocation(typeParameter.constraint),
+						checker.getSymbolAtLocation(typeParameter.constraint),
+						context
+					) || undefined,
+					def: typeParameter.default && getTypeCall(
+						checker.getTypeAtLocation(typeParameter.default),
+						checker.getSymbolAtLocation(typeParameter.default),
+						context
+					) || undefined
+				};
+			}
+		}
+
+		throw new Error("Unable to resolve TypeParameter's declaration.");
 	}
 
 	const decorators = getDecorators(typeSymbol, checker);
@@ -147,46 +229,58 @@ export function getTypeDescription(
 	const properties: TypePropertiesSource = {
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, typeSymbol),
-		props: getProperties(symbol, type, checker, sourceFileContext),
-		ctors: getConstructors(symbolType, checker, sourceFileContext),
+		props: getProperties(symbol, type, context),
+		ctors: getConstructors(symbolType, context),
 		decs: decorators,
 		k: kind,
 		ctor: kind == TypeKind.Class ? createCtorGetter(typeCtor) : undefined
 	};
 
-	if (kind == TypeKind.Class)
+	if (kind == TypeKind.Class && typeCtor)
 	{
-		properties.ctor = createCtorGetter(typeCtor)
+		context.addTypeCtor(typeCtor);
 	}
 
-	const declaration = typeSymbol.declarations[0];
+	const declaration = typeSymbol.declarations?.[0];
 
-	if (ts.isClassDeclaration(declaration) || ts.isInterfaceDeclaration(declaration))
+	if (declaration && (
+		ts.isClassDeclaration(declaration) || ts.isInterfaceDeclaration(declaration)
+	))
 	{
 		// extends & implements
 		if (declaration.heritageClauses)
 		{
 			const ext = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ExtendsKeyword)[0];
-			const impl = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ImplementsKeyword)[0];
 
 			if (ext)
 			{
 				properties.bt = getTypeCall(
 					checker.getTypeAtLocation(ext.types[0]),
 					checker.getSymbolAtLocation(ext.types[0]),
-					checker,
-					sourceFileContext
+					context
 				);
 			}
-			else if (impl)
+
+			const impl = declaration.heritageClauses.filter(h => h.token == ts.SyntaxKind.ImplementsKeyword)[0];
+
+			if (impl)
 			{
 				properties.iface = getTypeCall(
 					checker.getTypeAtLocation(impl.types[0]),
 					checker.getSymbolAtLocation(impl.types[0]),
-					checker,
-					sourceFileContext
+					context
 				);
 			}
+		}
+
+		// Type parameters
+		if (declaration.typeParameters)
+		{
+			properties.tp = declaration.typeParameters.map(typeParameterDeclaration => getTypeCall(
+				checker.getTypeAtLocation(typeParameterDeclaration),
+				checker.getSymbolAtLocation(typeParameterDeclaration),
+				context
+			));
 		}
 	}
 

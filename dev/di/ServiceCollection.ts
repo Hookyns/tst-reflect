@@ -1,7 +1,7 @@
 import {
     Type,
     getType
-} from "tst-reflect";
+} from "../../runtime";
 
 export class ServiceCollection
 {

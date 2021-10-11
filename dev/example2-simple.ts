@@ -1,3 +1,4 @@
+import "./metadata.lib.js";
 import {getType, Type}     from "tst-reflect";
 import {IService, Service} from "./dependency";
 
@@ -5,6 +6,11 @@ class ServiceCollection
 {
 	public readonly services: Array<[Type, any]> = [];
 
+	/**
+	 * @reflectGeneric
+	 * @param dependencyType
+	 * @param dependencyImplementation
+	 */
 	addTransient<TDep, TImp = any>(dependencyType?: Type, dependencyImplementation?: Type | any)
 	{
 		this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
@@ -20,6 +26,10 @@ class ServiceProvider
 		this.serviceCollection = serviceCollection;
 	}
 
+	/**
+	 * @reflectGeneric
+	 * @param type
+	 */
 	getService<TDependency>(type?: Type): TDependency
 	{
 		type ??= getType<TDependency>();
@@ -39,6 +49,9 @@ class ServiceProvider
 		return impl;
 	}
 
+	/**
+	 * @reflectGeneric
+	 */
 	getServiceGenericOnly<TDependency>(): TDependency
 	{
 		return this.getService(getType<TDependency>());

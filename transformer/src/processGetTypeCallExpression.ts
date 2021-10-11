@@ -1,27 +1,29 @@
 import * as ts          from "typescript";
-import {Context}        from "./visitors/Context";
+import {Context}        from "./contexts/Context";
 import {GENERIC_PARAMS} from "./helpers";
 import getTypeCall      from "./getTypeCall";
 import {getError}       from "./getError";
+import { log }          from "./log";
 
-export function processGetTypeCallExpression(node: ts.CallExpression, context: Context)
+export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | undefined
 {
 	// TODO: Use isGetTypeCall()
-	
+
 	// Add identifier into context; will be used for all calls
-	if (!context.sourceFileContext.getTypeIdentifier)
+	if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
 	{
-		context.sourceFileContext.getTypeIdentifier = node.expression as ts.Identifier;
+		log.info("Identifier of existing getType() call stored inside context.");
 	}
 
 	let genericTypeNode = node.typeArguments?.[0];
 
 	if (!genericTypeNode)
 	{
-		throw getError(node, "Type argument of function getType<T>() is missing.");
+		// TODO: Allow calls like "getType(variable)"
+		throw getError(node, "Type argument 'TType' of function getType<TType>() is missing.");
 	}
 
-	let genericType = context.checker.getTypeAtLocation(genericTypeNode);
+	let genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
 
 	// Parameter is another generic type; replace by "__genericParam__.X", where X is name of generic parameter
 	if (genericType.flags == ts.TypeFlags.TypeParameter)
@@ -33,6 +35,8 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 				ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
 			);
 		}
+		
+		return undefined;
 	}
 	// Parameter is specific type
 	else
@@ -47,8 +51,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 		return getTypeCall(
 			genericType,
 			genericTypeSymbol,
-			context.checker,
-			context.sourceFileContext,
+			context,
 			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 		);
 	}

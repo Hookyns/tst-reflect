@@ -1,4 +1,4 @@
-const PACKAGE_ID: string = "tst-reflect"
+const PACKAGE_ID: string = "tst-reflect";
 
 /**
  * Kind of type
@@ -38,10 +38,70 @@ export enum TypeKind
 	Object,
 
 	/**
-	 * Some subtype
-	 * @description Eg. type Foo = "hello world" | "hello". String "hello world" is literal type and it is subtype of string.
+	 * Some subtype of string, number, boolean
+	 * @example <caption>type Foo = "hello world" | "hello"</caption>
+	 * String "hello world" is literal type and it is subtype of string.
+	 *
+	 * <caption>type TheOnlyTrue = true;</caption>
+	 * Same as true is literal type and it is subtype of boolean.
 	 */
 	LiteralType,
+
+	/**
+	 * Fixed lenght arrays literals
+	 * @example <caption>type Coords = [x: number, y: number, z: number];</caption>
+	 */
+	Tuple,
+
+	/**
+	 * Generic parameter type
+	 * @description Represent generic type parameter of generic types. Eg. it is TType of class Animal<TType> {}.
+	 */
+	TypeParameter,
+
+	/**
+	 * Conditional type
+	 */
+	ConditionalType = 9,
+}
+
+/**
+ * @internal
+ */
+export interface ConditionalTypeDescription
+{
+	/**
+	 * Extends type
+	 */
+	e: Type;
+
+	/**
+	 * True type
+	 */
+	tt: Type;
+
+	/**
+	 * False type
+	 */
+	ft: Type;
+}
+
+export interface ConditionalType
+{
+	/**
+	 * Extends type
+	 */
+	extends: Type;
+
+	/**
+	 * True type
+	 */
+	trueType: Type;
+
+	/**
+	 * False type
+	 */
+	falseType: Type;
 }
 
 /**
@@ -149,20 +209,95 @@ export interface Constructor
  */
 export interface TypeProperties
 {
+	/**
+	 * Type name
+	 */
 	n?: string;
+
+	/**
+	 * Type fullname
+	 */
 	fn?: string;
+
+	/**
+	 * TypeKind
+	 */
 	k: TypeKind;
+
+	/**
+	 * Constructors
+	 */
 	ctors?: Array<ConstructorDescription>;
+
+	/**
+	 * Properties
+	 */
 	props?: Array<PropertyDescription>;
+
+	/**
+	 * Decorators
+	 */
 	decs?: Array<DecoratorDescription>;
+
+	/**
+	 * Generic type parameters
+	 */
+	tp?: Array<Type>;
+
+	/**
+	 * Is union type
+	 */
 	union?: boolean;
+
+	/**
+	 * Is intersection type
+	 */
 	inter?: boolean;
+
+	/**
+	 * Unified or intersecting types
+	 */
 	types?: Array<Type>;
+
+	/**
+	 * Ctor getter
+	 */
 	ctor?: () => Function;
+
+	/**
+	 * Extended base type
+	 */
 	bt?: Type;
+
+	/**
+	 * Implemented interface
+	 */
 	iface?: Type;
+
+	/**
+	 * Literal value
+	 */
 	v?: any
+
+	/**
+	 * Type arguments
+	 */
 	args?: Array<Type>
+
+	/**
+	 * Default type
+	 */
+	def?: Type,
+	
+	/**
+	 * Constraining type
+	 */
+	con?: Type,
+
+	/**
+	 * Conditional type description
+	 */
+	ct?: ConditionalTypeDescription
 }
 
 const typesMetaCache: { [key: number]: Type } = {};
@@ -184,10 +319,14 @@ export class Type
 	private readonly _properties: Array<Property>;
 	private readonly _decorators: Array<Decorator>;
 	private readonly _constructors: Array<Constructor>;
+	private readonly _typeParameters: Array<Type>;
 	private readonly _baseType?: Type;
 	private readonly _interface?: Type;
 	private readonly _literalValue?: any;
 	private readonly _typeArgs: Array<Type>;
+	private readonly _conditionalType?: ConditionalType;
+	private readonly _genericTypeConstraint?: Type;
+	private readonly _genericTypeDefault?: Type;
 
 	/**
 	 * Internal Type constructor
@@ -206,6 +345,7 @@ export class Type
 		this._constructors = description.ctors?.map(Type.mapConstructors) || [];
 		this._properties = description.props?.map(Type.mapProperties) || [];
 		this._decorators = description.decs?.map(Type.mapDecorators) || [];
+		this._typeParameters = description.tp || [];
 		this._ctor = description.ctor;
 		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = description.iface;
@@ -214,6 +354,9 @@ export class Type
 		this._types = description.types;
 		this._literalValue = description.v;
 		this._typeArgs = description.args || [];
+		this._conditionalType = description.ct ? { extends: description.ct.e, trueType: description.ct.tt, falseType: description.ct.ft } : undefined;
+		this._genericTypeConstraint = description.con;
+		this._genericTypeDefault = description.def;
 	}
 
 	/**
@@ -248,7 +391,7 @@ export class Type
 	 */
 	private static mapDecorators(d: DecoratorDescription): Decorator
 	{
-		return ({name: d.n, fullName: d.fn});
+		return ({ name: d.n, fullName: d.fn });
 	}
 
 	/**
@@ -257,7 +400,7 @@ export class Type
 	 */
 	private static mapProperties(p: PropertyDescription): Property
 	{
-		return ({name: p.n, type: p.t, decorators: p.d?.map(Type.mapDecorators) || []});
+		return ({ name: p.n, type: p.t, decorators: p.d?.map(Type.mapDecorators) || [] });
 	}
 
 	/**
@@ -266,7 +409,16 @@ export class Type
 	 */
 	private static mapConstructors(c: ConstructorDescription): Constructor
 	{
-		return ({parameters: c.params.map(p => ({name: p.n, type: p.t}))});
+		return ({ parameters: c.params.map(p => ({ name: p.n, type: p.t })) });
+	}
+
+	// noinspection JSUnusedGlobalSymbols
+	/**
+	 * Returns information about generic conditional type.
+	 */
+	get condition(): ConditionalType | undefined
+	{
+		return this._conditionalType;
 	}
 
 	// noinspection JSUnusedGlobalSymbols
@@ -371,6 +523,7 @@ export class Type
 		return this.kind == TypeKind.Interface;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is an literal or not
 	 */
@@ -379,6 +532,7 @@ export class Type
 		return this._kind == TypeKind.LiteralType;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Get underlying value in case of literal type
 	 */
@@ -387,6 +541,7 @@ export class Type
 		return this._literalValue;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is an object literal or not
 	 */
@@ -395,6 +550,16 @@ export class Type
 		return this._kind == TypeKind.Object;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
+	/**
+	 * Returns array of properties
+	 */
+	getTypeParameters(): Array<Type>
+	{
+		return this._typeParameters;
+	}
+
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Return type arguments in case of generic type
 	 */
@@ -460,7 +625,7 @@ export class Type
 				return true;
 			}
 
-			tmpType = tmpType.baseType
+			tmpType = tmpType.baseType;
 		}
 		while (tmpType !== undefined);
 
@@ -468,24 +633,35 @@ export class Type
 	}
 
 	/**
-	 * Check if this type is string
+	 * Check if this type is a string
 	 */
-	isString(): boolean {
+	isString(): boolean
+	{
 		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "string";
 	}
 
 	/**
-	 * Check if this type is number
+	 * Check if this type is a number
 	 */
-	isNumber(): boolean {
+	isNumber(): boolean
+	{
 		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "number";
 	}
 
 	/**
-	 * Check if this type is boolean
+	 * Check if this type is a boolean
 	 */
-	isBoolean(): boolean {
+	isBoolean(): boolean
+	{
 		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "boolean";
+	}
+
+	/**
+	 * Check if this type is an array
+	 */
+	isArray(): boolean
+	{
+		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "Array";
 	}
 }
 
@@ -506,8 +682,10 @@ class TypeActivator extends Type
  * Returns Type of generic parameter
  */
 export function getType<T>(): Type | undefined
+// TODO: Uncomment and use this line. Waiting for TypeScript issue to be resolved. https://github.com/microsoft/TypeScript/issues/46155
+// export function getType<T = void>(..._: (T extends void ? ["You must provide a type parameter"] : [])): Type | undefined
 /** @internal */
-export function getType<T>(description?: TypeProperties | number, typeId?: number): Type | undefined
+export function getType<T>(description?: TypeProperties | number | string, typeId?: number): Type | undefined
 {
 	// Return type from storage
 	if (typeof description == "number")
@@ -532,7 +710,7 @@ export function getType<T>(description?: TypeProperties | number, typeId?: numbe
 	return undefined;
 }
 
-getType.__tst_reflect__ = true
+getType.__tst_reflect__ = true;
 
 /**
  * To identify functions by package
@@ -544,8 +722,9 @@ export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
  */
 export function reflectGeneric()
 {
-	return function (target: any, propertyKey?: string) {
-	}
+	return function (target: any, propertyKey?: string)
+	{
+	};
 }
 
 reflectGeneric.__tst_reflect__ = true;

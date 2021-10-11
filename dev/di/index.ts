@@ -1,4 +1,4 @@
-import { getType }           from "tst-reflect";
+import { getType }           from "../../runtime";
 import { ServiceCollection } from "./ServiceCollection";
 import { ServiceProvider }   from "./ServiceProvider";
 
