@@ -414,6 +414,15 @@ export class Type
 
 	// noinspection JSUnusedGlobalSymbols
 	/**
+	 * Returns information about generic conditional type.
+	 */
+	get condition(): ConditionalType | undefined
+	{
+		return this._conditionalType;
+	}
+
+	// noinspection JSUnusedGlobalSymbols
+	/**
 	 * Returns a value indicating whether the Type is container for unified Types or not
 	 */
 	get union(): boolean

@@ -91,123 +91,138 @@ This package contains two main exports, `getType<T>()` function and `Type` class
 export declare class Type
 {
     /**
+     * Returns information about generic conditional type
+     */
+    get condition(): ConditionalType | undefined;
+    
+    /**
      * Returns a value indicating whether the Type is container for unified Types or not
      */
     get union(): boolean;
-
+    
     /**
      * Returns a value indicating whether the Type is container for intersecting Types or not
      */
     get intersection(): boolean;
-
+    
     /**
      * List of underlying types in case Type is union or intersection
      */
     get types(): Array<Type> | undefined;
-
+    
     /**
      * Constructor function in case Type is class
      */
     get ctor(): Function | undefined;
-
+    
     /**
      * Base type
      * @description Base type from which this type extends from or undefined if type is Object.
      */
     get baseType(): Type | undefined;
-
+    
     /**
      * Get type full-name
      * @description Contains file path base to project root
      */
     get fullName(): string;
-
+    
     /**
      * Get type name
      */
     get name(): string;
-
+    
     /**
      * Get kind of type
      */
     get kind(): TypeKind;
-
+    
     /**
      * Returns true if types are equals
      * @param type
      */
     is(type: Type): boolean;
-
+    
     /**
      * Returns a value indicating whether the Type is a class or not
      */
     isClass(): boolean;
-
+    
     /**
      * Returns a value indicating whether the Type is a interface or not
      */
     isInterface(): boolean;
-
+    
     /**
      * Returns a value indicating whether the Type is an literal or not
      */
     isLiteral(): boolean;
-
+    
     /**
      * Get underlying value in case of literal type
      */
     getLiteralValue(): any;
-
+    
     /**
      * Returns a value indicating whether the Type is an object literal or not
      */
     isObjectLiteral(): boolean;
-
+    
+    /**
+     * Returns array of properties
+     */
+    getTypeParameters(): Array<Type>;
+    
     /**
      * Return type arguments in case of generic type
      */
     getTypeArguments(): Array<Type>;
-
+    
     /**
      * Returns constructor description when Type is a class
      */
     getConstructors(): Array<Constructor> | undefined;
-
+    
     /**
      * Returns interface which this type implements
      */
     getInterface(): Type | undefined;
-
+    
     /**
      * Returns array of properties
      */
     getProperties(): Array<Property>;
-
+    
     /**
      * Returns array of decorators
      */
     getDecorators(): Array<Decorator>;
-
+    
     /**
      * Returns true if this type is assignable to target type
      * @param target
      */
     isAssignableTo(target: Type): boolean;
-
+    
     /**
-     * Check if this type is string
+     * Check if this type is a string
      */
     isString(): boolean;
-
+    
     /**
-     * Check if this type is number
+     * Check if this type is a number
      */
     isNumber(): boolean;
-
+    
     /**
-     * Check if this type is boolean
+     * Check if this type is a boolean
      */
     isBoolean(): boolean;
+    
+    /**
+     * Check if this type is an array
+     */
+    isArray(): boolean;
 }
 ```
 
