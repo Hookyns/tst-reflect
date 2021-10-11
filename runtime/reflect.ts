@@ -58,6 +58,50 @@ export enum TypeKind
 	 * @description Represent generic type parameter of generic types. Eg. it is TType of class Animal<TType> {}.
 	 */
 	TypeParameter,
+
+	/**
+	 * Conditional type
+	 */
+	ConditionalType = 9,
+}
+
+/**
+ * @internal
+ */
+export interface ConditionalTypeDescription
+{
+	/**
+	 * Extends type
+	 */
+	e: Type;
+
+	/**
+	 * True type
+	 */
+	tt: Type;
+
+	/**
+	 * False type
+	 */
+	ft: Type;
+}
+
+export interface ConditionalType
+{
+	/**
+	 * Extends type
+	 */
+	extends: Type;
+
+	/**
+	 * True type
+	 */
+	trueType: Type;
+
+	/**
+	 * False type
+	 */
+	falseType: Type;
 }
 
 /**
@@ -126,31 +170,6 @@ export interface Decorator
 }
 
 /**
- * @internal
- */
-export interface TypeParameterDescription
-{
-	c: Type;
-	d: Type;
-}
-
-/**
- * Method parameter description
- */
-export interface TypeParameter
-{
-	/**
-	 * Constraining type
-	 */
-	constraint: Type;
-
-	/**
-	 * Default type
-	 */
-	default: Type
-}
-
-/**
  * Method parameter description
  */
 export interface MethodParameter
@@ -190,23 +209,95 @@ export interface Constructor
  */
 export interface TypeProperties
 {
+	/**
+	 * Type name
+	 */
 	n?: string;
+
+	/**
+	 * Type fullname
+	 */
 	fn?: string;
+
+	/**
+	 * TypeKind
+	 */
 	k: TypeKind;
+
+	/**
+	 * Constructors
+	 */
 	ctors?: Array<ConstructorDescription>;
+
+	/**
+	 * Properties
+	 */
 	props?: Array<PropertyDescription>;
+
+	/**
+	 * Decorators
+	 */
 	decs?: Array<DecoratorDescription>;
-	tp?: Array<TypeParameterDescription>;
+
+	/**
+	 * Generic type parameters
+	 */
+	tp?: Array<Type>;
+
+	/**
+	 * Is union type
+	 */
 	union?: boolean;
+
+	/**
+	 * Is intersection type
+	 */
 	inter?: boolean;
+
+	/**
+	 * Unified or intersecting types
+	 */
 	types?: Array<Type>;
+
+	/**
+	 * Ctor getter
+	 */
 	ctor?: () => Function;
+
+	/**
+	 * Extended base type
+	 */
 	bt?: Type;
+
+	/**
+	 * Implemented interface
+	 */
 	iface?: Type;
+
+	/**
+	 * Literal value
+	 */
 	v?: any
+
+	/**
+	 * Type arguments
+	 */
 	args?: Array<Type>
+
+	/**
+	 * Default type
+	 */
 	def?: Type,
-	con?: Type
+	
+	/**
+	 * Constraining type
+	 */
+	con?: Type,
+
+	/**
+	 * Conditional type description
+	 */
+	ct?: ConditionalTypeDescription
 }
 
 const typesMetaCache: { [key: number]: Type } = {};
@@ -228,11 +319,14 @@ export class Type
 	private readonly _properties: Array<Property>;
 	private readonly _decorators: Array<Decorator>;
 	private readonly _constructors: Array<Constructor>;
-	private readonly _typeParameters: Array<TypeParameter>;
+	private readonly _typeParameters: Array<Type>;
 	private readonly _baseType?: Type;
 	private readonly _interface?: Type;
 	private readonly _literalValue?: any;
 	private readonly _typeArgs: Array<Type>;
+	private readonly _conditionalType?: ConditionalType;
+	private readonly _genericTypeConstraint?: Type;
+	private readonly _genericTypeDefault?: Type;
 
 	/**
 	 * Internal Type constructor
@@ -251,7 +345,7 @@ export class Type
 		this._constructors = description.ctors?.map(Type.mapConstructors) || [];
 		this._properties = description.props?.map(Type.mapProperties) || [];
 		this._decorators = description.decs?.map(Type.mapDecorators) || [];
-		this._typeParameters = description.tp?.map(Type.mapTypeParameters) || [];
+		this._typeParameters = description.tp || [];
 		this._ctor = description.ctor;
 		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = description.iface;
@@ -260,6 +354,9 @@ export class Type
 		this._types = description.types;
 		this._literalValue = description.v;
 		this._typeArgs = description.args || [];
+		this._conditionalType = description.ct ? { extends: description.ct.e, trueType: description.ct.tt, falseType: description.ct.ft } : undefined;
+		this._genericTypeConstraint = description.con;
+		this._genericTypeDefault = description.def;
 	}
 
 	/**
@@ -313,15 +410,6 @@ export class Type
 	private static mapConstructors(c: ConstructorDescription): Constructor
 	{
 		return ({ parameters: c.params.map(p => ({ name: p.n, type: p.t })) });
-	}
-
-	/**
-	 * @internal
-	 * @param tp
-	 */
-	private static mapTypeParameters(tp: TypeParameterDescription): TypeParameter
-	{
-		return ({ constraint: tp.c, default: tp.d });
 	}
 
 	// noinspection JSUnusedGlobalSymbols
@@ -426,6 +514,7 @@ export class Type
 		return this.kind == TypeKind.Interface;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is an literal or not
 	 */
@@ -434,6 +523,7 @@ export class Type
 		return this._kind == TypeKind.LiteralType;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Get underlying value in case of literal type
 	 */
@@ -442,6 +532,7 @@ export class Type
 		return this._literalValue;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is an object literal or not
 	 */
@@ -450,6 +541,16 @@ export class Type
 		return this._kind == TypeKind.Object;
 	}
 
+	// noinspection JSUnusedGlobalSymbols
+	/**
+	 * Returns array of properties
+	 */
+	getTypeParameters(): Array<Type>
+	{
+		return this._typeParameters;
+	}
+
+	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Return type arguments in case of generic type
 	 */
@@ -488,15 +589,6 @@ export class Type
 	getProperties(): Array<Property>
 	{
 		return this._properties;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns array of properties
-	 */
-	getTypeParameters(): Array<TypeParameter>
-	{
-		return this._typeParameters;
 	}
 
 	// noinspection JSUnusedGlobalSymbols
