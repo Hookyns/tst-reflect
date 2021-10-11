@@ -1,4 +1,5 @@
 import { TypeKind }                 from "tst-reflect";
+import { ConditionalType }          from "typescript";
 import * as ts                      from "typescript";
 import { Context }                  from "./contexts/Context";
 import { TypePropertiesSource }     from "./declarations";
@@ -6,6 +7,7 @@ import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
 import getLiteralName               from "./getLiteralName";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
+import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
 import getTypeCall                  from "./getTypeCall";
 import {
@@ -31,6 +33,11 @@ export function getTypeDescription(
 )
 	: TypePropertiesSource
 {
+	if (context.config.debugMode && symbol?.declarations)
+	{
+		log.trace(getNodeLocationText(symbol.declarations[0]));
+	}
+
 	const nativeTypeDescriptionResult = getNativeTypeDescription(type, context);
 
 	if (nativeTypeDescriptionResult.ok)
@@ -87,9 +94,9 @@ export function getTypeDescription(
 						k: TypeKind.TransientTypeReference,
 						n: (symbol.valueDeclaration.type.typeName as any).escapedText,
 						args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
-							checker.getTypeAtLocation(typeNode),
-							checker.getSymbolAtLocation(typeNode),
-							context
+								checker.getTypeAtLocation(typeNode),
+								checker.getSymbolAtLocation(typeNode),
+								context
 							)
 						) || [],
 					};
@@ -104,9 +111,9 @@ export function getTypeDescription(
 				{
 					const types = symbol.valueDeclaration.type.types
 						.map(typeNode => getTypeCall(
-							checker.getTypeAtLocation(typeNode),
-							checker.getSymbolAtLocation(typeNode),
-							context
+								checker.getTypeAtLocation(typeNode),
+								checker.getSymbolAtLocation(typeNode),
+								context
 							)
 						);
 
@@ -140,6 +147,21 @@ export function getTypeDescription(
 				props: getProperties(symbol, type, context)
 			};
 		}
+		else if ((type.flags & ts.TypeFlags.Conditional) == ts.TypeFlags.Conditional)
+		{
+			const ct = (type as ConditionalType).root.node;
+			const extendsType = checker.getTypeAtLocation(ct.extendsType);
+			const trueType = checker.getTypeAtLocation(ct.trueType);
+
+			return {
+				k: TypeKind.ConditionalType,
+				ct: {
+					e: getTypeCall(extendsType, extendsType.symbol, context),
+					tt: getTypeCall(trueType, trueType.symbol, context),
+					ft: getTypeCall(checker.getTypeAtLocation(ct.falseType), checker.getSymbolAtLocation(ct.falseType), context)
+				}
+			};
+		}
 
 		throw new Error("Unable to resolve type's symbol.");
 	}
@@ -168,11 +190,11 @@ export function getTypeDescription(
 			props: getProperties(typeSymbol, type, context)
 		};
 	}
-	else if ((type.flags & ts.TypeFlags.TypeParameter) == ts.TypeFlags.TypeParameter && (typeSymbol.flags & ts.SymbolFlags.TypeParameter) == ts.SymbolFlags.ObjectLiteral)
+	else if ((type.flags & ts.TypeFlags.TypeParameter) == ts.TypeFlags.TypeParameter && (typeSymbol.flags & ts.SymbolFlags.TypeParameter) == ts.SymbolFlags.TypeParameter)
 	{
 		if (context.config.debugMode)
 		{
-			log.info("'typeSymbol' is TypeParameter.", type);
+			log.info("'typeSymbol' is TypeParameter.");
 		}
 
 		if (typeSymbol.declarations)
@@ -181,10 +203,19 @@ export function getTypeDescription(
 
 			if (ts.isTypeParameterDeclaration(typeParameter))
 			{
-				// TODO: Finish this.
-				// return {
-				// 	k: TypeKind.
-				// }
+				return {
+					k: TypeKind.TypeParameter,
+					con: typeParameter.constraint && getTypeCall(
+						checker.getTypeAtLocation(typeParameter.constraint),
+						checker.getSymbolAtLocation(typeParameter.constraint),
+						context
+					) || undefined,
+					def: typeParameter.default && getTypeCall(
+						checker.getTypeAtLocation(typeParameter.default),
+						checker.getSymbolAtLocation(typeParameter.default),
+						context
+					) || undefined
+				};
 			}
 		}
 
@@ -240,6 +271,16 @@ export function getTypeDescription(
 					context
 				);
 			}
+		}
+
+		// Type parameters
+		if (declaration.typeParameters)
+		{
+			properties.tp = declaration.typeParameters.map(typeParameterDeclaration => getTypeCall(
+				checker.getTypeAtLocation(typeParameterDeclaration),
+				checker.getSymbolAtLocation(typeParameterDeclaration),
+				context
+			));
 		}
 	}
 

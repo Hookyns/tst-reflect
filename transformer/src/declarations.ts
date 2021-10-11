@@ -66,6 +66,27 @@ export interface ConstructorDescriptionSource
 /**
  * @internal
  */
+interface ConditionalTypeDescriptionSource
+{
+	/**
+	 * Extends type
+	 */
+	e: GetTypeCall;
+
+	/**
+	 * True type
+	 */
+	tt: GetTypeCall;
+
+	/**
+	 * False type
+	 */
+	ft: GetTypeCall;
+}
+
+/**
+ * @internal
+ */
 export interface TypePropertiesSource
 {
 	/**
@@ -139,6 +160,26 @@ export interface TypePropertiesSource
 	 * @description In case of generic type description
 	 */
 	args?: Array<GetTypeCall>;
+
+	/**
+	 * Type parameters
+	 */
+	tp?: Array<GetTypeCall>;
+	
+	/**
+	 * Constraining type
+	 */
+	con?: GetTypeCall;
+
+	/**
+	 * Default type
+	 */
+	def?: GetTypeCall;	
+	
+	/**
+	 * Conditional type description
+	 */
+	ct?: ConditionalTypeDescriptionSource;
 }
 
 /**

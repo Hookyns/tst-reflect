@@ -8,17 +8,17 @@ export const color = {
 };
 
 export enum LogLevel {
-    Trace,
-    Info,
-    Warning,
-    Error
+    Trace = "TRA",
+    Info = "INF",
+    Warning = "WRN",
+    Error = "ERR"
 }
 
 class Logger
 {
     log(level: LogLevel, color: number, ...args: any[])
     {
-        console.log.apply(undefined, [`\x1b[${color}m[${LogLevel[level]}] ${PACKAGE_ID}`, ...args, "\x1b[0m"]);
+        console.log.apply(undefined, [`\x1b[${color}m[${level}] ${PACKAGE_ID}`, ...args, "\x1b[0m"]);
     }
 
     /**

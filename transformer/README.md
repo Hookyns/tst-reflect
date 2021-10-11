@@ -13,7 +13,7 @@ list of constructors and their parameters and their types and much more.
 
 Simple example:
 
-```typescipt
+```typescript
 import { getType } from "tst-reflect";
 
 function inferType<TType>() {
@@ -26,7 +26,7 @@ inferType<typeof variable>(); // "number" - but it is and number literal with va
 
 or
 
-```typescipt
+```typescript
 import { getType } from "tst-reflect";
 
 /** @reflectGeneric */
