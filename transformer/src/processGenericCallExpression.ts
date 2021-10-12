@@ -5,14 +5,14 @@ import { getGenericParametersDetails } from "./getGenericParametersDetails";
 
 export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
-	// Method/function declaration
-	const declaration = fncType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
-
-	if (!declaration)
+	if (!fncType.symbol.declarations)
 	{
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
-
+	
+	// Method/function declaration
+	const declaration = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).find(d => d.body !== undefined) ?? fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
+	
 	// Try to get State
 	const state = getGenericParametersDetails(declaration, context);
 
