@@ -261,7 +261,7 @@ Second part is somewhere in the middle in method `getService<T>()` of `ServicePr
 Type details in [Synopsis](#synopsis).
 
 ## Examples
-- [Example 01 - Dependency Injection]() [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
+- [Example 01 - Dependency Injection](https://github.com/Hookyns/tst-reflect-example-01) [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
 
 Feel free to add Your interesting examples. Just add a link to this README and make a PR.
 
