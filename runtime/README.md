@@ -88,10 +88,11 @@ This package contains two main exports, `getType<T>()` function and `Type` class
 /**
  * Object representing TypeScript type in memory
  */
-export declare class Type
-{
+export declare class Type {
+    static readonly Object: Type;
+    
     /**
-     * Returns information about generic conditional type
+     * Returns information about generic conditional type.
      */
     get condition(): ConditionalType | undefined;
     
@@ -224,6 +225,91 @@ export declare class Type
      */
     isArray(): boolean;
 }
+
+export declare enum TypeKind
+{
+    Interface = 0,
+    Class = 1,
+    Native = 2,
+    Container = 3,
+    TransientTypeReference = 4,
+    Object = 5,
+    LiteralType = 6,
+    Tuple = 7,
+    TypeParameter = 8,
+    ConditionalType = 9
+}
+
+export interface ConditionalType {
+    /**
+     * Extends type
+     */
+    extends: Type;
+    /**
+     * True type
+     */
+    trueType: Type;
+    /**
+     * False type
+     */
+    falseType: Type;
+}
+
+/**
+ * Property description
+ */
+export interface Property {
+    /**
+     * Property name
+     */
+    name: string;
+    /**
+     * Property type
+     */
+    type: Type;
+    /**
+     * Property decorators
+     */
+    decorators: Array<Decorator>;
+}
+
+/**
+ * Decoration description
+ */
+export interface Decorator {
+    /**
+     * Decorator name
+     */
+    name: string;
+    /**
+     * Decorator full name
+     */
+    fullName?: string;
+}
+
+/**
+ * Method parameter description
+ */
+export interface MethodParameter {
+    /**
+     * Parameter name
+     */
+    name: string;
+    /**
+     * Parameter type
+     */
+    type: Type;
+}
+
+/**
+ * Constructor description object
+ */
+export interface Constructor {
+    /**
+     * Constructor parameters
+     */
+    parameters: Array<MethodParameter>;
+}
 ```
 
 ```typescript
@@ -341,6 +427,8 @@ console.log("Type created using reflection: ", s1);
 console.log("s1 is instanceof Service: ", s1 instanceof dependency_1.Service);
 ```
 
-## License
+## Examples
+Watch Examples section in the main [README](https://github.com/Hookyns/ts-reflection#examples) of the repository.
 
+## License
 This project is licensed under the [MIT license](./LICENSE).

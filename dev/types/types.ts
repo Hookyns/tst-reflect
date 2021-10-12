@@ -35,6 +35,8 @@ abstract class BaseGenericClass<TGenericType extends any = DefaultType, TGeneric
     public stringProp: string;
 
     constructor(initValue: TGenericType)
+    constructor(initValue: TGenericType, anyProp: undefined)
+    constructor(initValue: TGenericType, anyProp?: TGenericType2)
     constructor(initValue: TGenericType, anyProp?: any)
     {
         this.initValue = initValue;
@@ -96,7 +98,7 @@ class FinalClass extends BaseGenericClass<{ genFoo: Array<{ genArrBar: string }>
 
     conditionalParamMethod<T = void>(...arg: T extends void ? ["Type argument is required"] : []): void
     {
-        
+
     }
 }
 

@@ -21,7 +21,7 @@ function inferType<TType>() {
 }
 
 const variable = 5;
-inferType<typeof variable>(); // "number" - but it is and number literal with value 5, more info in docs
+inferType<typeof variable>(); // "number" - but it is a number literal with value 5, more info in docs.
 ```
 
 or
@@ -35,7 +35,7 @@ function inferType<TType>(val: TType) {
 }
 
 const variable = 5;
-inferType(variable); // "number"; thanks to @reflectGeneric JSDoc, you don't have to pass generic param, but it is not recomended.
+inferType(variable); // "number"; thanks to @reflectGeneric JSDoc, you don't have to pass generic param.
 ```
 
 More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder.
@@ -49,7 +49,7 @@ your own), eg. package [ttypescript](https://www.npmjs.com/package/ttypescript).
 
 `npm i ttypescript -D`
 
-Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
+Now just add transformer to `tsconfig.json` and run `npx ttsc` instead of `tsc`.
 
 ```json5
 {
@@ -148,169 +148,7 @@ file by setting own path. Or you can set `false` to disable generation of that f
 redundant if same types are used in more files.
 
 ## Examples
-
-### Advanced Example
-
-This example shows super simple dependency injection using reflection and generics.
-
-> index.ts
-
-```typescript
-import {
-    getType,
-    Type
-} from "tst-reflect";
-import {
-    IService,
-    Service
-} from "./dependency";
-
-class ServiceCollection
-{
-    public readonly services: Array<[Type, any]> = [];
-
-    addTransient<TDep, TImp = any>(dependencyType?: Type, dependencyImplementation?: Type | any)
-    {
-        this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
-    }
-}
-
-class ServiceProvider
-{
-    private serviceCollection: ServiceCollection;
-
-    constructor(serviceCollection: ServiceCollection)
-    {
-        this.serviceCollection = serviceCollection;
-    }
-
-    getService<TDependency>(type?: Type): TDependency
-    {
-        type ??= getType<TDependency>();
-
-        const arr = this.serviceCollection.services.find(([dep]) => dep.is(type));
-        const impl = arr[1];
-
-        if (!impl)
-        {
-            throw new Error(`No implementation registered for '${type.name}'`);
-        }
-
-        if (impl instanceof Type)
-        {
-            return Reflect.construct(impl.ctor, []);
-        }
-
-        return impl;
-    }
-
-    getServiceGenericOnly<TDependency>(): TDependency
-    {
-        return this.getService(getType<TDependency>());
-    }
-}
-
-const serviceCollection = new ServiceCollection();
-serviceCollection.addTransient(getType<IService>(), getType<Service>());
-// or with generic
-serviceCollection.addTransient<IService, Service>();
-
-const serviceProvider = new ServiceProvider(serviceCollection);
-
-const s1 = serviceProvider.getService<IService>();
-console.log("Type created using reflection: ", s1);
-console.log("s1 is instanceof Service: ", s1 instanceof Service); // true
-
-const s2 = serviceProvider.getServiceGenericOnly<IService>();
-console.log("Type created using generic reflection: ", s2);
-
-```
-
-Generated output
-
-```javascript
-"use strict";
-Object.defineProperty(exports, "__esModule", {value: true});
-const tst_reflect_1 = require("tst-reflect");
-const dependency_1 = require("./dependency");
-tst_reflect_1.getType({
-    n: "IService",
-    fn: "..\\dependency.ts:IService",
-    props: [{
-        n: "prop",
-        t: tst_reflect_1.getType({
-            k: 3,
-            types: [tst_reflect_1.getType({n: "string", k: 2}), tst_reflect_1.getType({n: "number", k: 2})],
-            union: true,
-            inter: false
-        })
-    }],
-    k: 0
-}, 22978);
-tst_reflect_1.getType({n: "ILogger", fn: "..\\dependency.ts:ILogger", k: 0}, 22976);
-tst_reflect_1.getType({
-    n: "Service",
-    fn: "..\\dependency.ts:Service",
-    props: [{
-        n: "prop",
-        t: tst_reflect_1.getType({
-            k: 3,
-            types: [tst_reflect_1.getType({n: "string", k: 2}), tst_reflect_1.getType({n: "number", k: 2})],
-            union: true,
-            inter: false
-        })
-    }, {n: "logger", t: tst_reflect_1.getType(22976), d: [{n: "inject"}]}, {n: "Logger", t: tst_reflect_1.getType(22976)}],
-    ctors: [{params: [{n: "logger", t: tst_reflect_1.getType(22976)}]}],
-    decs: [{n: "injectable"}],
-    k: 1,
-    ctor: () => dependency_1.Service,
-    iface: tst_reflect_1.getType(22978)
-}, 22980);
-
-class ServiceCollection {
-    constructor() {
-        this.services = [];
-    }
-
-    addTransient(dependencyType, dependencyImplementation, __genericParams__) {
-        this.services.push([dependencyType ?? __genericParams__.TDep, dependencyImplementation ?? __genericParams__.TImp]);
-    }
-}
-
-class ServiceProvider {
-    constructor(serviceCollection) {
-        this.serviceCollection = serviceCollection;
-    }
-
-    getService(type, __genericParams__) {
-        type ?? (type = __genericParams__.TDependency);
-        const arr = this.serviceCollection.services.find(([dep]) => dep.is(type));
-        const impl = arr[1];
-        if (!impl) {
-            throw new Error(`No implementation registered for '${type.name}'`);
-        }
-        if (impl instanceof tst_reflect_1.Type) {
-            return Reflect.construct(impl.ctor, []);
-        }
-        return impl;
-    }
-
-    getServiceGenericOnly(__genericParams__) {
-        return this.getService(__genericParams__.TDependency);
-    }
-}
-
-const serviceCollection = new ServiceCollection();
-serviceCollection.addTransient(tst_reflect_1.getType(22978), tst_reflect_1.getType(22980));
-serviceCollection.addTransient(undefined, undefined, {TDep: tst_reflect_1.getType(22978), TImp: tst_reflect_1.getType(22980)});
-const serviceProvider = new ServiceProvider(serviceCollection);
-const s1 = serviceProvider.getService(undefined, {TDependency: tst_reflect_1.getType(22978)});
-console.log("Type created using reflection: ", s1);
-console.log("s1 is instanceof Service: ", s1 instanceof dependency_1.Service);
-const s2 = serviceProvider.getServiceGenericOnly({TDependency: tst_reflect_1.getType(22978)});
-console.log("Type created using generic reflection: ", s2);
-//# sourceMappingURL=example2-simple.js.map
-```
+Watch Examples section in the main [README](https://github.com/Hookyns/ts-reflection#examples) of the repository.
 
 ## License
 

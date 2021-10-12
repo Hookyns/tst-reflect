@@ -169,7 +169,7 @@ export function getTypeDescription(
 	{
 		if (context.config.debugMode)
 		{
-			log.info("'typeSymbol' is TypeLiteral.", type);
+			log.info("'typeSymbol' is TypeLiteral.");
 		}
 
 		return {
@@ -182,7 +182,7 @@ export function getTypeDescription(
 	{
 		if (context.config.debugMode)
 		{
-			log.info("'typeSymbol' is ObjectLiteral.", type);
+			log.info("'typeSymbol' is ObjectLiteral.");
 		}
 
 		return {
