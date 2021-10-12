@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2020",
+		"removeComments": true,
+		"sourceMap": true,
+		"experimentalDecorators": true,
+		"rootDir": "../..",
+		"typeRoots": [
+			"../node_modules/@types"
+		],
+		"plugins": [
+			{
+				"transform": "../../transformer/index.js"
+			}
+		]
+	},
+	"include": [
+		"index.ts"
+	],
+	"reflection": {
+		"debugMode": true
+	}
+}

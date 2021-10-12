@@ -17,6 +17,16 @@ export class ServiceCollection
 
     /**
      * Add transient dependency into collection.
+     */
+    addTransient<TDependency, TImplementation>()
+    /**
+     * Add transient dependency into collection.
+     * @param dependencyType
+     * @param dependencyImplementation
+     */
+    addTransient<TDependency, TImplementation>(dependencyType: Type, dependencyImplementation: Type)
+    /**
+     * Add transient dependency into collection.
      * @param dependencyType
      * @param dependencyImplementation
      */

@@ -8,12 +8,6 @@ function inferType<TType>() {
 const val = 5;
 console.log(inferType<typeof val>()); // "number" - but it is and number literal with value 5, more info in docs
 
-
-
-
-
-// import {reflectGeneric} from "../runtime/reflect";
-
 interface ILogger {}
 
 abstract class LoggerFactory {
