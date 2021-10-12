@@ -16,10 +16,9 @@ export class Context
 	private readonly _transformerVisitor: TransformerVisitor;
 
 	/**
-	 * When visiting bodies, names of generic types used in getType() are inserted into this array.
-	 * Resetting on method/function declaration.
+	 * When visiting declaration bodies, names of generic types used in getType() are inserted into this array.
 	 */
-	public usedGenericParameters?: Array<string>;
+	public usedGenericParameters: Array<string> = [];
 
 	get config()
 	{

@@ -13,11 +13,11 @@ import { isGetTypeCall }             from "./isGetTypeCall";
  * @param node
  * @param context
  */
-export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase, context: Context): FunctionLikeDeclarationGenericParametersDetail | undefined
+export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase, context: Context): FunctionLikeDeclarationGenericParametersDetail
 {
 	if (!node.typeParameters?.length)
 	{
-		return;
+		return {};
 	}
 
 	// Check if details already exists,
@@ -27,7 +27,8 @@ export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase
 	{
 		return genericParametersDetail;
 	}
-
+	
+	// TODO: Optimize?! retrieved symbol is equals to node.symbol.
 	const symbol = context.typeChecker.getTypeAtLocation(node).getSymbol();
 
 	if (symbol !== undefined)
@@ -52,60 +53,32 @@ export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase
 		}
 	}
 
-	context.createNestedContext(exploreGetTypeCalls, context => {
+	return context.createNestedContext(exploreGetTypeCalls, context => {
 		context.visitFunctionLikeDeclaration(node);
 
 		// If something found
-		if (context.usedGenericParameters?.length)
+		if (context.usedGenericParameters.length)
 		{
 			const genericParams = node.typeParameters!.map(p => p.name.escapedText.toString());
-			const state: FunctionLikeDeclarationGenericParametersDetail = {
+			
+			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
+			const state = {
 				usedGenericParameters: context.usedGenericParameters,
 				indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
 				declaredParametersCount: node.parameters.length
 			};
-			context.usedGenericParameters = undefined;
 
-			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
 			(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = state;
-
 			return state;
 		}
+		else
+		{
+			// Store empty state; When node has state it means it was visited => It's not gonna be visited twice.
+			(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = {};
+		}
+		
+		return {};
 	});
-
-	// context.usedGenericParameters = [];
-
-	// context.visitEachChildNestContext(node, exploreGetTypeCalls);
-
-	// // Set new visitor into context
-	// const oldVisitor = context.visitor;
-	// context.visitor = (node) => exploreGetTypeCalls(node, context);
-	//
-	// ts.visitEachChild(node, context.visitor, context.transformationContext);
-	//
-	// // Set old visitor back
-	// context.visitor = oldVisitor;
-
-	// // If something found
-	// if (context.usedGenericParameters.length)
-	// {
-	// 	const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
-	// 	const state: State = {
-	// 		usedGenericParameters: context.usedGenericParameters,
-	// 		indexesOfGenericParameters: context.usedGenericParameters.map(p => genericParams.indexOf(p)),
-	// 		declaredParametersCount: node.parameters.length
-	// 	};
-	// 	context.usedGenericParameters = undefined;
-	//
-	// 	// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
-	// 	(node as unknown as StateNode)[STATE_PROP] = state;
-	//
-	// 	return state;
-	// }
-
-	// Store empty state; means it was visited
-	(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = {};
-	context.usedGenericParameters = undefined;
 }
 
 /**

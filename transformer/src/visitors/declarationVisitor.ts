@@ -30,7 +30,7 @@ export default class DeclarationVisitor
 	 * @param node
 	 * @param context
 	 */
-	visitDeclaration<TNode extends ts.Node>(node: TNode, context: Context): ts.MethodDeclaration | ts.FunctionDeclaration | TNode | undefined
+	visitDeclaration(node: ts.Node, context: Context): ts.Node | undefined
 	{
 		// Update method and function declarations containing getTypes of generic parameter
 		if ((ts.isMethodDeclaration(node) || ts.isFunctionDeclaration(node))/* && node.typeParameters?.length && !(node as unknown as StateNode)[STATE_PROP]*/)
@@ -49,45 +49,54 @@ export default class DeclarationVisitor
 			const genericParametersDetails = getGenericParametersDetails(node, context);
 
 			// Do NOT continue, if it has no generic parameter's details
-			if (!genericParametersDetails)
+			if (!genericParametersDetails.usedGenericParameters)
 			{
 				return node;
 			}
-			
-			const [modParams, modBody] = DeclarationVisitor.modifyDeclaration(node.parameters, node.body);
 
-			if (ts.isMethodDeclaration(node))
-			{
-				return ts.factory.updateMethodDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					node.asteriskToken,
-					node.name,
-					node.questionToken,
-					node.typeParameters,
-					modParams,
-					node.type,
-					modBody
-				);
-			}
-			else if (ts.isFunctionDeclaration(node))
-			{
-				return ts.factory.updateFunctionDeclaration(
-					node,
-					node.decorators,
-					node.modifiers,
-					node.asteriskToken,
-					node.name,
-					node.typeParameters,
-					modParams,
-					node.type,
-					modBody
-				);
-			}
+			return DeclarationVisitor.modifyDeclaration(node);
 		}
 
 		return node;
+	}
+
+	/**
+	 * Modify method/function declaration
+	 * @param node
+	 * @private
+	 */
+	private static modifyDeclaration(node: ts.MethodDeclaration | ts.FunctionDeclaration): ts.MethodDeclaration | ts.FunctionDeclaration
+	{
+		const [modParams, modBody] = DeclarationVisitor.getModifiedDeclarationProperties(node.parameters, node.body!);
+
+		if (ts.isMethodDeclaration(node))
+		{
+			return ts.factory.updateMethodDeclaration(
+				node,
+				node.decorators,
+				node.modifiers,
+				node.asteriskToken,
+				node.name,
+				node.questionToken,
+				node.typeParameters,
+				modParams,
+				node.type,
+				modBody
+			);
+		}
+
+		// else if (ts.isFunctionDeclaration(node))
+		return ts.factory.updateFunctionDeclaration(
+			node,
+			node.decorators,
+			node.modifiers,
+			node.asteriskToken,
+			node.name,
+			node.typeParameters,
+			modParams,
+			node.type,
+			modBody
+		);
 	}
 
 	/**
@@ -96,7 +105,7 @@ export default class DeclarationVisitor
 	 * @param body
 	 * @private
 	 */
-	private static modifyDeclaration(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [Array<ts.ParameterDeclaration>, ts.Block]
+	private static getModifiedDeclarationProperties(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [Array<ts.ParameterDeclaration>, ts.Block]
 	{
 		const lastParam = parameters[parameters.length - 1];
 

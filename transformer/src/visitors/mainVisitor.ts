@@ -14,7 +14,7 @@ import DeclarationVisitor               from "./declarationVisitor";
  * @param nodeToVisit
  * @param context
  */
-export function mainVisitor<TNode extends ts.Node = ts.Node>(nodeToVisit: TNode, context: Context): TNode | ts.CallExpression | ts.PropertyAccessExpression | undefined
+export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | undefined
 {
 	const node = DeclarationVisitor.instance.visitDeclaration(nodeToVisit, context);
 
@@ -55,7 +55,7 @@ export function mainVisitor<TNode extends ts.Node = ts.Node>(nodeToVisit: TNode,
 		{
 			const type = context.typeChecker.getTypeAtLocation(node.expression);
 
-            // It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
+			// It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
 			if (node.typeArguments?.length || hasReflectJsDoc(type))
 			{
 				const res = processGenericCallExpression(node, type, context);
@@ -68,5 +68,5 @@ export function mainVisitor<TNode extends ts.Node = ts.Node>(nodeToVisit: TNode,
 		}
 	}
 
-	return ts.visitEachChild(nodeToVisit, context.visitor, context.transformationContext);
+	return ts.visitEachChild(node, context.visitor, context.transformationContext);
 }
