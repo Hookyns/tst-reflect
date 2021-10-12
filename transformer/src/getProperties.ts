@@ -18,7 +18,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 		const members: Array<ts.Symbol> = Array.from(symbol.members.values() as any);
 
 		const properties = members
-			.filter(m => m.flags == ts.SymbolFlags.Property || m.flags == ts.SymbolFlags.GetAccessor)
+			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor)
 			.map((memberSymbol: ts.Symbol) =>
 			{
 				return {

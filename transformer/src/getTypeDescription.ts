@@ -205,6 +205,7 @@ export function getTypeDescription(
 			{
 				return {
 					k: TypeKind.TypeParameter,
+					n: typeParameter.name.escapedText as string,
 					con: typeParameter.constraint && getTypeCall(
 						checker.getTypeAtLocation(typeParameter.constraint),
 						checker.getSymbolAtLocation(typeParameter.constraint),
