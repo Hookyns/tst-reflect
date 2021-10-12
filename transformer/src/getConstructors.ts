@@ -1,8 +1,8 @@
-import * as ts                        from "typescript";
-import {ConstructorDescriptionSource} from "./declarations";
-import {getType}                      from "./helpers";
-import getTypeCall                    from "./getTypeCall";
-import {Context}                      from "./contexts/Context";
+import * as ts                          from "typescript";
+import { ConstructorDescriptionSource } from "./declarations";
+import { getType }                      from "./helpers";
+import getTypeCall                      from "./getTypeCall";
+import { Context }                      from "./contexts/Context";
 
 export function getConstructors(type: ts.Type, context: Context)
 {
@@ -26,7 +26,7 @@ export function getConstructors(type: ts.Type, context: Context)
 
 		constructors.push({
 			params: params
-		})
+		});
 	}
 
 	return constructors.length ? constructors : undefined;

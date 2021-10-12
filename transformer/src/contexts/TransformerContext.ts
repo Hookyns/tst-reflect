@@ -1,6 +1,9 @@
-import * as ts                      from "typescript";
-import {ConfigObject, createConfig} from "../config";
-import MetadataGenerator            from "../MetadataGenerator";
+import * as ts           from "typescript";
+import {
+	ConfigObject,
+	createConfig
+}                        from "../config";
+import MetadataGenerator from "../MetadataGenerator";
 
 const InstanceKey: symbol = Symbol.for("tst-reflect.TransformerContext");
 let instance: TransformerContext = (global as any)[InstanceKey] || null;

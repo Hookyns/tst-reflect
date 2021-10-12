@@ -1,6 +1,6 @@
-import * as ts                      from "typescript";
-import {DecoratorDescriptionSource} from "./declarations";
-import {getTypeFullName}            from "./helpers";
+import * as ts                        from "typescript";
+import { DecoratorDescriptionSource } from "./declarations";
+import { getTypeFullName }            from "./helpers";
 
 export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array<DecoratorDescriptionSource> | undefined
 {
@@ -9,9 +9,9 @@ export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array
 	{
 		return undefined;
 	}
-	
+
 	const decorators: Array<DecoratorDescriptionSource> = [];
-	
+
 	for (let decorator of symbol.valueDeclaration.decorators)
 	{
 		const firstToken = decorator.expression.getFirstToken();

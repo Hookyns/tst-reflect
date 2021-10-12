@@ -1,7 +1,7 @@
-import * as ts             from "typescript";
-import * as fs             from "fs";
-import {nodeGenerator}     from "./NodeGenerator";
-import {GET_TYPE_FNC_NAME} from "tst-reflect/reflect";
+import * as ts               from "typescript";
+import * as fs               from "fs";
+import { nodeGenerator }     from "./NodeGenerator";
+import { GET_TYPE_FNC_NAME } from "tst-reflect/reflect";
 
 function replaceGetTypeIdentifiersVisitor(getTypeIdentifier: ts.Identifier, transformationContext: ts.TransformationContext): ts.Visitor
 {
@@ -57,11 +57,12 @@ export default class MetadataGenerator
 	public recreateLibFile()
 	{
 		this._tsPrinter = ts.createPrinter();
-		const {statement, getTypeIdentifier} = nodeGenerator.createGetTypeImport();
+		const { statement, getTypeIdentifier } = nodeGenerator.createGetTypeImport();
 		this._getTypeIdentifier = getTypeIdentifier;
 
 		// SourceFile with import {getType} from "tst-reflect"
-		const initialSourceFile = ts.factory.createSourceFile([
+		const initialSourceFile = ts.factory.createSourceFile(
+			[
 				statement
 			],
 			ts.factory.createToken(ts.SyntaxKind.EndOfFileToken),
@@ -69,7 +70,7 @@ export default class MetadataGenerator
 		);
 
 		const source = this._tsPrinter.printFile(initialSourceFile);
-		fs.writeFileSync(this._metadataFilePath, source, {encoding: "utf8", flag: "w"});
+		fs.writeFileSync(this._metadataFilePath, source, { encoding: "utf8", flag: "w" });
 	}
 
 	/**
@@ -95,7 +96,11 @@ export default class MetadataGenerator
 		for (let [typeId, properties] of typesProperties)
 		{
 			// Replace all getType identifier by metadata getType identifier
-			properties = ts.visitEachChild(properties, replaceGetTypeIdentifiersVisitor(this._getTypeIdentifier, transformationContext), transformationContext) as ts.ObjectLiteralExpression;
+			properties = ts.visitEachChild(
+				properties,
+				replaceGetTypeIdentifiersVisitor(this._getTypeIdentifier, transformationContext),
+				transformationContext
+			) as ts.ObjectLiteralExpression;
 			// properties = replaceGetTypeIdentifiers(properties, this._getTypeIdentifier, transformationContext) as ts.ObjectLiteralExpression;
 
 			propertiesStatements.push(ts.factory.createExpressionStatement(

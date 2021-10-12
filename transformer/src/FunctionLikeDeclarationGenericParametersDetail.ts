@@ -1,4 +1,4 @@
-import * as ts                 from "typescript";
+import * as ts from "typescript";
 
 /**
  * Name of parameter holding custom State object inside ts.Node object
@@ -10,7 +10,7 @@ export const STATE_PROP = "__tstStateProp__";
  */
 export interface FunctionLikeDeclarationGenericParametersDetailNode extends ts.Node
 {
-	[STATE_PROP]: FunctionLikeDeclarationGenericParametersDetail
+	[STATE_PROP]: FunctionLikeDeclarationGenericParametersDetail;
 }
 
 /**

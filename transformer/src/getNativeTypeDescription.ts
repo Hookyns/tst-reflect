@@ -1,9 +1,9 @@
-import {TypeKind}              from "tst-reflect/reflect";
-import * as ts                 from "typescript";
-import {TypeFlags}             from "typescript";
-import {Context}               from "./contexts/Context";
-import {TypeDescriptionResult} from "./declarations";
-import getTypeCall             from "./getTypeCall";
+import { TypeKind }              from "tst-reflect/reflect";
+import * as ts                   from "typescript";
+import { TypeFlags }             from "typescript";
+import { Context }               from "./contexts/Context";
+import { TypeDescriptionResult } from "./declarations";
+import getTypeCall               from "./getTypeCall";
 
 /**
  * Check that Type is native type (string, number, boolean, ...)
@@ -40,11 +40,11 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 					k: TypeKind.Native,
 					args: [getTypeCall(typeArguments[0], undefined, context)]
 				}
-			}
+			};
 		}
 	}
 
 	return {
 		ok: false
-	}
+	};
 }

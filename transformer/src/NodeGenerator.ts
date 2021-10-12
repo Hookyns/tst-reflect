@@ -28,18 +28,19 @@ class NodeGenerator
 						ts.factory.createIdentifier("getType")
 					)
 				)
-			]);
+			]
+		);
 
 		return {
 			statement,
 			getTypeIdentifier
-		}
+		};
 	}
-	
+
 	/**
 	 * Generate statement importing type constructor
 	 */
-	createCtorImport(ctor: ts.EntityName):  ts.Statement
+	createCtorImport(ctor: ts.EntityName): ts.Statement
 	{
 		const statement = ts.factory.createVariableStatement(
 			undefined,
@@ -50,7 +51,8 @@ class NodeGenerator
 					undefined,
 					ts.factory.createNull()
 				)
-			]);
+			]
+		);
 
 		return statement;
 	}

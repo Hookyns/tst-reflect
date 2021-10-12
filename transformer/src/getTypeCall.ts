@@ -1,8 +1,8 @@
-import * as ts                 from "typescript";
-import {GetTypeCall}           from "./declarations";
-import {createValueExpression} from "./createValueExpression";
-import {getTypeDescription}    from "./getTypeDescription";
-import {Context}               from "./contexts/Context";
+import * as ts                   from "typescript";
+import { GetTypeCall }           from "./declarations";
+import { createValueExpression } from "./createValueExpression";
+import { getTypeDescription }    from "./getTypeDescription";
+import { Context }               from "./contexts/Context";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 

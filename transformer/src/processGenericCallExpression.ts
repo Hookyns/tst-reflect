@@ -87,6 +87,6 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 			]
 		);
 	}
-	
+
 	return undefined;
 }

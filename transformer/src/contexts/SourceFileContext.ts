@@ -1,8 +1,11 @@
-import * as ts                              from "typescript";
-import {Context}                            from "./Context";
-import type {CtorsLibrary, MetadataLibrary} from "../declarations";
-import {mainVisitor}                        from "../visitors/mainVisitor";
-import TransformerContext                   from "./TransformerContext";
+import * as ts            from "typescript";
+import { Context }        from "./Context";
+import type {
+	CtorsLibrary,
+	MetadataLibrary
+}                         from "../declarations";
+import { mainVisitor }    from "../visitors/mainVisitor";
+import TransformerContext from "./TransformerContext";
 
 export default class SourceFileContext
 {

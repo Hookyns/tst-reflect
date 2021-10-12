@@ -6,8 +6,8 @@
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
-This is TypeScript transformer generating Type objects that are working at runtime, providing metadata about types such as list of properties and their types,
-list of constructors and their parameters and their types and much more.
+This is TypeScript transformer generating Type objects that are working at runtime, providing metadata about types such as list of properties and their types, list of constructors and their parameters
+and their types and much more.
 
 **Working runtime generics!**
 
@@ -44,8 +44,8 @@ More in [README](https://github.com/Hookyns/ts-reflection) in root repository fo
 
 `npm i tst-reflect && npm i tst-reflect-transformer -D`
 
-In order to use transformer plugin you will need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on
-your own), eg. package [ttypescript](https://www.npmjs.com/package/ttypescript).
+In order to use transformer plugin you will need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on your own), eg.
+package [ttypescript](https://www.npmjs.com/package/ttypescript).
 
 `npm i ttypescript -D`
 
@@ -85,14 +85,12 @@ This package contains two main exports, `getType<T>()` function and `Type` class
 
 ## How does it work
 
-Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic. It generates object literals describing referred types and
-instances of `Type`
+Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic. It generates object literals describing referred types and instances of `Type`
 are created from those objects.
 
 ### Metadata
 
-Mentioned object literals describing types are called **metadata**. Default behavior collect metadata of all used types and generate file `metadata.lib.js` in
-project root (
+Mentioned object literals describing types are called **metadata**. Default behavior collect metadata of all used types and generate file `metadata.lib.js` in project root (
 location of tsconfig.json).
 
 Metadata library file looks like this:
@@ -143,11 +141,11 @@ There is an optional configuration you can set in `tsconfig.json` file.
 }
 ```
 
-Property `metadata: false | string` allows you to switch behavior. Default behavior generates metadata library file. You can change name and/or location of this
-file by setting own path. Or you can set `false` to disable generation of that file; metadata will be separated in files where they are used. Metadata can be
-redundant if same types are used in more files.
+Property `metadata: false | string` allows you to switch behavior. Default behavior generates metadata library file. You can change name and/or location of this file by setting own path. Or you can
+set `false` to disable generation of that file; metadata will be separated in files where they are used. Metadata can be redundant if same types are used in more files.
 
 ## Examples
+
 Watch Examples section in the main [README](https://github.com/Hookyns/ts-reflection#examples) of the repository.
 
 ## License

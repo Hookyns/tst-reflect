@@ -1,9 +1,9 @@
-import * as ts          from "typescript";
-import {Context}        from "./contexts/Context";
-import {GENERIC_PARAMS} from "./helpers";
-import getTypeCall      from "./getTypeCall";
-import {getError}       from "./getError";
-import { log }          from "./log";
+import * as ts            from "typescript";
+import { Context }        from "./contexts/Context";
+import { GENERIC_PARAMS } from "./helpers";
+import getTypeCall        from "./getTypeCall";
+import { getError }       from "./getError";
+import { log }            from "./log";
 
 export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | undefined
 {
@@ -35,7 +35,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 				ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
 			);
 		}
-		
+
 		return undefined;
 	}
 	// Parameter is specific type
@@ -45,7 +45,7 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 
 		if (!genericTypeSymbol)
 		{
-			throw getError(node, "Symbol of generic type argument not found.")
+			throw getError(node, "Symbol of generic type argument not found.");
 		}
 
 		return getTypeCall(

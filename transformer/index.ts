@@ -3,9 +3,9 @@ import SourceFileContext  from "./src/contexts/SourceFileContext";
 import TransformerContext from "./src/contexts/TransformerContext";
 import { PACKAGE_ID }     from "./src/helpers";
 import {
-    color,
-    log,
-    LogLevel
+	color,
+	log,
+	LogLevel
 }                         from "./src/log";
 import { nodeGenerator }  from "./src/NodeGenerator";
 
@@ -36,7 +36,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 		{
 			return node;
 		}
-		
+
 		if (config.debugMode)
 		{
 			log.log(LogLevel.Trace, color.cyan, `${PACKAGE_ID}: Visitation of file ${node.fileName} started.`);
@@ -87,7 +87,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 		}
 
 		return visitedNode;
-	}
+	};
 }
 
 function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.SourceFile)
@@ -96,7 +96,7 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 
 	if (sourceFileContext.shouldGenerateGetTypeImport)
 	{
-		const {statement} = nodeGenerator.createGetTypeImport(sourceFileContext.getGetTypeIdentifier());
+		const { statement } = nodeGenerator.createGetTypeImport(sourceFileContext.getGetTypeIdentifier());
 		statements.push(statement);
 	}
 

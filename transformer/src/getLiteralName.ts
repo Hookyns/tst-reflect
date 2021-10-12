@@ -14,6 +14,6 @@ export default function getLiteralName(type: ts.Type) {
 		case ts.TypeFlags.BigIntLiteral:
 			return "bigint";
 	}
-	
+
 	return "";
 }

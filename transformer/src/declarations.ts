@@ -165,7 +165,7 @@ export interface TypePropertiesSource
 	 * Type parameters
 	 */
 	tp?: Array<GetTypeCall>;
-	
+
 	/**
 	 * Constraining type
 	 */
@@ -174,8 +174,8 @@ export interface TypePropertiesSource
 	/**
 	 * Default type
 	 */
-	def?: GetTypeCall;	
-	
+	def?: GetTypeCall;
+
 	/**
 	 * Conditional type description
 	 */
