@@ -616,20 +616,10 @@ export class Type
 	 */
 	isAssignableTo(target: Type): boolean
 	{
-		let tmpType: Type | undefined = this;
-
-		do
-		{
-			if (target.fullName == tmpType.fullName)
-			{
-				return true;
-			}
-
-			tmpType = tmpType.baseType;
-		}
-		while (tmpType !== undefined);
-
-		return false;
+		return this.fullName == target.fullName 
+			|| this._baseType?.isAssignableTo(target) 
+			|| this._interface?.isAssignableTo(target) 
+			|| false;
 	}
 
 	/**
