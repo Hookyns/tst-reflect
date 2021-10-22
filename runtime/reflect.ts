@@ -110,7 +110,8 @@ export interface ConditionalType
 export interface ParameterDescription
 {
 	n: string;
-	t: Type
+	t: Type;
+    o: boolean;
 }
 
 /**
@@ -182,7 +183,12 @@ export interface MethodParameter
 	/**
 	 * Parameter type
 	 */
-	type: Type
+	type: Type;
+
+    /**
+     * Parameter is optional
+     */
+    optional: boolean;
 }
 
 /**
@@ -409,7 +415,7 @@ export class Type
 	 */
 	private static mapConstructors(c: ConstructorDescription): Constructor
 	{
-		return ({ parameters: c.params.map(p => ({ name: p.n, type: p.t })) });
+		return ({ parameters: c.params.map(p => ({ name: p.n, type: p.t, optional: p.o })) });
 	}
 
 	// noinspection JSUnusedGlobalSymbols
