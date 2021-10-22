@@ -1,4 +1,5 @@
 import { getType }           from "../../runtime";
+import { inject }            from "./injectable";
 import { ServiceCollection } from "./ServiceCollection";
 import { ServiceProvider }   from "./ServiceProvider";
 
@@ -20,6 +21,7 @@ interface IService
     doJob(number: number);
 }
 
+@inject()
 class Service implements IService
 {
     private log: ILog;

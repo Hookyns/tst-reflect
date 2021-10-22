@@ -3,7 +3,9 @@
         "module": "commonjs",
         "target": "ES2019",
         "sourceMap": true,
-        "plugins": [
+		"removeComments": false,
+		"experimentalDecorators": true,
+		"plugins": [
             {
                 "transform": "../../transformer/index.js"
             }
