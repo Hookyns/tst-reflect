@@ -16,7 +16,8 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 	}
 
 	// Method/function declaration
-	const declaration = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).find(d => d.body !== undefined) ?? fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
+	const declaration = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).find(d => d.body !== undefined) 
+		?? fncType.symbol.declarations[fncType.symbol.declarations.length - 1] as ts.FunctionLikeDeclarationBase;
 
 	// Try to get State
 	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context);
