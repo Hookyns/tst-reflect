@@ -1,3 +1,4 @@
+import { FunctionLikeDeclarationBase }                    from "typescript";
 import * as ts                                            from "typescript";
 import { Context }                                        from "./contexts/Context";
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
@@ -16,11 +17,11 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 	}
 
 	// Method/function declaration
-	const declaration = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).find(d => d.body !== undefined) 
-		?? fncType.symbol.declarations[fncType.symbol.declarations.length - 1] as ts.FunctionLikeDeclarationBase;
+	const relevantDeclarations = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).filter(dec => dec.typeParameters?.length);
+	const declaration = relevantDeclarations.find(d => d.body !== undefined) ?? relevantDeclarations[0];
 
 	// Try to get State
-	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context);
+	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context, fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]);
 
 	if (state && state.usedGenericParameters && state.indexesOfGenericParameters)
 	{

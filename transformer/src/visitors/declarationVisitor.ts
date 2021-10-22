@@ -46,7 +46,7 @@ export default class DeclarationVisitor
 				return undefined;
 			}
 
-			const genericParametersDetails = getGenericParametersDetails(node, context);
+			const genericParametersDetails = getGenericParametersDetails(node, context, []);
 
 			// Do NOT continue, if it has no generic parameter's details
 			if (!genericParametersDetails.usedGenericParameters)

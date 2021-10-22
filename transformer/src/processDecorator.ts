@@ -21,7 +21,7 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
     }
 
     // Try to get State
-    const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context);
+    const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context, []);
 
     if (!state || !state.usedGenericParameters || !state.indexesOfGenericParameters || !state.requestedGenericsReflection)
     {

@@ -14,8 +14,13 @@ import { isGetTypeCall } from "./isGetTypeCall";
  * This visitor is just for exploration of declaration, not for modifications.
  * @param node
  * @param context
+ * @param relatedDeclarations
  */
-export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase, context: Context): FunctionLikeDeclarationGenericParametersDetail
+export function getGenericParametersDetails(
+	node: ts.FunctionLikeDeclarationBase,
+	context: Context,
+	relatedDeclarations: Array<ts.FunctionLikeDeclarationBase>
+): FunctionLikeDeclarationGenericParametersDetail
 {
 	if (!node.typeParameters?.length)
 	{
@@ -36,13 +41,17 @@ export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase
 	if (symbol !== undefined)
 	{
 		// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
-		if (hasAnyReflectJsDoc(symbol))
+		if (hasAnyReflectJsDoc(symbol)
+			|| relatedDeclarations.some(rel => hasAnyReflectJsDoc(context.typeChecker.getSymbolAtLocation(rel)))
+		)
 		{
 			const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
 			const state: FunctionLikeDeclarationGenericParametersDetail = {
 				usedGenericParameters: genericParams,
 				indexesOfGenericParameters: genericParams.map((_, index) => index),
-				declaredParametersCount: node.parameters.length,
+				declaredParametersCount: relatedDeclarations.length != 0
+					? Math.max(node.parameters.length, ...relatedDeclarations.map(x => x.parameters.length))
+					: node.parameters.length,
 				requestedGenericsReflection: true
 			};
 
