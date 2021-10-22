@@ -708,21 +708,15 @@ getType.__tst_reflect__ = true;
 export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
 
 /**
- * Decorator for marking methods as they use type of generic parameters
- */
-export function reflectGeneric()
-{
-	return function (target: any, propertyKey?: string)
-	{
-	};
-}
-
-reflectGeneric.__tst_reflect__ = true;
-
-/**
- * Name of decorator or JSDoc comment marking method as it use type of generic parameter
+ * Name of JSDoc comment marking method as it use type of generic parameter.
  */
 export const REFLECT_GENERIC_DECORATOR = "reflectGeneric";
+
+/**
+ * Name of JSDoc comment marking function as decorator.
+ * @type {string}
+ */
+export const REFLECT_DECORATOR_DECORATOR = "reflectGeneric";
 
 /**
  * Name of the getType() function
