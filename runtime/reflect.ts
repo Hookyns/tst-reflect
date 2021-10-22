@@ -716,7 +716,7 @@ export const REFLECT_GENERIC_DECORATOR = "reflectGeneric";
  * Name of JSDoc comment marking function as decorator.
  * @type {string}
  */
-export const REFLECT_DECORATOR_DECORATOR = "reflectGeneric";
+export const REFLECT_DECORATOR_DECORATOR = "reflectDecorator";
 
 /**
  * Name of the getType() function
