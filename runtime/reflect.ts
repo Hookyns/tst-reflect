@@ -703,6 +703,16 @@ export function getType<T>(description?: TypeProperties | number | string, typeI
 getType.__tst_reflect__ = true;
 
 /**
+ * Class decorator which marks classes to be processed and included in metadata lib file.
+ * @reflectDecorator
+ */
+export function reflect<TType>()
+{
+	getType<TType>();
+	return function<T>(Constructor: { new(...args: any[]): T }) { };
+}
+
+/**
  * To identify functions by package
  */
 export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
