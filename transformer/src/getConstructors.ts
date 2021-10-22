@@ -17,10 +17,12 @@ export function getConstructors(type: ts.Type, context: Context)
 		for (paramSymbol of ctor.parameters)
 		{
 			paramType = getType(paramSymbol, context.typeChecker);
+            const declaration = paramSymbol.valueDeclaration as ts.ParameterDeclaration;
 
 			params.push({
 				n: paramSymbol.getName(),
-				t: getTypeCall(paramType, paramSymbol, context)
+				t: getTypeCall(paramType, paramSymbol, context),
+                o: declaration.questionToken !== undefined || declaration.initializer !== undefined
 			});
 		}
 
