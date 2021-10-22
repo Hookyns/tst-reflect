@@ -40,7 +40,7 @@ class NodeGenerator
 	/**
 	 * Generate statement importing type constructor
 	 */
-	createCtorImport(ctor: ts.EntityName): ts.Statement
+	createCtorImport(ctor: ts.EntityName | ts.DeclarationName): ts.Statement
 	{
 		const statement = ts.factory.createVariableStatement(
 			undefined,

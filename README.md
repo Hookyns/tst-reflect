@@ -20,7 +20,32 @@ More info inside the corresponding folders, see `transformer`, `runtime`.
 
 ## Show Me Some Code!
 
-Here you are! Dependency Injection from scratch.
+### Simple Example
+```typescript
+import { getType } from "tst-reflect";
+
+function printTypeProperties<TType>() {
+    const type = getType<TType>();
+    console.log(type.getProperties().map(prop => prop.name + ": " + prop.type.name).join("\n"));
+}
+
+interface SomeType {
+    foo: string;
+    bar: number;
+    baz: Date;
+}
+
+printTypeProperties<SomeType>();
+```
+
+Output:
+```
+foo: string
+bar: number
+baz: Date
+```
+
+### Dependency Injection from scratch.
 [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
 
 <details><summary>Click to expand!</summary>
@@ -264,6 +289,36 @@ Type details in [Synopsis](#synopsis).
 - [Example 01 - Dependency Injection](https://github.com/Hookyns/tst-reflect-example-01) [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
 
 Feel free to add Your interesting examples. Just add a link to this README and make a PR.
+
+### Decorator with Generic Reflection
+`tst-reflect-transformer` is able to process class decorators marked by @reflectDecorator JSDoc tag.
+You will be able to get `Type` of each decorated class.
+
+```typescript
+/**
+ * @reflectDecorator
+ */
+export function inject<TType>()
+{
+    const typeofClass = getType<TType>();
+
+    return function <TType extends { new(...args: any[]): {} }>(Constructor: TType) {
+        return class extends Constructor
+        {
+            constructor(...args: any[])
+            {
+                super(...type.getConstructors()[0].parameters.map(param => serviceProvider.getService(param.type)));
+            }
+        }
+    };
+}
+
+@inject()
+class A {}
+
+@inject()
+class B {}
+```
 
 ## Synopsis
 

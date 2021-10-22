@@ -4,7 +4,11 @@ import {
 }                                       from "tst-reflect";
 import * as ts                          from "typescript";
 import { Context }                      from "../contexts/Context";
-import { hasReflectJsDoc }              from "../helpers";
+import {
+	hasReflectDecoratorJsDoc,
+	hasReflectGenericJsDoc
+}                                       from "../helpers";
+import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";
 import { processGetTypeCallExpression } from "../processGetTypeCallExpression";
 import DeclarationVisitor               from "./declarationVisitor";
@@ -56,7 +60,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 			const type = context.typeChecker.getTypeAtLocation(node.expression);
 
 			// It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
-			if (node.typeArguments?.length || hasReflectJsDoc(type))
+			if (node.typeArguments?.length || hasReflectGenericJsDoc(type.getSymbol()))
 			{
 				const res = processGenericCallExpression(node, type, context);
 
@@ -64,6 +68,21 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 				{
 					return ts.visitEachChild(res, context.visitor, context.transformationContext);
 				}
+			}
+		}
+	}
+	else if (ts.isDecorator(node) && ts.isClassDeclaration(node.parent) && ts.isCallExpression(node.expression))
+	{
+		// type of decorator
+		const type = context.typeChecker.getTypeAtLocation(node.expression.expression);
+
+		if (hasReflectDecoratorJsDoc(type.getSymbol()))
+		{
+			const res = processDecorator(node, type, context);
+
+			if (res)
+			{
+				return ts.visitEachChild(res, context.visitor, context.transformationContext);
 			}
 		}
 	}

@@ -29,7 +29,7 @@ export function getTypeDescription(
 	type: ts.Type,
 	symbol: ts.Symbol | undefined,
 	context: Context,
-	typeCtor?: ts.EntityName
+	typeCtor?: ts.EntityName | ts.DeclarationName
 )
 	: TypePropertiesSource
 {

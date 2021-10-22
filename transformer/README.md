@@ -9,33 +9,30 @@
 This is TypeScript transformer generating Type objects that are working at runtime, providing metadata about types such as list of properties and their types, list of constructors and their parameters
 and their types and much more.
 
-**Working runtime generics!**
 
-Simple example:
-
+### Simple Example
 ```typescript
 import { getType } from "tst-reflect";
 
-function inferType<TType>() {
-    return getType<TType>().name;
+function printTypeProperties<TType>() {
+    const type = getType<TType>(); // <--- getting type of generic type in runtime :)
+    console.log(type.getProperties().map(prop => prop.name + ": " + prop.type.name).join("\n"));
 }
 
-const variable = 5;
-inferType<typeof variable>(); // "number" - but it is a number literal with value 5, more info in docs.
+interface SomeType {
+    foo: string;
+    bar: number;
+    baz: Date;
+}
+
+printTypeProperties<SomeType>();
 ```
 
-or
-
-```typescript
-import { getType } from "tst-reflect";
-
-/** @reflectGeneric */
-function inferType<TType>(val: TType) {
-    return getType<TType>().name;
-}
-
-const variable = 5;
-inferType(variable); // "number"; thanks to @reflectGeneric JSDoc, you don't have to pass generic param.
+Output:
+```
+foo: string
+bar: number
+baz: Date
 ```
 
 More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder.

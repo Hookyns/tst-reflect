@@ -1,7 +1,12 @@
-import * as ts                         from "typescript";
-import { Context }                     from "./contexts/Context";
-import getTypeCall                     from "./getTypeCall";
-import { getGenericParametersDetails } from "./getGenericParametersDetails";
+import * as ts                                            from "typescript";
+import { Context }                                        from "./contexts/Context";
+import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
+import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
+import getTypeCall                                        from "./getTypeCall";
+import {
+	TypeArgumentValueDescription,
+	updateCallExpression
+}                                                         from "./updateCallExpression";
 
 export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
@@ -9,16 +14,16 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 	{
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
-	
+
 	// Method/function declaration
 	const declaration = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).find(d => d.body !== undefined) ?? fncType.symbol.declarations[0] as ts.FunctionLikeDeclarationBase;
-	
+
 	// Try to get State
-	const state = getGenericParametersDetails(declaration, context);
+	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context);
 
 	if (state && state.usedGenericParameters && state.indexesOfGenericParameters)
 	{
-		const args: Array<ts.PropertyAssignment> = [];
+		const args: Array<TypeArgumentValueDescription> = [];
 		let i = 0;
 
 		for (let genericParamName of state.usedGenericParameters)
@@ -57,35 +62,15 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 				typePropertyVal = ts.factory.createIdentifier("undefined");
 			}
 
-			args.push(
-				ts.factory.createPropertyAssignment(
-					genericParamName,
-					typePropertyVal
-				)
-			);
+			args.push({
+				genericTypeName: genericParamName,
+				reflectedType: typePropertyVal
+			});
 
 			i++;
 		}
 
-		const callArgs = [...node.arguments];
-
-		if (callArgs.length < state.declaredParametersCount!)
-		{
-			for (let i = state.declaredParametersCount! - callArgs.length; i > 0; --i)
-			{
-				callArgs.push(ts.factory.createIdentifier("undefined"));
-			}
-		}
-
-		return ts.factory.updateCallExpression(
-			node,
-			node.expression,
-			node.typeArguments,
-			[
-				...callArgs,
-				ts.factory.createObjectLiteralExpression(args)
-			]
-		);
+		return updateCallExpression(node, state, args);
 	}
 
 	return undefined;

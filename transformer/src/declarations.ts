@@ -25,7 +25,7 @@ export type MetadataLibrary = Array<MetadataEntry>;
 /**
  * @internal
  */
-export type CtorsLibrary = Array<ts.EntityName>;
+export type CtorsLibrary = Array<ts.EntityName | ts.DeclarationName>;
 
 /**
  * @internal

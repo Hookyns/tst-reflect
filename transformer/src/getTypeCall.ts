@@ -13,7 +13,7 @@ const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts
  * @param context
  * @param typeCtor
  */
-export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName): GetTypeCall
+export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall
 {
 	const id: number | undefined = (type.symbol as any)?.["id"];
 	let typePropertiesObjectLiteral: ts.ObjectLiteralExpression | undefined = undefined;

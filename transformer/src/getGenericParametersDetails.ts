@@ -1,12 +1,14 @@
-import { REFLECT_GENERIC_DECORATOR } from "tst-reflect/reflect";
-import * as ts                       from "typescript";
-import { Context }                   from "./contexts/Context";
+import * as ts           from "typescript";
+import { Context }       from "./contexts/Context";
 import {
 	FunctionLikeDeclarationGenericParametersDetail,
 	FunctionLikeDeclarationGenericParametersDetailNode,
 	STATE_PROP
-}                                    from "./FunctionLikeDeclarationGenericParametersDetail";
-import { isGetTypeCall }             from "./isGetTypeCall";
+}                        from "./FunctionLikeDeclarationGenericParametersDetail";
+import {
+	hasAnyReflectJsDoc
+}                        from "./helpers";
+import { isGetTypeCall } from "./isGetTypeCall";
 
 /**
  * This visitor is just for exploration of declaration, not for modifications.
@@ -27,16 +29,14 @@ export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase
 	{
 		return genericParametersDetail;
 	}
-	
+
 	// TODO: Optimize?! retrieved symbol is equals to node.symbol.
 	const symbol = context.typeChecker.getTypeAtLocation(node).getSymbol();
 
 	if (symbol !== undefined)
 	{
-		const jsdoc = symbol.getJsDocTags();
-
 		// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
-		if (jsdoc.some(tag => tag.name === REFLECT_GENERIC_DECORATOR))
+		if (hasAnyReflectJsDoc(symbol))
 		{
 			const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
 			const state: FunctionLikeDeclarationGenericParametersDetail = {
@@ -60,7 +60,7 @@ export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase
 		if (context.usedGenericParameters.length)
 		{
 			const genericParams = node.typeParameters!.map(p => p.name.escapedText.toString());
-			
+
 			// Store expecting types on original declaration node (cuz that node will be still visited until end of "before" phase, one of the node modifications take effect inside phase)
 			const state = {
 				usedGenericParameters: context.usedGenericParameters,
@@ -76,7 +76,7 @@ export function getGenericParametersDetails(node: ts.FunctionLikeDeclarationBase
 			// Store empty state; When node has state it means it was visited => It's not gonna be visited twice.
 			(node as unknown as FunctionLikeDeclarationGenericParametersDetailNode)[STATE_PROP] = {};
 		}
-		
+
 		return {};
 	});
 }

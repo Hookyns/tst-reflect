@@ -79,7 +79,7 @@ export default class MetadataGenerator
 	 * @param typesCtors
 	 * @param transformationContext
 	 */
-	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ts.EntityName>, transformationContext: ts.TransformationContext)
+	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ts.EntityName | ts.DeclarationName>, transformationContext: ts.TransformationContext)
 	{
 		if (!this._getTypeIdentifier || !this._tsPrinter)
 		{

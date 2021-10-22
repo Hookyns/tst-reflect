@@ -1,6 +1,7 @@
 import * as path          from "path";
 import {
 	REFLECT_GENERIC_DECORATOR,
+	REFLECT_DECORATOR_DECORATOR,
 	TypeKind
 }                         from "tst-reflect";
 import * as ts            from "typescript";
@@ -103,12 +104,10 @@ export function isExpression(value: any)
 
 /**
  * Check that function-like declaration has JSDoc with @reflectGeneric tag.
- * @param fncType
+ * @param symbol
  */
-export function hasReflectJsDoc(fncType: ts.Type): boolean
+export function hasReflectGenericJsDoc(symbol: ts.Symbol | undefined): boolean
 {
-	const symbol = fncType.getSymbol();
-
 	if (!symbol)
 	{
 		return false;
@@ -116,6 +115,36 @@ export function hasReflectJsDoc(fncType: ts.Type): boolean
 
 	// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
 	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_GENERIC_DECORATOR);
+}
+
+/**
+ * Check that function-like declaration has JSDoc with @reflectDecorator tag.
+ * @param symbol
+ */
+export function hasReflectDecoratorJsDoc(symbol: ts.Symbol | undefined): boolean
+{
+	if (!symbol)
+	{
+		return false;
+	}
+
+	// If declaration contains @reflectDecorator in JSDoc comment, pass all generic arguments
+	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_DECORATOR_DECORATOR);
+}
+
+/**
+ * Check that function-like declaration has JSDoc with @reflectGeneric tag.
+ * @param symbol
+ */
+export function hasAnyReflectJsDoc(symbol: ts.Symbol | undefined): boolean
+{
+	if (!symbol)
+	{
+		return false;
+	}
+
+	// If declaration contains any @reflectXxx in JSDoc comment, pass all generic arguments
+	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_GENERIC_DECORATOR || tag.name === REFLECT_DECORATOR_DECORATOR);
 }
 
 /**
@@ -139,7 +168,7 @@ export function hasTraceJsDoc(fncType: ts.Type): boolean
  * Return getter (arrow function/lambda) for runtime type's Ctor.
  * @description Arrow function generated cuz of possible "Type is referenced before declaration".
  */
-export function createCtorGetter(typeCtor: ts.EntityName | undefined)
+export function createCtorGetter(typeCtor: ts.EntityName | ts.DeclarationName | undefined)
 {
 	if (!typeCtor)
 	{

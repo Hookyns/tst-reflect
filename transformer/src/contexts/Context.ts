@@ -57,7 +57,7 @@ export class Context
 		this._sourceFileContext.typesMetadata.push(metadataEntry);
 	}
 
-	addTypeCtor(typeCtor: ts.EntityName)
+	addTypeCtor(typeCtor: ts.EntityName | ts.DeclarationName)
 	{
 		this._sourceFileContext.typesCtors.push(typeCtor);
 	}

@@ -68,7 +68,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 					propertiesStatements.push([typeId, properties]);
 				}
 
-				const typeCtor = new Set<ts.EntityName>();
+				const typeCtor = new Set<ts.EntityName | ts.DeclarationName>();
 
 				for (let ctor of sourceFileContext.typesCtors)
 				{
