@@ -41,9 +41,7 @@ export function getGenericParametersDetails(
 	if (symbol !== undefined)
 	{
 		// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
-		if (hasAnyReflectJsDoc(symbol)
-			|| relatedDeclarations.some(rel => hasAnyReflectJsDoc(context.typeChecker.getSymbolAtLocation(rel)))
-		)
+		if (hasAnyReflectJsDoc(symbol))
 		{
 			const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
 			const state: FunctionLikeDeclarationGenericParametersDetail = {

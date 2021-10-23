@@ -60,7 +60,10 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 			const type = context.typeChecker.getTypeAtLocation(node.expression);
 
 			// It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
-			if (node.typeArguments?.length || hasReflectGenericJsDoc(type.getSymbol()))
+			if (node.typeArguments?.length
+				// NOTE: I don't remember why hasReflectGenericJsDoc is here.
+				/* || hasReflectGenericJsDoc(type.getSymbol())*/
+			)
 			{
 				const res = processGenericCallExpression(node, type, context);
 

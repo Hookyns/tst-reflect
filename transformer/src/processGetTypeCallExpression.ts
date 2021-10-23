@@ -5,7 +5,7 @@ import getTypeCall        from "./getTypeCall";
 import { getError }       from "./getError";
 import { log }            from "./log";
 
-export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | undefined
+export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | ts.BinaryExpression | undefined
 {
 	// TODO: Use isGetTypeCall()
 
@@ -30,10 +30,10 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 	{
 		if (ts.isTypeReferenceNode(genericTypeNode) && ts.isIdentifier(genericTypeNode.typeName))
 		{
-			return ts.factory.createPropertyAccessExpression(
+			return ts.factory.createBinaryExpression(ts.factory.createIdentifier(GENERIC_PARAMS), ts.SyntaxKind.AmpersandAmpersandToken, ts.factory.createPropertyAccessExpression(
 				ts.factory.createIdentifier(GENERIC_PARAMS),
 				ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
-			);
+			));
 		}
 
 		return undefined;

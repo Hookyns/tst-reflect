@@ -1,4 +1,3 @@
-import { FunctionLikeDeclarationBase }                    from "typescript";
 import * as ts                                            from "typescript";
 import { Context }                                        from "./contexts/Context";
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
@@ -16,12 +15,17 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
 
-	// Method/function declaration
-	const relevantDeclarations = (fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]).filter(dec => dec.typeParameters?.length);
-	const declaration = relevantDeclarations.find(d => d.body !== undefined) ?? relevantDeclarations[0];
+	// Method/function declaration; take the only one or find right declaration by signature.
+	const declaration = (fncType.symbol.declarations.length > 1
+		? context.typeChecker.getResolvedSignature(node)?.declaration
+		: fncType.symbol.declarations[0]) as ts.FunctionLikeDeclarationBase;
 
 	// Try to get State
-	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context, fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]);
+	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(
+		declaration,
+		context,
+		fncType.symbol.declarations as ts.FunctionLikeDeclarationBase[]
+	);
 
 	if (state && state.usedGenericParameters && state.indexesOfGenericParameters)
 	{
