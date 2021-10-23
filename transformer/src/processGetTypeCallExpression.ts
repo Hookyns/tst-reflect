@@ -1,11 +1,11 @@
 import * as ts            from "typescript";
 import { Context }        from "./contexts/Context";
-import { GENERIC_PARAMS } from "./helpers";
-import getTypeCall        from "./getTypeCall";
 import { getError }       from "./getError";
+import getTypeCall        from "./getTypeCall";
+import { GENERIC_PARAMS } from "./helpers";
 import { log }            from "./log";
 
-export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | ts.BinaryExpression | undefined
+export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | ts.ParenthesizedExpression | undefined
 {
 	// TODO: Use isGetTypeCall()
 
@@ -30,10 +30,12 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 	{
 		if (ts.isTypeReferenceNode(genericTypeNode) && ts.isIdentifier(genericTypeNode.typeName))
 		{
-			return ts.factory.createBinaryExpression(ts.factory.createIdentifier(GENERIC_PARAMS), ts.SyntaxKind.AmpersandAmpersandToken, ts.factory.createPropertyAccessExpression(
-				ts.factory.createIdentifier(GENERIC_PARAMS),
-				ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
-			));
+			return ts.factory.createParenthesizedExpression(
+				ts.factory.createBinaryExpression(ts.factory.createIdentifier(GENERIC_PARAMS), ts.SyntaxKind.AmpersandAmpersandToken, ts.factory.createPropertyAccessExpression(
+					ts.factory.createIdentifier(GENERIC_PARAMS),
+					ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
+				))
+			);
 		}
 
 		return undefined;
