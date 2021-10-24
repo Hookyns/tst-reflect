@@ -13,6 +13,11 @@ export interface ConfigObject
 	rootDir: string;
 
 	/**
+	 * Name of the package.
+	 */
+	packageName: string;
+
+	/**
 	 * Generation of metadata file is enabled/disabled
 	 */
 	useMetadata: boolean;
@@ -30,6 +35,10 @@ export interface ConfigObject
 
 let config: ConfigObject = {
 	get rootDir(): string
+	{
+		throw new Error("Configuration not loaded yet.");
+	},
+	get packageName(): string
 	{
 		throw new Error("Configuration not loaded yet.");
 	},
@@ -85,7 +94,7 @@ export function getConfig()
 	return config;
 }
 
-export function createConfig(options: ts.CompilerOptions, root: string)
+export function createConfig(options: ts.CompilerOptions, root: string, packageName: string): ConfigObject
 {
 	const rawConfigObject = options as any;
 	const configPath = rawConfigObject.configFilePath;
@@ -93,6 +102,7 @@ export function createConfig(options: ts.CompilerOptions, root: string)
 
 	return {
 		rootDir: root,
+		packageName: packageName,
 		useMetadata: config.useMetadata,
 		metadataFilePath: config.metadataFilePath,
 		debugMode: config.debugMode,

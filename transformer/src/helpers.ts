@@ -82,12 +82,18 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
 
-	const root = TransformerContext.instance.config.rootDir;
+	let { packageName, rootDir } = TransformerContext.instance.config;
 	let filePath = typeSymbol.declarations[0].getSourceFile().fileName;
+	const nodeModulesPattern = "/node_modules/";
+	const nodeModulesIndex = filePath.lastIndexOf(nodeModulesPattern);
 
-	if (root)
+	if (nodeModulesIndex != -1)
 	{
-		filePath = path.join(path.relative(filePath, root), path.basename(filePath));
+		filePath = filePath.slice(nodeModulesIndex + nodeModulesPattern.length);
+	}
+	else if (rootDir)
+	{
+		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(/\\/g, "/");
 	}
 
 	return filePath + ":" + typeSymbol.getName();
