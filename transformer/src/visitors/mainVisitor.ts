@@ -57,19 +57,31 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 		// It is call of some other function. 
 		else
 		{
-			const type = context.typeChecker.getTypeAtLocation(node.expression);
-
-			// It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
-			if (node.typeArguments?.length
-				// NOTE: I don't remember why hasReflectGenericJsDoc is here.
-				/* || hasReflectGenericJsDoc(type.getSymbol())*/
-			)
+			let identifier: ts.Identifier | ts.PrivateIdentifier | undefined = undefined;
+			
+			if (ts.isIdentifier(node.expression)) {
+				identifier = node.expression;
+			}
+			else if (ts.isPropertyAccessExpression(node.expression)) {
+				identifier = node.expression.name;
+			}
+			
+			if (identifier !== undefined)
 			{
-				const res = processGenericCallExpression(node, type, context);
+				const type = context.typeChecker.getTypeAtLocation(identifier);
 
-				if (res)
+				// It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
+				if (node.typeArguments?.length
+					// NOTE: I don't remember why hasReflectGenericJsDoc is here.
+					/* || hasReflectGenericJsDoc(type.getSymbol())*/
+				)
 				{
-					return ts.visitEachChild(res, context.visitor, context.transformationContext);
+					const res = processGenericCallExpression(node, type, context);
+
+					if (res)
+					{
+						return ts.visitEachChild(res, context.visitor, context.transformationContext);
+					}
 				}
 			}
 		}
