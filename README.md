@@ -320,6 +320,44 @@ class A {}
 class B {}
 ```
 
+## How to start
+
+`npm i tst-reflect && npm i tst-reflect-transformer -D`
+
+In order to use transformer plugin you need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on
+your own), eg. package [ttypescript](https://www.npmjs.com/package/ttypescript).
+
+`npm i ttypescript -D`
+
+Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
+
+```json5
+{
+    "compilerOptions": {
+        // your options...
+
+        // ADD THIS!
+        "plugins": [
+            {
+                "transform": "tst-reflect-transformer"
+            }
+        ]
+    }
+}
+```
+
+and with Webpack
+
+```javascript
+({
+    test: /\.(ts|tsx)$/,
+    loader: "ts-loader",
+    options: {
+        compiler: "ttypescript"
+    }
+})
+```
+
 ## Synopsis
 
 ```typescript
@@ -548,44 +586,6 @@ export interface Constructor {
      */
     parameters: Array<MethodParameter>;
 }
-```
-
-## How to start
-
-`npm i tst-reflect && npm i tst-reflect-transformer -D`
-
-In order to use transformer plugin you need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on
-your own), eg. package [ttypescript](https://www.npmjs.com/package/ttypescript).
-
-`npm i ttypescript -D`
-
-Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
-
-```json5
-{
-    "compilerOptions": {
-        // your options...
-
-        // ADD THIS!
-        "plugins": [
-            {
-                "transform": "tst-reflect-transformer"
-            }
-        ]
-    }
-}
-```
-
-and with Webpack
-
-```javascript
-({
-    test: /\.(ts|tsx)$/,
-    loader: "ts-loader",
-    options: {
-        compiler: "ttypescript"
-    }
-})
 ```
 
 ## Motivation
