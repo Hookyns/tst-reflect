@@ -61,15 +61,14 @@ export function getTypeKind(symbol: ts.Symbol)
 	throw new Error("Unknown type kind");
 }
 
+const nodeModulesPattern = "/node_modules/";
+
 /**
  * Get full name of type
- * @param type
  * @param typeSymbol
  */
-export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
+export function getTypeFullName(typeSymbol?: ts.Symbol)
 {
-	typeSymbol = typeSymbol || type.getSymbol();
-
 	if (!typeSymbol)
 	{
 		// TODO: Log in debug mode
@@ -84,7 +83,6 @@ export function getTypeFullName(type: ts.Type, typeSymbol?: ts.Symbol)
 
 	let { packageName, rootDir } = TransformerContext.instance.config;
 	let filePath = typeSymbol.declarations[0].getSourceFile().fileName;
-	const nodeModulesPattern = "/node_modules/";
 	const nodeModulesIndex = filePath.lastIndexOf(nodeModulesPattern);
 
 	if (nodeModulesIndex != -1)

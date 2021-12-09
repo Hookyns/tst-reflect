@@ -96,7 +96,7 @@ export default class TransformerContext
 	 * @return {string}
 	 * @private
 	 */
-	private getPackageName(root: string): [root: string, packageName: string]
+	private getPackageName(root: string, recursiveCheck: boolean = false): [root: string, packageName: string]
 	{
 		try
 		{
@@ -111,10 +111,15 @@ export default class TransformerContext
 				return [undefined as any, UnknownPackageName];
 			}
 
-			const [packageRoot, packageName] = this.getPackageName(path.normalize(path.join(root, "..")));
+			const [packageRoot, packageName] = this.getPackageName(path.normalize(path.join(root, "..")), true);
 
 			if (packageRoot == undefined)
 			{
+				if (recursiveCheck)
+				{
+					return [packageRoot, packageName];
+				}
+
 				return [root, packageName];
 			}
 

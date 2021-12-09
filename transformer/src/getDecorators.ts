@@ -33,7 +33,7 @@ export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array
 
 		decorators.push({
 			n: symbol.escapedName.toString(),
-			fn: getTypeFullName(decoratorType)
+			fn: getTypeFullName(decoratorType.getSymbol())
 		});
 	}
 

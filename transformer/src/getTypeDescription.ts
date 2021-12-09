@@ -1,6 +1,9 @@
 import { TypeKind }                 from "tst-reflect";
-import { ConditionalType }          from "typescript";
 import * as ts                      from "typescript";
+import {
+	ConditionalType,
+	SyntaxKind
+}                                   from "typescript";
 import { Context }                  from "./contexts/Context";
 import { TypePropertiesSource }     from "./declarations";
 import { getConstructors }          from "./getConstructors";
@@ -70,6 +73,18 @@ export function getTypeDescription(
 			if (context.config.debugMode)
 			{
 				log.info("Symbol is TypeLiteral of Object type.");
+			}
+
+			const declaration = symbol.declarations?.[0];
+
+			if (declaration && ts.isTypeLiteralNode(declaration) && type.aliasSymbol)
+			{
+				return {
+					k: TypeKind.Object,
+					n: type.aliasSymbol.name,
+					fn: getTypeFullName(type.aliasSymbol),
+					props: getProperties(symbol, type, context)
+				};
 			}
 
 			return {
@@ -229,7 +244,7 @@ export function getTypeDescription(
 
 	const properties: TypePropertiesSource = {
 		n: typeSymbol.getName(),
-		fn: getTypeFullName(type, typeSymbol),
+		fn: getTypeFullName(typeSymbol || type.getSymbol()),
 		props: getProperties(symbol, type, context),
 		ctors: getConstructors(symbolType, context),
 		decs: decorators,
