@@ -1,5 +1,7 @@
 import { getType } from "../../runtime";
 
+type SimpleUnionType = string | number; 
+
 type UnionType<TResult> = {
     ok: true,
     result: TResult
@@ -33,6 +35,7 @@ abstract class BaseGenericClass<TGenericType extends any = DefaultType, TGeneric
     public arrayProp: Array<string>;
     public stringArrayProp: string[];
     public stringProp: string;
+	public someUnionProp: SimpleUnionType;
 
     constructor(initValue: TGenericType)
     constructor(initValue: TGenericType, anyProp: undefined)

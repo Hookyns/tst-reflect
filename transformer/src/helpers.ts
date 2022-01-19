@@ -1,10 +1,13 @@
 import * as path          from "path";
 import {
-	REFLECT_GENERIC_DECORATOR,
+	AccessModifier,
+	Accessor,
 	REFLECT_DECORATOR_DECORATOR,
+	REFLECT_GENERIC_DECORATOR,
 	TypeKind
 }                         from "tst-reflect";
 import * as ts            from "typescript";
+import { ModifiersArray } from "typescript";
 import TransformerContext from "./contexts/TransformerContext";
 
 /**
@@ -34,12 +37,12 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 		return checker.getDeclaredTypeOfSymbol(symbol);
 	}
 
-	if (!symbol.declarations)
+	if (!symbol.valueDeclaration)
 	{
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
 
-	return checker.getTypeOfSymbolAtLocation(symbol, symbol.declarations[0]);
+	return checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
 }
 
 /**
@@ -94,7 +97,7 @@ export function getTypeFullName(typeSymbol?: ts.Symbol)
 		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(/\\/g, "/");
 	}
 
-	return filePath + ":" + typeSymbol.getName();
+	return filePath + ":" + typeSymbol.getName() + "#" + ((typeSymbol as any).id || "0");
 }
 
 /**
@@ -180,4 +183,66 @@ export function createCtorGetter(typeCtor: ts.EntityName | ts.DeclarationName | 
 	}
 
 	return ts.factory.createArrowFunction(undefined, undefined, [], undefined, ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), typeCtor as ts.Expression);
+}
+
+/**
+ * Return AccessModifier
+ * @param modifiers
+ */
+export function getAccessModifier(modifiers?: ModifiersArray): AccessModifier
+{
+	const kinds = modifiers?.map(m => m.kind) ?? [];
+
+	if (kinds.includes(ts.SyntaxKind.PrivateKeyword))
+	{
+		return AccessModifier.Private;
+	}
+
+	if (kinds.includes(ts.SyntaxKind.ProtectedKeyword))
+	{
+		return AccessModifier.Protected;
+	}
+
+	return AccessModifier.Public;
+}
+
+/**
+ * Return Accessor (getter/setter)
+ * @param node
+ */
+export function getAccessor(node?: ts.Declaration): Accessor
+{
+	if (node != undefined)
+	{
+		if (node.kind == ts.SyntaxKind.GetAccessor)
+		{
+			return Accessor.Getter;
+		}
+
+		if (node.kind == ts.SyntaxKind.SetAccessor)
+		{
+			return Accessor.Setter;
+		}
+	}
+
+	return Accessor.None;
+}
+
+/**
+ * Return true if there is readonly modifier
+ * @param modifiers
+ */
+export function isReadonly(modifiers?: ModifiersArray): boolean
+{
+	return modifiers?.some(m => m.kind == ts.SyntaxKind.ReadonlyKeyword) ?? false;
+}
+
+/**
+ * Return signature of method/function
+ * @param symbol
+ * @param checker
+ */
+export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Signature
+{
+	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)[0];
 }

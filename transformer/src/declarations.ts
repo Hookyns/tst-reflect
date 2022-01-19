@@ -1,5 +1,9 @@
 import * as ts          from "typescript";
-import { TypeKind }     from "tst-reflect";
+import {
+	TypeKind,
+	AccessModifier,
+	Accessor
+}                       from "tst-reflect";
 import type { Context } from "./contexts/Context";
 
 /**
@@ -41,9 +45,40 @@ export interface ParameterDescriptionSource
  */
 export interface PropertyDescriptionSource
 {
+	/**
+	 * Name of the property
+	 */
 	n: string;
-	t: GetTypeCall,
-	d?: Array<DecoratorDescriptionSource>
+
+	/**
+	 * Type of the property
+	 */
+	t: GetTypeCall;
+
+	/**
+	 * Decorators
+	 */
+	d?: Array<DecoratorDescriptionSource>;
+
+	/**
+	 * Access modifier
+	 */
+	am?: AccessModifier;
+
+	/**
+	 * Accessor
+	 */
+	acs?: Accessor;
+
+	/**
+	 * Readonly
+	 */
+	ro?: boolean;
+
+	/**
+	 * Optional
+	 */
+	o?: boolean;
 }
 
 /**
@@ -53,6 +88,47 @@ export interface DecoratorDescriptionSource
 {
 	n: string;
 	fn?: string;
+}
+
+/**
+ * @internal
+ */
+export interface MethodDescriptionSource
+{
+	/**
+	 * Method name
+	 */
+	n: string;
+
+	/**
+	 * Parameters
+	 */
+	params: Array<ParameterDescriptionSource>;
+
+	/**
+	 * Return type
+	 */
+	rt: GetTypeCall;
+
+	/**
+	 * Decorators
+	 */
+	d?: Array<DecoratorDescriptionSource>;
+
+	/**
+	 * Generic type parameters
+	 */
+	tp?: Array<GetTypeCall>;
+
+	/**
+	 * Optional method
+	 */
+	o: boolean;
+
+	/**
+	 * Access modifier
+	 */
+	am: AccessModifier;
 }
 
 /**
@@ -119,6 +195,11 @@ export interface TypePropertiesSource
 	 * Properties
 	 */
 	props?: Array<PropertyDescriptionSource>;
+
+	/**
+	 * Methods
+	 */
+	meths?: Array<MethodDescriptionSource>;
 
 	/**
 	 * Decorators

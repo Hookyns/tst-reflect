@@ -16,6 +16,6 @@
 		"glob": "^7.1.7"
 	},
 	"dependencies": {
-		"tst-reflect": "^0.4.3-0"
+		"tst-reflect": "^0.6.0-alpha.5"
 	}
 }

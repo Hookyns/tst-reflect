@@ -1,14 +1,14 @@
 import { TypeKind }                 from "tst-reflect";
 import * as ts                      from "typescript";
 import {
-	ConditionalType,
-	SyntaxKind
+	ConditionalType
 }                                   from "typescript";
 import { Context }                  from "./contexts/Context";
 import { TypePropertiesSource }     from "./declarations";
 import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
 import getLiteralName               from "./getLiteralName";
+import { getMethods }               from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
 import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
@@ -59,12 +59,35 @@ export function getTypeDescription(
 
 	let typeSymbol = type.getSymbol();
 
+	if (type.aliasSymbol)
+	{
+		symbol = type.aliasSymbol;
+	}
+
 	if (!symbol && typeSymbol)
 	{
 		symbol = typeSymbol;
 	}
 
 	const checker = context.typeChecker;
+
+	if (type.isUnionOrIntersection())
+	{
+		const types = type.types
+			.map(childType => getTypeCall(
+					childType,
+					undefined, //checker.getSymbolAtLocation(typeNode),
+					context
+				)
+			);
+
+		return {
+			k: TypeKind.Container,
+			types: types,
+			union: type.isUnion(),
+			inter: type.isIntersection()
+		};
+	}
 
 	if (symbol)
 	{
@@ -246,6 +269,7 @@ export function getTypeDescription(
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(typeSymbol || type.getSymbol()),
 		props: getProperties(symbol, type, context),
+		meths: getMethods(symbol, type, context),
 		ctors: getConstructors(symbolType, context),
 		decs: decorators,
 		k: kind,

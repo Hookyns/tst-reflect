@@ -1,9 +1,14 @@
 import * as ts                       from "typescript";
-import { getType }                   from "./helpers";
-import getTypeCall                   from "./getTypeCall";
+import { Context }                   from "./contexts/Context";
 import { PropertyDescriptionSource } from "./declarations";
 import { getDecorators }             from "./getDecorators";
-import { Context }                   from "./contexts/Context";
+import getTypeCall                   from "./getTypeCall";
+import {
+	getAccessModifier,
+	getAccessor,
+	getType,
+	isReadonly
+}                                    from "./helpers";
 
 /**
  * Return properties of type
@@ -18,13 +23,17 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 		const members: Array<ts.Symbol> = Array.from(symbol.members.values() as any);
 
 		const properties = members
-			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor)
+			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor || (m.flags & ts.SymbolFlags.SetAccessor) == ts.SymbolFlags.SetAccessor)
 			.map((memberSymbol: ts.Symbol) =>
 			{
 				return {
 					n: memberSymbol.escapedName.toString(),
 					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context),
-					d: getDecorators(memberSymbol, context.typeChecker)
+					d: getDecorators(memberSymbol, context.typeChecker),
+					am: getAccessModifier(memberSymbol.valueDeclaration?.modifiers),
+					acs: getAccessor(memberSymbol.valueDeclaration),
+					ro: isReadonly(memberSymbol.valueDeclaration?.modifiers),
+					o: memberSymbol.valueDeclaration && ts.isPropertyDeclaration(memberSymbol.valueDeclaration) && !!memberSymbol.valueDeclaration.questionToken
 				};
 			});
 

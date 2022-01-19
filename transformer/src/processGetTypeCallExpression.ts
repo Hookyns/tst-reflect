@@ -47,7 +47,8 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 
 		if (!genericTypeSymbol)
 		{
-			throw getError(node, "Symbol of generic type argument not found.");
+			log.warn(node, "Symbol of generic type argument not found.");
+			// throw getError(node, "Symbol of generic type argument not found.");
 		}
 
 		return getTypeCall(
