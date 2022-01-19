@@ -326,7 +326,7 @@ const Mapper = {
 	{
 		return ({
 			name: p.n,
-			type: p.t,
+			type: resolveLazyType(p.t),
 			decorators: p.d?.map(Mapper.mapDecorators) || [],
 			optional: p.o,
 			accessModifier: p.am ?? AccessModifier.Public,
@@ -353,7 +353,7 @@ const Mapper = {
 	{
 		return ({
 			name: p.n,
-			type: p.t,
+			type: resolveLazyType(p.t),
 			optional: p.o
 		});
 	}
@@ -439,8 +439,8 @@ export class Method extends MethodBase
 		}
 
 		this._name = description.n;
-		this._typeParameters = description.tp || [];
-		this._returnType = description.rt;
+		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
+		this._returnType = resolveLazyType(description.rt);
 		this._optional = description.o;
 		this._accessModifier = description.am;
 		this._decorators = description.d?.map(Mapper.mapDecorators) || [];
@@ -738,18 +738,18 @@ export class Type
 		this._properties = description.props?.map(Mapper.mapProperties) || [];
 		this._methods = description.meths?.map(m => new Method(m)) || [];
 		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
-		this._typeParameters = description.tp || [];
+		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
 		this._ctor = description.ctor;
-		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.Object);
-		this._interface = description.iface;
+		this._baseType = resolveLazyType(description.bt) ?? (description.ctor == Object ? undefined : Type.Object);
+		this._interface = resolveLazyType(description.iface);
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
-		this._types = description.types;
+		this._types = description.types?.map(t => resolveLazyType(t));
 		this._literalValue = description.v;
-		this._typeArgs = description.args || [];
-		this._conditionalType = description.ct ? { extends: description.ct.e, trueType: description.ct.tt, falseType: description.ct.ft } : undefined;
-		this._genericTypeConstraint = description.con;
-		this._genericTypeDefault = description.def;
+		this._typeArgs = description.args?.map(t => resolveLazyType(t)) || [];
+		this._conditionalType = description.ct ? { extends: description.ct.e, trueType: resolveLazyType(description.ct.tt), falseType: resolveLazyType(description.ct.ft) } : undefined;
+		this._genericTypeConstraint = resolveLazyType(description.con);
+		this._genericTypeDefault = resolveLazyType(description.def);
 	}
 
 	/**
@@ -1122,7 +1122,28 @@ export function getType<T>(description?: TypeProperties | number | string, typeI
 	return undefined;
 }
 
+
 getType.__tst_reflect__ = true;
+
+/**
+ * getType for circular dependencies
+ * @internal
+ */
+getType.lazy = function (typeId: number) {
+	return function lazyType() {
+		return (getType as any)(typeId);
+	};
+};
+
+function resolveLazyType(type?: Type | Function)
+{
+	if (typeof type == "function" && type.name == "lazyType")
+	{
+		return type();
+	}
+	
+	return type;
+}
 
 /**
  * Class decorator which marks classes to be processed and included in metadata lib file.
@@ -1155,3 +1176,9 @@ export const REFLECT_DECORATOR_DECORATOR = "reflectDecorator";
  * Name of the getType() function
  */
 export const GET_TYPE_FNC_NAME = "getType";
+
+/**
+ * Name of the getType.lazy() function
+ * @type {string}
+ */
+export const GET_TYPE_LAZY_FNC_NAME = "lazy";
