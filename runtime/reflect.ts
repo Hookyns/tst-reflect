@@ -288,6 +288,11 @@ export interface MethodDescription
 	rt: Type;
 
 	/**
+	 * Decorators
+	 */
+	d?: Array<DecoratorDescription>;
+
+	/**
 	 * Generic type parameters
 	 */
 	tp?: Array<Type>;
@@ -385,6 +390,7 @@ export class Method extends MethodBase
 	private readonly _returnType: Type;
 	private readonly _optional: boolean;
 	private readonly _typeParameters: Array<Type>;
+	private readonly _decorators: Array<Decorator>;
 	private readonly _accessModifier: AccessModifier;
 
 	/**
@@ -437,6 +443,7 @@ export class Method extends MethodBase
 		this._returnType = description.rt;
 		this._optional = description.o;
 		this._accessModifier = description.am;
+		this._decorators = description.d?.map(Mapper.mapDecorators) || [];
 	}
 
 	/**
@@ -446,6 +453,14 @@ export class Method extends MethodBase
 	getTypeParameters(): ReadonlyArray<Type>
 	{
 		return this._typeParameters.slice();
+	}
+
+	/**
+	 * Returns array of decorators
+	 */
+	getDecorators(): ReadonlyArray<Decorator>
+	{
+		return this._decorators.slice();
 	}
 }
 
