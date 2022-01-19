@@ -341,7 +341,7 @@ const Mapper = {
 	 */
 	mapConstructors(c: ConstructorDescription): Constructor
 	{
-		return new Constructor(c);
+		return Reflect.construct(Constructor, [c], ConstructorActivator);
 	},
 
 	/**
@@ -736,7 +736,7 @@ export class Type
 		this._kind = description.k;
 		this._constructors = description.ctors?.map(Mapper.mapConstructors) || [];
 		this._properties = description.props?.map(Mapper.mapProperties) || [];
-		this._methods = description.meths?.map(m => new Method(m)) || [];
+		this._methods = description.meths?.map(m => Reflect.construct(Method, [m], MethodActivator)) || [];
 		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
 		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
 		this._ctor = description.ctor;
