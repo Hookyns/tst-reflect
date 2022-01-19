@@ -610,25 +610,25 @@ export class Type
 {
 	public static readonly Object: Type;
 
-	private readonly _ctor?: () => Function;
-	private readonly _kind: TypeKind;
-	private readonly _name: string;
-	private readonly _fullName: string;
-	private readonly _isUnion: boolean;
-	private readonly _isIntersection: boolean;
-	private readonly _types?: Array<Type>;
-	private readonly _properties: Array<Property>;
-	private readonly _methods: Array<Method>;
-	private readonly _decorators: Array<Decorator>;
-	private readonly _constructors: Array<Constructor>;
-	private readonly _typeParameters: Array<Type>;
-	private readonly _baseType?: Type;
-	private readonly _interface?: Type;
-	private readonly _literalValue?: any;
-	private readonly _typeArgs: Array<Type>;
-	private readonly _conditionalType?: ConditionalType;
-	private readonly _genericTypeConstraint?: Type;
-	private readonly _genericTypeDefault?: Type;
+	private _ctor?: () => Function;
+	private _kind!: TypeKind;
+	private _name!: string;
+	private _fullName!: string;
+	private _isUnion!: boolean;
+	private _isIntersection!: boolean;
+	private _types?: Array<Type>;
+	private _properties!: Array<Property>;
+	private _methods!: Array<Method>;
+	private _decorators!: Array<Decorator>;
+	private _constructors!: Array<Constructor>;
+	private _typeParameters!: Array<Type>;
+	private _baseType?: Type;
+	private _interface?: Type;
+	private _literalValue?: any;
+	private _typeArgs!: Array<Type>;
+	private _conditionalType?: ConditionalType;
+	private _genericTypeConstraint?: Type;
+	private _genericTypeDefault?: Type;
 
 	/**
 	 * Returns information about generic conditional type.
@@ -724,13 +724,20 @@ export class Type
 	 * Internal Type constructor
 	 * @internal
 	 */
-	constructor(description: TypeProperties)
+	constructor()
 	{
 		if (new.target != TypeActivator)
 		{
 			throw new Error("You cannot create instance of Type manually!");
 		}
+	}
 
+	/**
+	 * @internal
+	 * @param {TypeProperties} description
+	 */
+	initialize(description: TypeProperties)
+	{
 		this._name = description.n || "";
 		this._fullName = description.fn || description.n || "";
 		this._kind = description.k;
@@ -747,7 +754,11 @@ export class Type
 		this._types = description.types?.map(t => resolveLazyType(t));
 		this._literalValue = description.v;
 		this._typeArgs = description.args?.map(t => resolveLazyType(t)) || [];
-		this._conditionalType = description.ct ? { extends: description.ct.e, trueType: resolveLazyType(description.ct.tt), falseType: resolveLazyType(description.ct.ft) } : undefined;
+		this._conditionalType = description.ct ? {
+			extends: description.ct.e,
+			trueType: resolveLazyType(description.ct.tt),
+			falseType: resolveLazyType(description.ct.ft)
+		} : undefined;
 		this._genericTypeConstraint = resolveLazyType(description.con);
 		this._genericTypeDefault = resolveLazyType(description.def);
 	}
@@ -1108,13 +1119,15 @@ export function getType<T>(description?: TypeProperties | number | string, typeI
 	// Construct Type instance
 	if (description && description.constructor === Object)
 	{
-		const type = Reflect.construct(Type, [description], TypeActivator);
+		const type = Reflect.construct(Type, [], TypeActivator);
 
 		// Store Type if it has ID
 		if (typeId)
 		{
 			Type._storeTypeMeta(typeId, type);
 		}
+		
+		type.initialize(description);
 
 		return type;
 	}
@@ -1141,7 +1154,7 @@ function resolveLazyType(type?: Type | Function)
 	{
 		return type();
 	}
-	
+
 	return type;
 }
 
