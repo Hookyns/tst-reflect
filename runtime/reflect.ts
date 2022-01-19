@@ -167,17 +167,17 @@ export interface PropertyDescription
 	/**
 	 * Access modifier
 	 */
-	am: AccessModifier;
+	am?: AccessModifier;
 
 	/**
 	 * Accessor
 	 */
-	acs: Accessor;
+	acs?: Accessor;
 
 	/**
 	 * Readonly
 	 */
-	ro: boolean;
+	ro?: boolean;
 }
 
 /**
@@ -324,9 +324,9 @@ const Mapper = {
 			type: p.t,
 			decorators: p.d?.map(Mapper.mapDecorators) || [],
 			optional: p.o,
-			accessModifier: p.am,
-			accessor: p.acs,
-			readonly: p.ro
+			accessModifier: p.am ?? AccessModifier.Public,
+			accessor: p.acs ?? Accessor.None,
+			readonly: p.ro ?? false
 		});
 	},
 
