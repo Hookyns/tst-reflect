@@ -19,7 +19,7 @@ function inferType<TType>() {
 }
 
 const variable = 5;
-inferType<typeof variable>(); // "number" - but it is and number literal with value 5, more info in docs
+inferType<typeof variable>(); // "number"
 ```
 
 or
@@ -33,7 +33,7 @@ function inferType<TType>(val: TType) {
 }
 
 const variable = 5;
-inferType(variable); // "number"; thanks to @reflectGeneric, you don't have to pass generic param, but it is not recomended.
+inferType(variable); // "number"; thanks to @reflectGeneric, you don't have to pass generic param
 ```
 
 More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder too.
@@ -80,7 +80,7 @@ or with Webpack
 
 ### Obtaining Type
 
-This package contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance, just call `getType<InterfaceOrClassOrSomeType>()`.
+This package contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance you have to call `getType<SomeTypeScriptType>()`.
 
 ## Synopsis
 
@@ -88,142 +88,180 @@ This package contains two main exports, `getType<T>()` function and `Type` class
 /**
  * Object representing TypeScript type in memory
  */
-export declare class Type {
+export declare class Type
+{
     static readonly Object: Type;
-    
+
     /**
      * Returns information about generic conditional type.
      */
     get condition(): ConditionalType | undefined;
-    
+
     /**
      * Returns a value indicating whether the Type is container for unified Types or not
      */
     get union(): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is container for intersecting Types or not
      */
     get intersection(): boolean;
-    
+
     /**
      * List of underlying types in case Type is union or intersection
      */
-    get types(): Array<Type> | undefined;
-    
+    get types(): ReadonlyArray<Type> | undefined;
+
     /**
      * Constructor function in case Type is class
      */
     get ctor(): Function | undefined;
-    
+
     /**
      * Base type
      * @description Base type from which this type extends from or undefined if type is Object.
      */
     get baseType(): Type | undefined;
-    
+
+    /**
+     * Interface which this type implements
+     */
+    get interface(): Type | undefined;
+
     /**
      * Get type full-name
      * @description Contains file path base to project root
      */
     get fullName(): string;
-    
+
     /**
      * Get type name
      */
     get name(): string;
-    
+
     /**
      * Get kind of type
      */
     get kind(): TypeKind;
-    
+
+    /**
+     * Underlying value in case of literal type
+     */
+    get literalValue(): any;
+
     /**
      * Returns true if types are equals
      * @param type
      */
     is(type: Type): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is a class or not
      */
     isClass(): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is a interface or not
      */
     isInterface(): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is an literal or not
      */
     isLiteral(): boolean;
-    
-    /**
-     * Get underlying value in case of literal type
-     */
-    getLiteralValue(): any;
-    
+
     /**
      * Returns a value indicating whether the Type is an object literal or not
      */
     isObjectLiteral(): boolean;
-    
+
     /**
-     * Returns array of properties
+     * Returns true if type is union or intersection of types
      */
-    getTypeParameters(): Array<Type>;
-    
-    /**
-     * Return type arguments in case of generic type
-     */
-    getTypeArguments(): Array<Type>;
-    
-    /**
-     * Returns constructor description when Type is a class
-     */
-    getConstructors(): Array<Constructor> | undefined;
-    
-    /**
-     * Returns interface which this type implements
-     */
-    getInterface(): Type | undefined;
-    
-    /**
-     * Returns array of properties
-     */
-    getProperties(): Array<Property>;
-    
-    /**
-     * Returns array of decorators
-     */
-    getDecorators(): Array<Decorator>;
-    
-    /**
-     * Returns true if this type is assignable to target type
-     * @param target
-     */
-    isAssignableTo(target: Type): boolean;
-    
+    isUnionOrIntersection(): boolean;
+
     /**
      * Check if this type is a string
      */
     isString(): boolean;
-    
+
     /**
      * Check if this type is a number
      */
     isNumber(): boolean;
-    
+
     /**
      * Check if this type is a boolean
      */
     isBoolean(): boolean;
-    
+
     /**
      * Check if this type is an array
      */
     isArray(): boolean;
+
+    /**
+     *
+     * @return {boolean}
+     */
+    isObjectLike(): boolean;
+
+    /**
+     * Returns array of type parameters.
+     */
+    getTypeParameters(): ReadonlyArray<Type>;
+
+    /**
+     * Returns type arguments in case of generic type
+     */
+    getTypeArguments(): ReadonlyArray<Type>;
+
+    /**
+     * Returns constructor description when Type is a class
+     */
+    getConstructors(): ReadonlyArray<Constructor> | undefined;
+
+    /**
+     * Returns array of properties
+     */
+    getProperties(): ReadonlyArray<Property>;
+
+    /**
+     * Returns array of methods
+     */
+    getMethods(): ReadonlyArray<Method>;
+
+    /**
+     * Returns array of decorators
+     */
+    getDecorators(): ReadonlyArray<Decorator>;
+
+    /**
+     * Determines whether the class represented by the current Type derives from the class represented by the specified Type
+     * @param {Type} classType
+     */
+    isSubclassOf(classType: Type): boolean;
+
+    /**
+     * Determines whether the current Type derives from the specified Type
+     * @param {Type} targetType
+     */
+    isDerivedFrom(targetType: Type): boolean;
+
+    /**
+     * Determines whether the Object represented by the current Type is structurally compatible and assignable to the Object represented by the specified Type
+     * @param {Type} target
+     * @return {boolean}
+     * @private
+     */
+    isStructurallyAssignableTo(target: Type): boolean;
+
+    /**
+     * Determines whether an instance of the current Type can be assigned to an instance of the specified Type.
+     * @description This is fulfilled by derived types or compatible types.
+     * @param target
+     */
+    isAssignableTo(target: Type): boolean;
 }
 
 export declare enum TypeKind
@@ -238,6 +276,17 @@ export declare enum TypeKind
     Tuple = 7,
     TypeParameter = 8,
     ConditionalType = 9
+}
+
+export declare enum Accessor {
+    None = 0,
+    Getter = 1,
+    Setter = 2
+}
+export declare enum AccessModifier {
+    Private = 0,
+    Protected = 1,
+    Public = 2
 }
 
 export interface ConditionalType {

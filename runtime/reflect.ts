@@ -65,6 +65,20 @@ export enum TypeKind
 	ConditionalType = 9,
 }
 
+export enum Accessor
+{
+	None,
+	Getter,
+	Setter
+}
+
+export enum AccessModifier
+{
+	Private,
+	Protected,
+	Public
+}
+
 /**
  * @internal
  */
@@ -109,9 +123,20 @@ export interface ConditionalType
  */
 export interface ParameterDescription
 {
+	/**
+	 * Name of the parameter
+	 */
 	n: string;
+
+	/**
+	 * Type of the parameter
+	 */
 	t: Type;
-    o: boolean;
+
+	/**
+	 * Optional parameter
+	 */
+	o: boolean;
 }
 
 /**
@@ -119,9 +144,40 @@ export interface ParameterDescription
  */
 export interface PropertyDescription
 {
+	/**
+	 * Name of the property
+	 */
 	n: string;
+
+	/**
+	 * Property type
+	 */
 	t: Type;
+
+	/**
+	 * Optional property
+	 */
+	o: boolean;
+
+	/**
+	 * Decorators
+	 */
 	d?: Array<DecoratorDescription>;
+
+	/**
+	 * Access modifier
+	 */
+	am: AccessModifier;
+
+	/**
+	 * Accessor
+	 */
+	acs: Accessor;
+
+	/**
+	 * Readonly
+	 */
+	ro: boolean;
 }
 
 /**
@@ -140,9 +196,29 @@ export interface Property
 	type: Type;
 
 	/**
+	 * Optional property
+	 */
+	optional: boolean;
+
+	/**
 	 * Property decorators
 	 */
-	decorators: Array<Decorator>;
+	decorators: ReadonlyArray<Decorator>;
+
+	/**
+	 * Access modifier
+	 */
+	accessModifier: AccessModifier;
+
+	/**
+	 * Accessor
+	 */
+	accessor: Accessor;
+
+	/**
+	 * Readonly
+	 */
+	readonly: boolean;
 }
 
 /**
@@ -185,10 +261,196 @@ export interface MethodParameter
 	 */
 	type: Type;
 
-    /**
-     * Parameter is optional
-     */
-    optional: boolean;
+	/**
+	 * Parameter is optional
+	 */
+	optional: boolean;
+}
+
+/**
+ * @internal
+ */
+export interface MethodDescription
+{
+	/**
+	 * Method name
+	 */
+	n: string;
+
+	/**
+	 * Parameters
+	 */
+	params: Array<ParameterDescription>;
+
+	/**
+	 * Return type
+	 */
+	rt: Type;
+
+	/**
+	 * Generic type parameters
+	 */
+	tp?: Array<Type>;
+
+	/**
+	 * Optional method
+	 */
+	o: boolean;
+
+	/**
+	 * Access modifier
+	 */
+	am: AccessModifier;
+}
+
+const Mapper = {
+	/**
+	 * @internal
+	 * @param d
+	 */
+	mapDecorators(d: DecoratorDescription): Decorator
+	{
+		return ({ name: d.n, fullName: d.fn });
+	},
+
+	/**
+	 * @internal
+	 * @param p
+	 */
+	mapProperties(p: PropertyDescription): Property
+	{
+		return ({
+			name: p.n,
+			type: p.t,
+			decorators: p.d?.map(Mapper.mapDecorators) || [],
+			optional: p.o,
+			accessModifier: p.am,
+			accessor: p.acs,
+			readonly: p.ro
+		});
+	},
+
+	/**
+	 * @internal
+	 * @param c
+	 */
+	mapConstructors(c: ConstructorDescription): Constructor
+	{
+		return new Constructor(c);
+	},
+
+	/**
+	 * @internal
+	 * @param p
+	 * @return {{name: string, optional: boolean, type: Type}}
+	 */
+	mapMethodParameters(p: ParameterDescription): MethodParameter
+	{
+		return ({
+			name: p.n,
+			type: p.t,
+			optional: p.o
+		});
+	}
+};
+
+export class MethodBase
+{
+	private readonly _parameters: Array<MethodParameter>;
+
+	/**
+	 * Internal constructor
+	 * @internal
+	 */
+	protected constructor(params: Array<ParameterDescription>)
+	{
+		this._parameters = params.map(Mapper.mapMethodParameters);
+	}
+
+	/**
+	 * Parameters of this method
+	 */
+	getParameters(): ReadonlyArray<MethodParameter>
+	{
+		return this._parameters.slice();
+	}
+}
+
+/**
+ * Method details
+ */
+export class Method extends MethodBase
+{
+	private readonly _name: string;
+	private readonly _returnType: Type;
+	private readonly _optional: boolean;
+	private readonly _typeParameters: Array<Type>;
+	private readonly _accessModifier: AccessModifier;
+
+	/**
+	 * Name of this method
+	 */
+	get name(): string
+	{
+		return this._name;
+	}
+
+	/**
+	 * Return type of this method
+	 */
+	get returnType(): Type
+	{
+		return this._returnType;
+	}
+
+	/**
+	 * Method is optional
+	 */
+	get optional(): boolean
+	{
+		return this._optional;
+	}
+
+	/**
+	 * Access modifier
+	 */
+	get accessModifier(): AccessModifier
+	{
+		return this._accessModifier;
+	}
+
+	/**
+	 * Internal method constructor
+	 * @internal
+	 */
+	constructor(description: MethodDescription)
+	{
+		super(description.params);
+
+		if (new.target != MethodActivator)
+		{
+			throw new Error("You cannot create instance of Method manually!");
+		}
+
+		this._name = description.n;
+		this._typeParameters = description.tp || [];
+		this._returnType = description.rt;
+		this._optional = description.o;
+		this._accessModifier = description.am;
+	}
+
+	/**
+	 * Returns list of generic type parameter.
+	 * @return {Array<Type>}
+	 */
+	getTypeParameters(): ReadonlyArray<Type>
+	{
+		return this._typeParameters.slice();
+	}
+}
+
+class MethodActivator extends Method
+{
 }
 
 /**
@@ -196,18 +458,31 @@ export interface MethodParameter
  */
 export interface ConstructorDescription
 {
-	params: Array<ParameterDescription>
+	params: Array<ParameterDescription>;
 }
 
 /**
- * Constructor description object
+ * Constructor details
  */
-export interface Constructor
+export class Constructor extends MethodBase
 {
 	/**
-	 * Constructor parameters
+	 * Internal constructor
+	 * @internal
 	 */
-	parameters: Array<MethodParameter>
+	constructor(description: ConstructorDescription)
+	{
+		super(description.params);
+
+		if (new.target != ConstructorActivator)
+		{
+			throw new Error("You cannot create instance of Constructor manually!");
+		}
+	}
+}
+
+class ConstructorActivator extends Constructor
+{
 }
 
 /**
@@ -239,6 +514,11 @@ export interface TypeProperties
 	 * Properties
 	 */
 	props?: Array<PropertyDescription>;
+
+	/**
+	 * Methods
+	 */
+	meths?: Array<MethodDescription>;
 
 	/**
 	 * Decorators
@@ -294,7 +574,7 @@ export interface TypeProperties
 	 * Default type
 	 */
 	def?: Type,
-	
+
 	/**
 	 * Constraining type
 	 */
@@ -323,6 +603,7 @@ export class Type
 	private readonly _isIntersection: boolean;
 	private readonly _types?: Array<Type>;
 	private readonly _properties: Array<Property>;
+	private readonly _methods: Array<Method>;
 	private readonly _decorators: Array<Decorator>;
 	private readonly _constructors: Array<Constructor>;
 	private readonly _typeParameters: Array<Type>;
@@ -333,6 +614,96 @@ export class Type
 	private readonly _conditionalType?: ConditionalType;
 	private readonly _genericTypeConstraint?: Type;
 	private readonly _genericTypeDefault?: Type;
+
+	/**
+	 * Returns information about generic conditional type.
+	 */
+	get condition(): ConditionalType | undefined
+	{
+		return this._conditionalType;
+	}
+
+	/**
+	 * Returns a value indicating whether the Type is container for unified Types or not
+	 */
+	get union(): boolean
+	{
+		return this._isUnion;
+	}
+
+	/**
+	 * Returns a value indicating whether the Type is container for intersecting Types or not
+	 */
+	get intersection(): boolean
+	{
+		return this._isIntersection;
+	}
+
+	/**
+	 * List of underlying types in case Type is union or intersection
+	 */
+	get types(): ReadonlyArray<Type> | undefined
+	{
+		return this._types?.slice();
+	}
+
+	/**
+	 * Constructor function in case Type is class
+	 */
+	get ctor(): Function | undefined
+	{
+		return this._ctor?.();
+	}
+
+	/**
+	 * Base type
+	 * @description Base type from which this type extends from or undefined if type is Object.
+	 */
+	get baseType(): Type | undefined
+	{
+		return this._baseType;
+	}
+
+	/**
+	 * Interface which this type implements
+	 */
+	get interface(): Type | undefined
+	{
+		return this._interface;
+	}
+
+	/**
+	 * Get type full-name
+	 * @description Contains file path base to project root
+	 */
+	get fullName(): string
+	{
+		return this._fullName;
+	}
+
+	/**
+	 * Get type name
+	 */
+	get name(): string
+	{
+		return this._name;
+	}
+
+	/**
+	 * Get kind of type
+	 */
+	get kind(): TypeKind
+	{
+		return this._kind;
+	}
+
+	/**
+	 * Underlying value in case of literal type
+	 */
+	get literalValue(): any
+	{
+		return this._literalValue;
+	}
 
 	/**
 	 * Internal Type constructor
@@ -348,9 +719,10 @@ export class Type
 		this._name = description.n || "";
 		this._fullName = description.fn || description.n || "";
 		this._kind = description.k;
-		this._constructors = description.ctors?.map(Type.mapConstructors) || [];
-		this._properties = description.props?.map(Type.mapProperties) || [];
-		this._decorators = description.decs?.map(Type.mapDecorators) || [];
+		this._constructors = description.ctors?.map(Mapper.mapConstructors) || [];
+		this._properties = description.props?.map(Mapper.mapProperties) || [];
+		this._methods = description.meths?.map(m => new Method(m)) || [];
+		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
 		this._typeParameters = description.tp || [];
 		this._ctor = description.ctor;
 		this._baseType = description.bt ?? (description.ctor == Object ? undefined : Type.Object);
@@ -392,126 +764,14 @@ export class Type
 	}
 
 	/**
-	 * @internal
-	 * @param d
-	 */
-	private static mapDecorators(d: DecoratorDescription): Decorator
-	{
-		return ({ name: d.n, fullName: d.fn });
-	}
-
-	/**
-	 * @internal
-	 * @param p
-	 */
-	private static mapProperties(p: PropertyDescription): Property
-	{
-		return ({ name: p.n, type: p.t, decorators: p.d?.map(Type.mapDecorators) || [] });
-	}
-
-	/**
-	 * @internal
-	 * @param c
-	 */
-	private static mapConstructors(c: ConstructorDescription): Constructor
-	{
-		return ({ parameters: c.params.map(p => ({ name: p.n, type: p.t, optional: p.o })) });
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns information about generic conditional type.
-	 */
-	get condition(): ConditionalType | undefined
-	{
-		return this._conditionalType;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns a value indicating whether the Type is container for unified Types or not
-	 */
-	get union(): boolean
-	{
-		return this._isUnion;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns a value indicating whether the Type is container for intersecting Types or not
-	 */
-	get intersection(): boolean
-	{
-		return this._isIntersection;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * List of underlying types in case Type is union or intersection
-	 */
-	get types(): Array<Type> | undefined
-	{
-		return this._types;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Constructor function in case Type is class
-	 */
-	get ctor(): Function | undefined
-	{
-		return this._ctor?.();
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Base type
-	 * @description Base type from which this type extends from or undefined if type is Object.
-	 */
-	get baseType(): Type | undefined
-	{
-		return this._baseType;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Get type full-name
-	 * @description Contains file path base to project root
-	 */
-	get fullName(): string
-	{
-		return this._fullName;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Get type name
-	 */
-	get name(): string
-	{
-		return this._name;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Get kind of type
-	 */
-	get kind(): TypeKind
-	{
-		return this._kind;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
 	 * Returns true if types are equals
 	 * @param type
 	 */
 	is(type: Type)
 	{
-		return this._fullName == type._fullName;
+		return type != undefined && this._fullName == type._fullName && !!this._fullName;
 	}
 
-	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is a class or not
 	 */
@@ -520,7 +780,6 @@ export class Type
 		return this.kind == TypeKind.Class;
 	}
 
-	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is a interface or not
 	 */
@@ -529,7 +788,6 @@ export class Type
 		return this.kind == TypeKind.Interface;
 	}
 
-	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is an literal or not
 	 */
@@ -538,16 +796,6 @@ export class Type
 		return this._kind == TypeKind.LiteralType;
 	}
 
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Get underlying value in case of literal type
-	 */
-	getLiteralValue(): any
-	{
-		return this._literalValue;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
 	/**
 	 * Returns a value indicating whether the Type is an object literal or not
 	 */
@@ -556,76 +804,12 @@ export class Type
 		return this._kind == TypeKind.Object;
 	}
 
-	// noinspection JSUnusedGlobalSymbols
 	/**
-	 * Returns array of properties
+	 * Returns true if type is union or intersection of types
 	 */
-	getTypeParameters(): Array<Type>
+	isUnionOrIntersection(): boolean
 	{
-		return this._typeParameters;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Return type arguments in case of generic type
-	 */
-	getTypeArguments(): Array<Type>
-	{
-		return this._typeArgs;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns constructor description when Type is a class
-	 */
-	getConstructors(): Array<Constructor> | undefined
-	{
-		if (!this.isClass())
-		{
-			return undefined;
-		}
-
-		return this._constructors;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns interface which this type implements
-	 */
-	getInterface(): Type | undefined
-	{
-		return this._interface;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns array of properties
-	 */
-	getProperties(): Array<Property>
-	{
-		return this._properties;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns array of decorators
-	 */
-	getDecorators(): Array<Decorator>
-	{
-		return this._decorators;
-	}
-
-	// noinspection JSUnusedGlobalSymbols
-	/**
-	 * Returns true if this type is assignable to target type
-	 * @param target
-	 */
-	isAssignableTo(target: Type): boolean
-	{
-		return this.fullName == target.fullName 
-			|| this._baseType?.isAssignableTo(target) 
-			|| this._interface?.isAssignableTo(target) 
-			|| false;
+		return this.union || this.intersection;
 	}
 
 	/**
@@ -658,6 +842,223 @@ export class Type
 	isArray(): boolean
 	{
 		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "Array";
+	}
+
+	/**
+	 *
+	 * @return {boolean}
+	 */
+	isObjectLike(): boolean
+	{
+		return this.isObjectLiteral() || this.isClass() || this.isInterface();
+	}
+
+	/**
+	 * Returns array of type parameters.
+	 */
+	getTypeParameters(): ReadonlyArray<Type>
+	{
+		return this._typeParameters.slice();
+	}
+
+	/**
+	 * Returns type arguments in case of generic type
+	 */
+	getTypeArguments(): ReadonlyArray<Type>
+	{
+		return this._typeArgs.slice();
+	}
+
+	/**
+	 * Returns constructor description when Type is a class
+	 */
+	getConstructors(): ReadonlyArray<Constructor> | undefined
+	{
+		if (!this.isClass())
+		{
+			return undefined;
+		}
+
+		return this._constructors.slice();
+	}
+
+	/**
+	 * Returns array of properties
+	 */
+	getProperties(): ReadonlyArray<Property>
+	{
+		return this._properties.slice();
+	}
+
+	/**
+	 * Returns array of methods
+	 */
+	getMethods(): ReadonlyArray<Method>
+	{
+		return this._methods.slice();
+	}
+
+	/**
+	 * Returns array of decorators
+	 */
+	getDecorators(): ReadonlyArray<Decorator>
+	{
+		return this._decorators.slice();
+	}
+
+	/**
+	 * Returns object with all methods and properties from current Type and all methods and properties inherited from base types and interfaces to this Type.
+	 * @return {{properties: {[p: string]: Property}, methods: {[p: string]: Method}}}
+	 * @private
+	 */
+	private flattenInheritedMembers(): {
+		properties: { [propertyName: string]: Property },
+		methods: { [methodName: string]: Method }
+	}
+	{
+		const interfaceMembers = this.interface?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
+		const baseTypeMembers = this.baseType?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
+
+		const properties = Object.assign(interfaceMembers.properties, baseTypeMembers.properties);
+		const methods = Object.assign(interfaceMembers.methods, baseTypeMembers.methods);
+
+		for (let property of this.getProperties())
+		{
+			properties[property.name] = property;
+		}
+
+		for (let method of this.getMethods())
+		{
+			methods[method.name] = method;
+		}
+
+		return {
+			properties,
+			methods
+		};
+	}
+
+	/**
+	 * Determines whether the class represented by the current Type derives from the class represented by the specified Type
+	 * @param {Type} classType
+	 */
+	isSubclassOf(classType: Type): boolean
+	{
+		if (!classType.isClass())
+		{
+			// throw new Error("Argument 'classType' must be Type representing a class.");
+			return false;
+		}
+
+		return this.isClass() && !!this.baseType && (this.baseType.is(classType) || this.baseType.isSubclassOf(classType));
+	}
+
+	/**
+	 * Determines whether the current Type derives from the specified Type
+	 * @param {Type} targetType
+	 */
+	isDerivedFrom(targetType: Type): boolean
+	{
+		return this.is(targetType)
+			|| this.baseType?.isAssignableTo(targetType)
+			|| this.interface?.isAssignableTo(targetType)
+			|| false;
+	}
+
+	/**
+	 * Determines whether the Object represented by the current Type is structurally compatible and assignable to the Object represented by the specified Type
+	 * @param {Type} target
+	 * @return {boolean}
+	 * @private
+	 */
+	isStructurallyAssignableTo(target: Type)
+	{
+		if (!this.isObjectLike() || !target.isObjectLike())
+		{
+			return false;
+		}
+
+		const currentMembers = this.flattenInheritedMembers();
+		const currentProperties = Object.values(currentMembers.properties);
+		const currentMethods = Object.values(currentMembers.methods);
+
+		const targetMembers = target.flattenInheritedMembers();
+		const targetProperties = Object.values(targetMembers.properties);
+		const targetMethods = Object.values(targetMembers.methods);
+
+		// All the target properties are required (may be optional), so all of them must be present in current Type.. to be assignable
+		return targetProperties.every(targetProperty =>
+				currentProperties.some(currentProperty =>
+						targetProperty.optional || (
+							currentProperty.name == targetProperty.name
+							&& currentProperty.type.isAssignableTo(targetProperty.type)
+						)
+				)
+			)
+			// same for methods. All targets methods must be present in current Type (methods are matched by name and parameters' types)
+			&& targetMethods.every(targetMethod =>
+				currentMethods.some(currentMethod => {
+					const currentMethodParameters = currentMethod.getParameters();
+
+					return targetMethod.optional || (
+						currentMethod.name == targetMethod.name
+						&& targetMethod.getParameters().every((targetMethodParam, i) => {
+							const currentMethodParam: MethodParameter | undefined = currentMethodParameters[i];
+
+							if (currentMethodParam == undefined)
+							{
+								return targetMethodParam.optional;
+							}
+
+							return currentMethodParam.type.isAssignableTo(targetMethodParam.type);
+						})
+					);
+				})
+			);
+	}
+
+	/**
+	 * Determines whether an instance of the current Type can be assigned to an instance of the specified Type.
+	 * @description This is fulfilled by derived types or compatible types.
+	 * @param target
+	 */
+	isAssignableTo(target: Type): boolean
+	{
+		if (target.kind == TypeKind.Native && target.name == "any")
+		{
+			return true;
+		}
+
+		// Container types check
+		if (this.kind == TypeKind.Container || target.kind == TypeKind.Container)
+		{
+			// target type is not container but source is => not assignable
+			if (target.kind != TypeKind.Container)
+			{
+				return false;
+			}
+
+			// Source is not container, but it can be subtype
+			if (this.kind != TypeKind.Container)
+			{
+				return target.types?.some(targetType => this.isAssignableTo(targetType)) || false;
+			}
+
+			// -- both types are container
+
+			// containers' types do not match (union vs intersection)
+			if (!(this.union == target.union && this.intersection == target.intersection))
+			{
+				return false;
+			}
+
+			return this.types?.every(thisType => target.types?.some(targetType => thisType.isAssignableTo(targetType))) || false;
+		}
+
+		return this.isDerivedFrom(target)
+			// anonymous type check
+			|| this.isStructurallyAssignableTo(target)
+			|| false;
 	}
 }
 
@@ -715,7 +1116,8 @@ getType.__tst_reflect__ = true;
 export function reflect<TType>()
 {
 	getType<TType>();
-	return function<T>(Constructor: { new(...args: any[]): T }) { };
+	return function <T>(Constructor: { new(...args: any[]): T }) {
+	};
 }
 
 /**
