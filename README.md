@@ -361,162 +361,258 @@ and with Webpack
 ## Synopsis
 
 ```typescript
+
 /**
  * Object representing TypeScript type in memory
  */
-export declare class Type {
+export declare class Type
+{
     static readonly Object: Type;
-    
+
     /**
      * Returns information about generic conditional type.
      */
     get condition(): ConditionalType | undefined;
-    
+
     /**
      * Returns a value indicating whether the Type is container for unified Types or not
      */
     get union(): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is container for intersecting Types or not
      */
     get intersection(): boolean;
-    
+
     /**
      * List of underlying types in case Type is union or intersection
      */
-    get types(): Array<Type> | undefined;
-    
+    get types(): ReadonlyArray<Type> | undefined;
+
     /**
      * Constructor function in case Type is class
      */
     get ctor(): Function | undefined;
-    
+
     /**
      * Base type
      * @description Base type from which this type extends from or undefined if type is Object.
      */
     get baseType(): Type | undefined;
-    
+
+    /**
+     * Interface which this type implements
+     */
+    get interface(): Type | undefined;
+
     /**
      * Get type full-name
      * @description Contains file path base to project root
      */
     get fullName(): string;
-    
+
     /**
      * Get type name
      */
     get name(): string;
-    
+
     /**
      * Get kind of type
      */
     get kind(): TypeKind;
-    
+
+    /**
+     * Underlying value in case of literal type
+     */
+    get literalValue(): any;
+
     /**
      * Returns true if types are equals
      * @param type
      */
     is(type: Type): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is a class or not
      */
     isClass(): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is a interface or not
      */
     isInterface(): boolean;
-    
+
     /**
      * Returns a value indicating whether the Type is an literal or not
      */
     isLiteral(): boolean;
-    
-    /**
-     * Get underlying value in case of literal type
-     */
-    getLiteralValue(): any;
-    
+
     /**
      * Returns a value indicating whether the Type is an object literal or not
      */
     isObjectLiteral(): boolean;
-    
+
     /**
-     * Returns array of properties
+     * Returns true if type is union or intersection of types
      */
-    getTypeParameters(): Array<Type>;
-    
-    /**
-     * Return type arguments in case of generic type
-     */
-    getTypeArguments(): Array<Type>;
-    
-    /**
-     * Returns constructor description when Type is a class
-     */
-    getConstructors(): Array<Constructor> | undefined;
-    
-    /**
-     * Returns interface which this type implements
-     */
-    getInterface(): Type | undefined;
-    
-    /**
-     * Returns array of properties
-     */
-    getProperties(): Array<Property>;
-    
-    /**
-     * Returns array of decorators
-     */
-    getDecorators(): Array<Decorator>;
-    
-    /**
-     * Returns true if this type is assignable to target type
-     * @param target
-     */
-    isAssignableTo(target: Type): boolean;
-    
+    isUnionOrIntersection(): boolean;
+
     /**
      * Check if this type is a string
      */
     isString(): boolean;
-    
+
     /**
      * Check if this type is a number
      */
     isNumber(): boolean;
-    
+
     /**
      * Check if this type is a boolean
      */
     isBoolean(): boolean;
-    
+
     /**
      * Check if this type is an array
      */
     isArray(): boolean;
+
+    /**
+     *
+     * @return {boolean}
+     */
+    isObjectLike(): boolean;
+
+    /**
+     * Returns array of type parameters.
+     */
+    getTypeParameters(): ReadonlyArray<Type>;
+
+    /**
+     * Returns type arguments in case of generic type
+     */
+    getTypeArguments(): ReadonlyArray<Type>;
+
+    /**
+     * Returns constructor description when Type is a class
+     */
+    getConstructors(): ReadonlyArray<Constructor> | undefined;
+
+    /**
+     * Returns array of properties
+     */
+    getProperties(): ReadonlyArray<Property>;
+
+    /**
+     * Returns array of methods
+     */
+    getMethods(): ReadonlyArray<Method>;
+
+    /**
+     * Returns array of decorators
+     */
+    getDecorators(): ReadonlyArray<Decorator>;
+
+    /**
+     * Determines whether the class represented by the current Type derives from the class represented by the specified Type
+     * @param {Type} classType
+     */
+    isSubclassOf(classType: Type): boolean;
+
+    /**
+     * Determines whether the current Type derives from the specified Type
+     * @param {Type} targetType
+     */
+    isDerivedFrom(targetType: Type): boolean;
+
+    /**
+     * Determines whether the Object represented by the current Type is structurally compatible and assignable to the Object represented by the specified Type
+     * @param {Type} target
+     * @return {boolean}
+     * @private
+     */
+    isStructurallyAssignableTo(target: Type): boolean;
+
+    /**
+     * Determines whether an instance of the current Type can be assigned to an instance of the specified Type.
+     * @description This is fulfilled by derived types or compatible types.
+     * @param target
+     */
+    isAssignableTo(target: Type): boolean;
 }
 
+/**
+ * Kind of type
+ */
 export declare enum TypeKind
 {
+    /**
+     * Interface
+     */
     Interface = 0,
+    /**
+     * Class
+     */
     Class = 1,
+    /**
+     * Native JavaScript/TypeScript type
+     */
     Native = 2,
+    /**
+     * Container for other types in case of types union or intersection
+     */
     Container = 3,
+    /**
+     * Type reference created during type checking
+     * @description Usually Array<...>, ReadOnly<...> etc.
+     */
     TransientTypeReference = 4,
+    /**
+     * Some specific object
+     * @description Eg. "{ foo: string, bar: boolean }"
+     */
     Object = 5,
+    /**
+     * Some subtype of string, number, boolean
+     * @example <caption>type Foo = "hello world" | "hello"</caption>
+     * String "hello world" is literal type and it is subtype of string.
+     *
+     * <caption>type TheOnlyTrue = true;</caption>
+     * Same as true is literal type and it is subtype of boolean.
+     */
     LiteralType = 6,
+    /**
+     * Fixed lenght arrays literals
+     * @example <caption>type Coords = [x: number, y: number, z: number];</caption>
+     */
     Tuple = 7,
+    /**
+     * Generic parameter type
+     * @description Represent generic type parameter of generic types. Eg. it is TType of class Animal<TType> {}.
+     */
     TypeParameter = 8,
+    /**
+     * Conditional type
+     */
     ConditionalType = 9
 }
 
-export interface ConditionalType {
+export declare enum Accessor
+{
+    None = 0,
+    Getter = 1,
+    Setter = 2
+}
+
+export declare enum AccessModifier
+{
+    Private = 0,
+    Protected = 1,
+    Public = 2
+}
+
+export interface ConditionalType
+{
     /**
      * Extends type
      */
@@ -534,7 +630,8 @@ export interface ConditionalType {
 /**
  * Property description
  */
-export interface Property {
+export interface Property
+{
     /**
      * Property name
      */
@@ -544,15 +641,32 @@ export interface Property {
      */
     type: Type;
     /**
+     * Optional property
+     */
+    optional: boolean;
+    /**
      * Property decorators
      */
-    decorators: Array<Decorator>;
+    decorators: ReadonlyArray<Decorator>;
+    /**
+     * Access modifier
+     */
+    accessModifier: AccessModifier;
+    /**
+     * Accessor
+     */
+    accessor: Accessor;
+    /**
+     * Readonly
+     */
+    readonly: boolean;
 }
 
 /**
  * Decoration description
  */
-export interface Decorator {
+export interface Decorator
+{
     /**
      * Decorator name
      */
@@ -566,7 +680,8 @@ export interface Decorator {
 /**
  * Method parameter description
  */
-export interface MethodParameter {
+export interface MethodParameter
+{
     /**
      * Parameter name
      */
@@ -575,16 +690,62 @@ export interface MethodParameter {
      * Parameter type
      */
     type: Type;
+    /**
+     * Parameter is optional
+     */
+    optional: boolean;
+}
+
+export declare class MethodBase
+{
+    /**
+     * Parameters of this method
+     */
+    getParameters(): ReadonlyArray<MethodParameter>;
 }
 
 /**
- * Constructor description object
+ * Method details
  */
-export interface Constructor {
+export declare class Method extends MethodBase
+{
     /**
-     * Constructor parameters
+     * Name of this method
      */
-    parameters: Array<MethodParameter>;
+    get name(): string;
+
+    /**
+     * Return type of this method
+     */
+    get returnType(): Type;
+
+    /**
+     * Method is optional
+     */
+    get optional(): boolean;
+
+    /**
+     * Access modifier
+     */
+    get accessModifier(): AccessModifier;
+
+    /**
+     * Returns list of generic type parameter.
+     * @return {Array<Type>}
+     */
+    getTypeParameters(): ReadonlyArray<Type>;
+
+    /**
+     * Returns array of decorators
+     */
+    getDecorators(): ReadonlyArray<Decorator>;
+}
+
+/**
+ * Constructor details
+ */
+export declare class Constructor extends MethodBase
+{
 }
 ```
 
