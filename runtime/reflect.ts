@@ -1,4 +1,4 @@
-const PACKAGE_ID: string = "tst-reflect";
+/* eslint-disable */
 
 /**
  * Kind of type
