@@ -721,6 +721,22 @@ export class Type
 	}
 
 	/**
+	 * Generic type constrains
+	 */
+	get genericTypeConstraint(): Type | undefined
+	{
+		return this._genericTypeConstraint;
+	}
+
+	/**
+	 * Generic type default value
+	 */
+	get genericTypeDefault(): any
+	{
+		return this._genericTypeDefault;
+	}
+
+	/**
 	 * Internal Type constructor
 	 * @internal
 	 */
