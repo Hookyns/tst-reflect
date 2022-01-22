@@ -63,6 +63,12 @@ export enum TypeKind
 	 * Conditional type
 	 */
 	ConditionalType = 9,
+
+	/**
+	 * Indexed access type
+	 * @description Eg. get<K extends keyof TypeKind>(key: K): ==>> TypeKind[K] <<==
+	 */
+	IndexedAccess = 10,
 }
 
 export enum Accessor
@@ -116,6 +122,35 @@ export interface ConditionalType
 	 * False type
 	 */
 	falseType: Type;
+}
+
+/**
+ * @internal
+ */
+export interface IndexedAccessTypeDescription
+{
+	/**
+	 * Object type
+	 */
+	ot: Type;
+
+	/**
+	 * Index type
+	 */
+	it: Type;
+}
+
+export interface IndexedAccessType
+{
+	/**
+	 * Object type
+	 */
+	objectType: Type;
+
+	/**
+	 * Index type
+	 */
+	indexType: Type;
 }
 
 /**
@@ -578,27 +613,32 @@ export interface TypeProperties
 	/**
 	 * Literal value
 	 */
-	v?: any
+	v?: any;
 
 	/**
 	 * Type arguments
 	 */
-	args?: Array<Type>
+	args?: Array<Type>;
 
 	/**
 	 * Default type
 	 */
-	def?: Type,
+	def?: Type;
 
 	/**
 	 * Constraining type
 	 */
-	con?: Type,
+	con?: Type;
 
 	/**
 	 * Conditional type description
 	 */
-	ct?: ConditionalTypeDescription
+	ct?: ConditionalTypeDescription;
+
+	/**
+	 * Indexed access type description
+	 */
+	iat?: IndexedAccessTypeDescription;
 }
 
 const typesMetaCache: { [key: number]: Type } = {};
@@ -627,6 +667,7 @@ export class Type
 	private _literalValue?: any;
 	private _typeArgs!: Array<Type>;
 	private _conditionalType?: ConditionalType;
+	private _indexedAccessType?: IndexedAccessType;
 	private _genericTypeConstraint?: Type;
 	private _genericTypeDefault?: Type;
 
@@ -636,6 +677,14 @@ export class Type
 	get condition(): ConditionalType | undefined
 	{
 		return this._conditionalType;
+	}
+
+	/**
+	 * Returns information about indexed access type.
+	 */
+	get indexedAccessType(): IndexedAccessType | undefined
+	{
+		return this._indexedAccessType;
 	}
 
 	/**
@@ -774,6 +823,15 @@ export class Type
 			extends: description.ct.e,
 			trueType: resolveLazyType(description.ct.tt),
 			falseType: resolveLazyType(description.ct.ft)
+		} : undefined;
+		this._conditionalType = description.ct ? {
+			extends: description.ct.e,
+			trueType: resolveLazyType(description.ct.tt),
+			falseType: resolveLazyType(description.ct.ft)
+		} : undefined;
+		this._indexedAccessType = description.iat ? {
+			objectType: description.iat.ot,
+			indexType: resolveLazyType(description.iat.it)
 		} : undefined;
 		this._genericTypeConstraint = resolveLazyType(description.con);
 		this._genericTypeDefault = resolveLazyType(description.def);
@@ -1142,7 +1200,7 @@ export function getType<T>(description?: TypeProperties | number | string, typeI
 		{
 			Type._storeTypeMeta(typeId, type);
 		}
-		
+
 		type.initialize(description);
 
 		return type;
