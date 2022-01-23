@@ -200,6 +200,18 @@ export function getTypeDescription(
 				}
 			};
 		}
+		else if ((type.flags & ts.TypeFlags.IndexedAccess) == ts.TypeFlags.IndexedAccess)
+		{
+			const indexedAccess = type as ts.IndexedAccessType;
+
+			return {
+				k: TypeKind.IndexedAccess,
+				iat: {
+					ot: getTypeCall(indexedAccess.objectType, indexedAccess.objectType.symbol, context),
+					it: getTypeCall(indexedAccess.indexType, indexedAccess.indexType.symbol, context)
+				}
+			};
+		}
 
 		throw new Error("Unable to resolve type's symbol.");
 	}

@@ -163,6 +163,22 @@ interface ConditionalTypeDescriptionSource
 /**
  * @internal
  */
+interface IndexedAccessTypeDescriptionSource
+{
+	/**
+	 * Object type
+	 */
+	ot: GetTypeCall;
+
+	/**
+	 * Index type
+	 */
+	it: GetTypeCall;
+}
+
+/**
+ * @internal
+ */
 export interface TypePropertiesSource
 {
 	/**
@@ -261,6 +277,11 @@ export interface TypePropertiesSource
 	 * Conditional type description
 	 */
 	ct?: ConditionalTypeDescriptionSource;
+
+	/**
+	 * Indexed access type description
+	 */
+	iat?: IndexedAccessTypeDescriptionSource;
 }
 
 /**
