@@ -69,6 +69,12 @@ export enum TypeKind
 	 * @description Eg. get<K extends keyof TypeKind>(key: K): ==>> TypeKind[K] <<==
 	 */
 	IndexedAccess = 10,
+
+	/**
+	 * Typescript "module"
+	 * @description Value module or namespace module
+	 */
+	Module = 11,
 }
 
 export enum Accessor
