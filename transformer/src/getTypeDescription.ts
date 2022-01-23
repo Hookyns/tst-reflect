@@ -278,19 +278,28 @@ export function getTypeDescription(
 	const symbolType = getType(typeSymbol, checker);
 
 	const properties: TypePropertiesSource = {
+		k: kind,
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(typeSymbol || type.getSymbol()),
 		props: getProperties(symbol, type, context),
 		meths: getMethods(symbol, type, context),
-		ctors: getConstructors(symbolType, context),
 		decs: decorators,
-		k: kind,
-		ctor: kind == TypeKind.Class ? createCtorGetter(typeCtor) : undefined
 	};
 
-	if (kind == TypeKind.Class && typeCtor)
+	if (kind === TypeKind.Module)
 	{
-		context.addTypeCtor(typeCtor);
+		return properties;
+	}
+
+	if (kind === TypeKind.Class)
+	{
+		properties.ctors = getConstructors(symbolType, context);
+
+		if (typeCtor)
+		{
+			properties.ctor = createCtorGetter(typeCtor);
+			context.addTypeCtor(typeCtor);
+		}
 	}
 
 	const declaration = typeSymbol.declarations?.[0];

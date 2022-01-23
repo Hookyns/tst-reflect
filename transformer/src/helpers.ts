@@ -61,6 +61,11 @@ export function getTypeKind(symbol: ts.Symbol)
 		return TypeKind.Interface;
 	}
 
+	if ((symbol.flags & ts.SymbolFlags.Module) !== 0)
+	{
+		return TypeKind.Module;
+	}
+
 	throw new Error("Unknown type kind");
 }
 
