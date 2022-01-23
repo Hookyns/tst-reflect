@@ -51,12 +51,12 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
  */
 export function getTypeKind(symbol: ts.Symbol)
 {
-	if ((symbol.flags & ts.SymbolFlags.Class) == ts.SymbolFlags.Class)
+	if ((symbol.flags & ts.SymbolFlags.Class) !== 0)
 	{
 		return TypeKind.Class;
 	}
 
-	if ((symbol.flags & ts.SymbolFlags.Interface) == ts.SymbolFlags.Interface)
+	if ((symbol.flags & ts.SymbolFlags.Interface) !== 0)
 	{
 		return TypeKind.Interface;
 	}
@@ -64,6 +64,11 @@ export function getTypeKind(symbol: ts.Symbol)
 	if ((symbol.flags & ts.SymbolFlags.Module) !== 0)
 	{
 		return TypeKind.Module;
+	}
+
+	if ((symbol.flags & ts.SymbolFlags.Method) !== 0)
+	{
+		return TypeKind.Method;
 	}
 
 	throw new Error("Unknown type kind");

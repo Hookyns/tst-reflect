@@ -286,11 +286,6 @@ export function getTypeDescription(
 		decs: decorators,
 	};
 
-	if (kind === TypeKind.Module)
-	{
-		return properties;
-	}
-
 	if (kind === TypeKind.Class)
 	{
 		properties.ctors = getConstructors(symbolType, context);
