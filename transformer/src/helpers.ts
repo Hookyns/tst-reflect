@@ -29,6 +29,12 @@ export const PACKAGE_ID = "tst-reflect-transformer";
 export const TRACE_DECORATOR = "trace";
 
 /**
+ * Properties of Unknown type
+ * @type {{k: TypeKind, n: string}}
+ */
+export const UNKNOWN_TYPE_PROPERTIES = { n: "unknown", k: TypeKind.Native };
+
+/**
  * Variable to cache created "unknown" type call
  */
 let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
@@ -261,7 +267,7 @@ export function isReadonly(modifiers?: ModifiersArray): boolean
  */
 export function getUnknownTypeCall(context: Context): GetTypeCall
 {
-	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties({ n: "unknown", k: TypeKind.Native }, context));
+	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties(UNKNOWN_TYPE_PROPERTIES, context));
 }
 
 /**

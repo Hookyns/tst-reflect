@@ -17,7 +17,8 @@ import {
 	createCtorGetter,
 	getType,
 	getTypeFullName,
-	getTypeKind
+	getTypeKind,
+	UNKNOWN_TYPE_PROPERTIES
 }                                   from "./helpers";
 import { log }                      from "./log";
 
@@ -213,7 +214,9 @@ export function getTypeDescription(
 			};
 		}
 
-		throw new Error("Unable to resolve type's symbol.");
+		// throw new Error("Unable to resolve type's symbol.");
+		log.error("Unable to resolve type's symbol. Returning type Unknown.");
+		return UNKNOWN_TYPE_PROPERTIES;
 	}
 	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.TypeLiteral) == ts.SymbolFlags.TypeLiteral)
 	{

@@ -48,6 +48,15 @@ class Logger
 	{
 		console.warn.apply(undefined, ["[WRN] " + PACKAGE_ID, ...args]);
 	}
+
+	/**
+	 * Log ERROR message
+	 * @param args
+	 */
+	error(...args: any[])
+	{
+		console.error.apply(undefined, ["[ERR] " + PACKAGE_ID, ...args]);
+	}
 }
 
 export const log = new Logger();
