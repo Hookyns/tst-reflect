@@ -1,7 +1,7 @@
 import * as ts            from "typescript";
 import { Context }        from "./contexts/Context";
 import { getError }       from "./getError";
-import getTypeCall        from "./getTypeCall";
+import { getTypeCall }    from "./getTypeCall";
 import { GENERIC_PARAMS } from "./helpers";
 import { log }            from "./log";
 

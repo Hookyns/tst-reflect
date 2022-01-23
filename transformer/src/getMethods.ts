@@ -1,14 +1,13 @@
-import * as ts           from "typescript";
-import { Context }       from "./contexts/Context";
-import {
-	MethodDescriptionSource
-}                        from "./declarations";
-import { getDecorators } from "./getDecorators";
-import getTypeCall       from "./getTypeCall";
+import * as ts                     from "typescript";
+import { Context }                 from "./contexts/Context";
+import { MethodDescriptionSource } from "./declarations";
+import { getDecorators }           from "./getDecorators";
+import { getTypeCall }             from "./getTypeCall";
 import {
 	getAccessModifier,
-	getFunctionLikeSignature
-}                        from "./helpers";
+	getFunctionLikeSignature,
+	getUnknownTypeCall
+}                                  from "./helpers";
 
 /**
  * Return methods of Type
@@ -23,20 +22,20 @@ export function getMethods(symbol: ts.Symbol | undefined, type: ts.Type, context
 		const members: Array<ts.Symbol> = Array.from(symbol.members.values() as any);
 
 		const methods = members
-			.filter(m => (m.flags & ts.SymbolFlags.Method) == ts.SymbolFlags.Method || (m.flags & ts.SymbolFlags.Function) == ts.SymbolFlags.Function)
+			.filter(m => (m.flags & ts.SymbolFlags.Method) === ts.SymbolFlags.Method || (m.flags & ts.SymbolFlags.Function) === ts.SymbolFlags.Function)
 			.map((memberSymbol: ts.Symbol) =>
 			{
 				const methodSignature = getFunctionLikeSignature(memberSymbol, context.typeChecker);
-				const returnType = methodSignature.getReturnType();
+				const returnType = methodSignature?.getReturnType();
 
 				// TODO: Finish this implementation of methods
 				return {
 					n: memberSymbol.escapedName.toString(),
 					params: [],
-					rt: getTypeCall(returnType, returnType.symbol, context),
+					rt: returnType && getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
 					d: getDecorators(memberSymbol, context.typeChecker),
 					tp: [],
-					o: false,
+					o: (memberSymbol.flags & ts.SymbolFlags.Optional) === ts.SymbolFlags.Optional,
 					am: getAccessModifier(memberSymbol.valueDeclaration?.modifiers)
 				};
 			});

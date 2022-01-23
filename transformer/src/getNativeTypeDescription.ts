@@ -3,7 +3,7 @@ import * as ts                   from "typescript";
 import { TypeFlags }             from "typescript";
 import { Context }               from "./contexts/Context";
 import { TypeDescriptionResult } from "./declarations";
-import getTypeCall               from "./getTypeCall";
+import { getTypeCall }           from "./getTypeCall";
 
 /**
  * Check that Type is native type (string, number, boolean, ...)

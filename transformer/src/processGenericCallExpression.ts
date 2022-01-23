@@ -2,7 +2,7 @@ import * as ts                                            from "typescript";
 import { Context }                                        from "./contexts/Context";
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
 import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
-import getTypeCall                                        from "./getTypeCall";
+import { getTypeCall }                                    from "./getTypeCall";
 import {
 	TypeArgumentValueDescription,
 	updateCallExpression

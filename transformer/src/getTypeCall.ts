@@ -1,6 +1,9 @@
 import * as ts                    from "typescript";
 import { GET_TYPE_LAZY_FNC_NAME } from "tst-reflect";
-import { GetTypeCall }            from "./declarations";
+import {
+	GetTypeCall,
+	TypePropertiesSource
+} from "./declarations";
 import { createValueExpression }  from "./createValueExpression";
 import { getTypeDescription }     from "./getTypeDescription";
 import { Context }                from "./contexts/Context";
@@ -27,7 +30,7 @@ const creatingTypes: Array<number> = [];
  * @param context
  * @param typeCtor
  */
-export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall
+export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall
 {
 	const id: number | undefined = (type.symbol as any)?.["id"];
 	let typePropertiesObjectLiteral: ts.ObjectLiteralExpression | undefined = undefined;
@@ -76,4 +79,15 @@ export default function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined
 
 	// Type is not registered (no Id or no sourceFileContext) so direct type construction returned
 	return ts.factory.createCallExpression(getTypeIdentifier, [], [typePropertiesObjectLiteral]);
+}
+
+/**
+ * Return call expression of runtime getType() with description of specified properties
+ * @param properties
+ * @param context
+ */
+export function getTypeCallFromProperties(properties: TypePropertiesSource, context: Context): GetTypeCall
+{
+	const getTypeIdentifier = context.getGetTypeIdentifier();
+	return ts.factory.createCallExpression(getTypeIdentifier, [], [createValueExpression(properties)]);
 }

@@ -12,7 +12,7 @@ import { getMethods }               from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
 import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
-import getTypeCall                  from "./getTypeCall";
+import { getTypeCall }              from "./getTypeCall";
 import {
 	createCtorGetter,
 	getType,

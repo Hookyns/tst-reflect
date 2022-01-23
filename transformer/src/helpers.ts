@@ -1,14 +1,17 @@
-import * as path          from "path";
+import * as path                     from "path";
 import {
 	AccessModifier,
 	Accessor,
 	REFLECT_DECORATOR_DECORATOR,
 	REFLECT_GENERIC_DECORATOR,
 	TypeKind
-}                         from "tst-reflect";
-import * as ts            from "typescript";
-import { ModifiersArray } from "typescript";
-import TransformerContext from "./contexts/TransformerContext";
+}                                    from "tst-reflect";
+import * as ts                       from "typescript";
+import { ModifiersArray }            from "typescript";
+import { Context }                   from "./contexts/Context";
+import TransformerContext            from "./contexts/TransformerContext";
+import { GetTypeCall }               from "./declarations";
+import { getTypeCallFromProperties } from "./getTypeCall";
 
 /**
  * Name of parameter for method/function declarations containing generic getType() calls
@@ -24,6 +27,11 @@ export const PACKAGE_ID = "tst-reflect-transformer";
  * Name of decorator or JSDoc comment marking method for tracing
  */
 export const TRACE_DECORATOR = "trace";
+
+/**
+ * Variable to cache created "unknown" type call
+ */
+let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
 
 /**
  * Get type of symbol
@@ -248,11 +256,25 @@ export function isReadonly(modifiers?: ModifiersArray): boolean
 }
 
 /**
+ * Return true if there is readonly modifier
+ * @param context
+ */
+export function getUnknownTypeCall(context: Context): GetTypeCall
+{
+	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties({ n: "unknown", k: TypeKind.Native }, context));
+}
+
+/**
  * Return signature of method/function
  * @param symbol
  * @param checker
  */
-export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Signature
+export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Signature | undefined
 {
-	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)[0];
+	if (symbol.valueDeclaration && ts.isMethodSignature(symbol.valueDeclaration))
+	{
+		return checker.getSignatureFromDeclaration(symbol.valueDeclaration);
+	}
+
+	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)?.[0];
 }

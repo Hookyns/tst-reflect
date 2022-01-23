@@ -2,7 +2,7 @@ import * as ts                       from "typescript";
 import { Context }                   from "./contexts/Context";
 import { PropertyDescriptionSource } from "./declarations";
 import { getDecorators }             from "./getDecorators";
-import getTypeCall                   from "./getTypeCall";
+import { getTypeCall }               from "./getTypeCall";
 import {
 	getAccessModifier,
 	getAccessor,
