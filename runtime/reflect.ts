@@ -75,6 +75,11 @@ export enum TypeKind
 	 * @description Value module or namespace module
 	 */
 	Module = 11,
+
+	/**
+	 * Specific method used as type
+	 */
+	Method = 12,
 }
 
 export enum Accessor
