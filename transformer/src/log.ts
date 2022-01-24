@@ -1,6 +1,7 @@
 import { PACKAGE_ID } from "./helpers";
 
 export const color = {
+	yellow: 33,
 	blue: 34,
 	magenta: 35,
 	cyan: 36,

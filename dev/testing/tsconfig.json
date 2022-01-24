@@ -5,22 +5,25 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"experimentalDecorators": true,
-		"rootDir": "../..",
+		"rootDir": "./",
+		"outDir": "dist",
 		"typeRoots": [
-			"../node_modules/@types"
+			"node_modules/@types"
 		],
 		"plugins": [
 			{
 				"transform": "../../transformer/index.js"
 			}
-		]
+		],
 	},
 	"include": [
-		"**/*.ts"
+		"./**/*.ts"
+	],
+	"exclude": [
+		"examples"
 	],
 	"reflection": {
 		"metadata": false,
-//		"metadata": "metadata.lib.js",
 		"debugMode": true
 	}
 }

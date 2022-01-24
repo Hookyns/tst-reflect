@@ -1,4 +1,7 @@
-function inferType<TType>() {
+import { getType } from 'tst-reflect';
+
+function inferType<TType>()
+{
 	return getType<TType>().name;
 }
 
