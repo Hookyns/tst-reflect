@@ -25,7 +25,7 @@
 	"author": "Roman Jámbor",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^14.0.0"
+		"@types/node": "^16.0.0"
 	},
 	"dependencies": {
 		"tst-reflect": "^v0.6.0-alpha.10",
@@ -33,7 +33,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/Hookyns/ts-reflection.git",
+		"url": "git+https://github.com/Hookyns/ts-reflection.git",
 		"directory": "transformer"
-	}
+	},
+	"bugs": {
+		"url": "https://github.com/Hookyns/ts-reflection/issues"
+	},
+	"homepage": "https://github.com/Hookyns/ts-reflection#readme"
 }

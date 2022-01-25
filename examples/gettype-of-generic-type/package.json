@@ -1,21 +1,18 @@
 {
-	"name": "dev",
-	"version": "0.0.1",
 	"private": true,
-	"description": "Dev scripts",
 	"main": "index.js",
 	"scripts": {
+		"start": "ttsc & node index.js",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
-	"keywords": [],
 	"author": "Roman Jámbor",
 	"license": "MIT",
 	"devDependencies": {
-		"typescript": "^4.0.3",
-		"ttypescript": "^1.5.10",
-		"glob": "^7.1.7"
+		"typescript": "4.x",
+		"ttypescript": "1.x",
+		"tst-reflect-transformer": "^0.8.5-alpha.5"
 	},
 	"dependencies": {
-		"tst-reflect": "^0.6.0-alpha.5"
+		"tst-reflect": "^0.6.0-alpha.10"
 	}
 }

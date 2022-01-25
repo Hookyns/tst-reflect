@@ -1,0 +1,19 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2020",
+		"removeComments": true,
+		"sourceMap": true,
+		"experimentalDecorators": true,
+		"rootDir": "./",
+		"plugins": [
+			{
+				"transform": "tst-reflect-transformer"
+			}
+		]
+	},
+	"reflection": {
+		"metadata": false,
+		"debugMode": false
+	}
+}

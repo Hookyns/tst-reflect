@@ -1,0 +1,17 @@
+{
+	"private": true,
+	"license": "MIT",
+	"workspaces": [
+		"runtime",
+		"transformer"
+	],
+	"engines": {
+		"npm": ">=7.10.0",
+		"node": ">=16.0.0"
+	},
+	"devDependencies": {
+		"@types/node": "^16.0.0",
+		"typescript": "4.x",
+		"ttypescript": "1.x"
+	}
+}

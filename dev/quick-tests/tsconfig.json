@@ -5,31 +5,22 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"experimentalDecorators": true,
-		"rootDir": "..",
+		"rootDir": "../..",
 		"typeRoots": [
-			"node_modules/@types"
+			"../../node_modules/@types"
 		],
 		"plugins": [
 			{
-				"transform": "../transformer/index.js"
+				"transform": "tst-reflect-transformer"
 			}
 		]
 	},
 	"include": [
-		//    "logger.ts",
-		//    "example1.ts",
-		//    "./**/*.ts"
-		
-//		"example2-simple.ts",
-//		"dependency.ts"
-		
-		"types.ts"
-	],
-	"exclude": [
-		"examples"
+		"**/*"
 	],
 	"reflection": {
 		"metadata": false,
+//		"metadata": "metadata.lib.js",
 		"debugMode": true
 	}
 }
