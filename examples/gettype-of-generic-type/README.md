@@ -1,6 +1,6 @@
 # Examples/base-usage
 
 # How to run
-* `cd examples/base-usage`
+* `cd examples/gettype-of-generic-type`
 * `npm i`
 * `npm start`

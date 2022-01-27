@@ -19,3 +19,7 @@ abstract class Animal
 const typeOfAnimal: Type = getType<Animal>();
 
 console.log("Kind of the Type: ", TypeKind[typeOfAnimal.kind], " Name of the Type:", typeOfAnimal.name, " Full name of the Type:", typeOfAnimal.fullName, " Details:", typeOfAnimal);
+
+console.log(getType<Animal>().name);
+console.log(getType<Animal>().fullName);
+console.log(getType<Animal>().baseType.name);
