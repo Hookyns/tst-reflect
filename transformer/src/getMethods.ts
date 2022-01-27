@@ -1,22 +1,23 @@
-import * as ts                from "typescript";
-import { Context }            from "./contexts/Context";
+import * as ts           from "typescript";
+import { Context }       from "./contexts/Context";
 import {
+	GetTypeCall,
 	MethodDescriptionSource,
 	ParameterDescriptionSource
-}                             from "./declarations";
-import { getDecorators }      from "./getDecorators";
-import { getTypeCall }        from "./getTypeCall";
+}                        from "./declarations";
+import { getDecorators } from "./getDecorators";
+import { getTypeCall }   from "./getTypeCall";
 import {
 	getAccessModifier,
 	getFunctionLikeSignature,
 	getType,
 	getUnknownTypeCall,
-}                             from "./helpers";
+}                        from "./helpers";
 import {
 	color,
 	log,
 	LogLevel
-}                             from "./log";
+}                        from "./log";
 
 /**
  * Process the signature of the method and create a parameter description for each parameter
@@ -27,7 +28,7 @@ import {
  */
 export function getMethodParameters(signature: ts.Signature, context: Context): Array<ParameterDescriptionSource>
 {
-	const methodParameters = signature?.getParameters();
+	const methodParameters = signature.getParameters();
 
 	if (!signature || !methodParameters?.length)
 	{
@@ -54,17 +55,25 @@ export function getMethodParameters(signature: ts.Signature, context: Context): 
 
 		// TODO: Figure why `methodParamsType({ name }: MethodParamsType)` {name} param is "__0" and type cannot be set to Type instance
 
-		const paramType = type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context)
-
 		parameters.push({
 			n: parameter.getName(),
 			o: (parameter.flags & ts.TypeFlags.Object) === ts.TypeFlags.Object,
-			t: paramType,
+			t: type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context),
 			i: i
 		});
 	}
 
 	return parameters;
+}
+
+export function getMethodGenerics(symbol: ts.Symbol, context: Context): Array<GetTypeCall>
+{
+	const value = symbol?.valueDeclaration as ts.MethodDeclaration;
+
+	return (value?.typeParameters ?? []).map(generic => {
+		const type = context.typeChecker.getTypeAtLocation(generic);
+		return getTypeCall(type, symbol, context);
+	});
 }
 
 /**
@@ -86,7 +95,7 @@ export function getMethodDescription(symbol: ts.Symbol, context: Context): Metho
 		params: methodSignature && getMethodParameters(methodSignature, context),
 		rt: returnType && getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
 		d: getDecorators(symbol, context.typeChecker),
-		tp: [],
+		tp: getMethodGenerics(symbol, context),
 		o: (symbol.flags & ts.SymbolFlags.Optional) === ts.SymbolFlags.Optional,
 		am: getAccessModifier(symbol.valueDeclaration?.modifiers)
 	};

@@ -5,10 +5,10 @@
 		"removeComments": true,
 		"sourceMap": true,
 		"experimentalDecorators": true,
-		"rootDir": "./",
 		"outDir": "dist",
+		"rootDir": "../..",
 		"typeRoots": [
-			"node_modules/@types"
+			"../../node_modules/@types"
 		],
 		"plugins": [
 			{
@@ -17,10 +17,7 @@
 		],
 	},
 	"include": [
-		"./**/*.ts"
-	],
-	"exclude": [
-		"examples"
+		"**/*"
 	],
 	"reflection": {
 		"metadata": false,

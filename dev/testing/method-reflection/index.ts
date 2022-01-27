@@ -7,13 +7,6 @@ type MethodParamsType = {
 	name: string
 }
 
-// function method(param: string)
-// {
-// }
-//
-// const methodTwo = (anotherParam: string) => {
-// };
-
 class WithMethods
 {
 	method(param: string)
@@ -25,6 +18,10 @@ class WithMethods
 	}
 
 	methodParams(params?: MethodParamsType)
+	{
+	}
+
+	methodParamsWithGeneric<T extends MethodParamsType>(params?: T)
 	{
 	}
 }
