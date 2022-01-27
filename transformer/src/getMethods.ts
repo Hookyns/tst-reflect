@@ -54,11 +54,12 @@ export function getMethodParameters(signature: ts.Signature, context: Context): 
 		}
 
 		// TODO: Figure why `methodParamsType({ name }: MethodParamsType)` {name} param is "__0" and type cannot be set to Type instance
+		const paramType = type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context);
 
 		parameters.push({
 			n: parameter.getName(),
 			o: (parameter.flags & ts.TypeFlags.Object) === ts.TypeFlags.Object,
-			t: type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context),
+			t: paramType,
 			i: i
 		});
 	}

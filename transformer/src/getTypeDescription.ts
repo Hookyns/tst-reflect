@@ -226,6 +226,7 @@ export function getTypeDescription(
 		}
 
 		return {
+			n: type.aliasSymbol?.name.toString(),
 			k: TypeKind.Object,
 			props: getProperties(typeSymbol, type, context)
 		};

@@ -12,9 +12,7 @@
 	"devDependencies": {
 		"@types/node": "^16.0.0",
 		"ttypescript": "1.x",
-		"typescript": "4.x"
-	},
-	"dependencies": {
+		"typescript": "4.x",
 		"ts-node": "^10.4.0"
 	}
 }
