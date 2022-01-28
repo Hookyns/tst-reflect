@@ -14,7 +14,7 @@
 			{
 				"transform": "../../transformer/index.js"
 			}
-		],
+		]
 	},
 	"include": [
 		"src/**/*.ts"
@@ -23,6 +23,7 @@
 		"compiler": "ttypescript"
 	},
 	"reflection": {
+		"mode": "server",
 		"metadata": false,
 		"debugMode": true
 	}

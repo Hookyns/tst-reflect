@@ -2,7 +2,7 @@ import {
 	join,
 	dirname,
 	resolve
-} from "path";
+}              from "path";
 import * as ts from "typescript";
 
 export interface ConfigObject
@@ -31,6 +31,16 @@ export interface ConfigObject
 	 * Debug mode
 	 */
 	debugMode: boolean;
+
+	/**
+	 * "universal" is basic usage for both server and browser. But there will be no redundant information.
+	 * "server" will have extended metadata.
+	 */
+	mode: "server" | "universal";
+
+	isUniversalMode(): boolean;
+
+	isServerMode(): boolean;
 }
 
 let config: ConfigObject = {
@@ -54,6 +64,18 @@ let config: ConfigObject = {
 	{
 		throw new Error("Configuration not loaded yet.");
 	},
+	get mode(): "server" | "universal"
+	{
+		throw new Error("Configuration not loaded yet.");
+	},
+	isUniversalMode(): boolean
+	{
+		throw new Error("Configuration not loaded yet.");
+	},
+	isServerMode(): boolean
+	{
+		throw new Error("Configuration not loaded yet.");
+	},
 };
 
 function setConfig(c: ConfigObject)
@@ -64,7 +86,8 @@ function setConfig(c: ConfigObject)
 function readConfig(configPath: string, projectPath: string, rootDir: string): {
 	metadataFilePath: string,
 	useMetadata: boolean,
-	debugMode: boolean
+	debugMode: boolean,
+	mode: "server" | "universal"
 }
 {
 	const result = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -83,6 +106,7 @@ function readConfig(configPath: string, projectPath: string, rootDir: string): {
 	}
 
 	return {
+		mode: ["server", "universal"].includes(reflection?.mode) ? reflection?.mode : "universal",
 		useMetadata: useMetadata,
 		metadataFilePath: reflection?.metadata ? resolve(projectPath, reflection.metadata) : join(rootDir, "metadata.lib.js"),
 		debugMode: ["true", "1"].includes(reflection?.debugMode?.toString()),
@@ -101,10 +125,19 @@ export function createConfig(options: ts.CompilerOptions, root: string, packageN
 	const config = readConfig(configPath, dirname(configPath), root);
 
 	return {
+		mode: config.mode,
 		rootDir: root,
 		packageName: packageName,
 		useMetadata: config.useMetadata,
 		metadataFilePath: config.metadataFilePath,
 		debugMode: config.debugMode,
+		isUniversalMode(): boolean
+		{
+			return config.mode === "universal";
+		},
+		isServerMode(): boolean
+		{
+			return config.mode === "server";
+		},
 	};
 }

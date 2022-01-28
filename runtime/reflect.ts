@@ -523,36 +523,31 @@ export interface ConstructorDescription
 }
 
 /**
+ * This data is not set when the config mode is set to "universal"
  * @internal
  */
-export interface ConstructorImportDescriptionSource
+export interface ConstructorImportDescription
 {
 	/**
-	 * The absolute path of the source file which declared this constructor
+	 * This is the name of the actual declaration
+	 * In the example above, this would be "SomeClass"
 	 */
-	filePath: string;
-	/**
-	 * The relative path of the source file which is using this constructor
-	 * For ex; "/Some/Dir/index.ts" imports and uses constructor from "/Some/Dir/SomeFile.ts"
-	 * This will be "./SomeFile.ts"
-	 */
-	relativePath: string;
-	/**
-	 * This will be the path to create a "require('./SomeFile.ts')" call
-	 */
-	requirePath: string;
+	n: string | undefined;
 	/**
 	 * The exported name of this constructor from its source file.
 	 * For example;
 	 * "export class SomeClass {}" would be "SomeClass"
 	 * "export default class SomeClass {}" would be "default"
 	 */
-	exportedName: string;
+	en: string | undefined;
 	/**
-	 * This is the name of the actual declaration
-	 * In the example above, this would be "SomeClass"
+	 * The absolute path of the source file for this constructor
 	 */
-	name: string;
+	srcPath: string | undefined;
+	/**
+	 * The absolute path for the javascript file of this constructor
+	 */
+	outPath: string | undefined;
 }
 
 /**
@@ -640,9 +635,10 @@ export interface TypeProperties
 	types?: Array<Type>;
 
 	/**
-	 * The information required to create the constructor return function at runtime
+	 * Some path/export information about the module it-self. Will help dynamically import modules.
+	 * This data is not set when the config mode is set to "universal"
 	 */
-	ctorDesc?: ConstructorImportDescriptionSource;
+	ctorDesc?: ConstructorImportDescription;
 
 	/**
 	 * Ctor getter
@@ -700,7 +696,7 @@ export class Type
 	public static readonly Object: Type;
 
 	private _ctor?: () => Function;
-	private _ctorDesc?: ConstructorImportDescriptionSource;
+	private _ctorDesc?: ConstructorImportDescription;
 	private _kind!: TypeKind;
 	private _name!: string;
 	private _fullName!: string;
@@ -769,16 +765,19 @@ export class Type
 		return this._ctor?.();
 	}
 
-	get getConstructor()
+	/**
+	 * Get meta for the module of the defined constructor
+	 * This data is not set when the config mode is set to "universal"
+	 *
+	 * @returns {ConstructorImportDescription}
+	 */
+	get constructorDescription(): ConstructorImportDescription
 	{
-		return () => {
-			if (!this._ctorDesc)
-			{
-				return undefined;
-			}
-
-			const _module = require(this._ctorDesc.requirePath);
-			return _module[this._ctorDesc.exportedName];
+		return this._ctorDesc ?? {
+			n: undefined,
+			en: undefined,
+			srcPath: undefined,
+			outPath: undefined,
 		};
 	}
 

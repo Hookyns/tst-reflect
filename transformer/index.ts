@@ -1,7 +1,6 @@
 import * as ts                                from "typescript";
 import SourceFileContext                      from "./src/contexts/SourceFileContext";
 import TransformerContext                     from "./src/contexts/TransformerContext";
-import { ConstructorImportDescriptionSource } from "./src/declarations";
 import { PACKAGE_ID }                         from "./src/helpers";
 import {
 	color,
@@ -69,7 +68,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 					propertiesStatements.push([typeId, properties]);
 				}
 
-				const typeCtor = new Set<ConstructorImportDescriptionSource>();
+				const typeCtor = new Set<ts.PropertyAccessExpression>();
 				for (let ctor of sourceFileContext.typesCtors)
 				{
 					typeCtor.add(ctor);
@@ -108,11 +107,6 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 	// Add metadata into statements if metadata lib file is disabled
 	if (!TransformerContext.instance.config.useMetadata)
 	{
-		for (let typesCtor of sourceFileContext.typesCtors)
-		{
-			statements.push(nodeGenerator.createCtorImport(typesCtor));
-		}
-
 		for (let [typeId, properties] of sourceFileContext.typesMetadata)
 		{
 			if (typeIdUniqueObj[typeId])

@@ -1,6 +1,5 @@
 import * as ts                                from "typescript";
 import * as fs                                from "fs";
-import { ConstructorImportDescriptionSource } from "./declarations";
 import { nodeGenerator }                      from "./NodeGenerator";
 import { GET_TYPE_FNC_NAME }                  from "tst-reflect/reflect";
 
@@ -80,7 +79,7 @@ export default class MetadataGenerator
 	 * @param typesCtors
 	 * @param transformationContext
 	 */
-	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ConstructorImportDescriptionSource>, transformationContext: ts.TransformationContext)
+	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ts.PropertyAccessExpression>, transformationContext: ts.TransformationContext)
 	{
 		if (!this._getTypeIdentifier || !this._tsPrinter)
 		{
@@ -91,7 +90,7 @@ export default class MetadataGenerator
 
 		for (let ctor of typesCtors)
 		{
-			propertiesStatements.push(nodeGenerator.createCtorImport(ctor));
+			propertiesStatements.push(ts.factory.createExpressionStatement(ctor));
 		}
 
 		for (let [typeId, properties] of typesProperties)

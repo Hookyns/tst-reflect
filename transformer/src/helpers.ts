@@ -10,7 +10,10 @@ import * as ts                       from "typescript";
 import { ModifiersArray }            from "typescript";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
-import { GetTypeCall }               from "./declarations";
+import {
+	ConstructorImportDescriptionSource,
+	GetTypeCall
+}                                    from "./declarations";
 import { getTypeCallFromProperties } from "./getTypeCall";
 
 /**
@@ -199,21 +202,40 @@ export function hasTraceJsDoc(fncType: ts.Type): boolean
  * Return getter (arrow function/lambda) for runtime type's Ctor.
  * @description Arrow function generated cuz of possible "Type is referenced before declaration".
  */
-export function createCtorGetter(typeCtor: ts.EntityName | ts.DeclarationName | undefined)
+export function createCtorGetter(
+	typeCtor: ts.EntityName | ts.DeclarationName,
+	constructorDescription: ConstructorImportDescriptionSource | undefined
+): [ts.ArrowFunction | undefined, ts.PropertyAccessExpression | undefined]
 {
-	if (!typeCtor)
+	if (!constructorDescription)
 	{
-		return undefined;
+		return [undefined, undefined];
 	}
 
-	return ts.factory.createArrowFunction(
+	const requireCall = ts.factory.createPropertyAccessExpression(
+		ts.factory.createCallExpression(
+			ts.factory.createIdentifier("require"),
+			undefined,
+			[
+				ts.factory.createStringLiteral(
+					getRequireRelativePath(typeCtor.getSourceFile().fileName, constructorDescription.srcPath)
+				)
+				// ts.factory.createStringLiteral(constructorDescription.relativePath.replace('.ts', ''))
+			]
+		),
+		ts.factory.createIdentifier(constructorDescription.en)
+	);
+
+	const requireGetter = ts.factory.createArrowFunction(
 		undefined,
 		undefined,
 		[],
 		undefined,
 		ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-		typeCtor as ts.Expression
+		requireCall
 	);
+
+	return [requireGetter, requireCall];
 }
 
 /**
@@ -324,7 +346,15 @@ export function isTsNode(): boolean
 	return false;
 }
 
-export function getImportFilePathForRuntime(sourceFileName: string, rootDir: string, outDir: string): string
+export function getRequireRelativePath(sourceFileDefiningImport: string, sourceFileImporting: string)
+{
+	return replaceExtension(
+		"./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting),
+		''
+	);
+}
+
+export function getOutPathForSourceFile(sourceFileName: string, rootDir: string, outDir: string): string
 {
 	if (isTsNode())
 	{
@@ -335,7 +365,8 @@ export function getImportFilePathForRuntime(sourceFileName: string, rootDir: str
 	// This should leave us with:
 	// /ctor-reflection/SomeServiceClass.ts
 	let outPath = sourceFileName.replace(rootDir, '');
-	// If we have a slash at the start, it has to  go
+
+	// If we have a slash at the start, it has to go
 	// Now we have:
 	// ctor-reflection/SomeServiceClass.ts
 	if (outPath.startsWith('/'))
@@ -348,12 +379,19 @@ export function getImportFilePathForRuntime(sourceFileName: string, rootDir: str
 	// /Users/sam/Code/Packages/ts-reflection/dev/testing/dist/method-reflection/index.ts
 	outPath = path.join(outDir, outPath);
 
-	const extName = path.extname(outPath);
+	return replaceExtension(outPath, '.js');
+}
+
+export function replaceExtension(fileName: string, replaceWith: string): string
+{
+	const extName = path.extname(fileName);
+	// If we're running ts-node, the outDir is set to ".ts-node" and it can't be over-ridden
+	// If we just do .replace(extName, '.js'), it won't replace the actual file extension
 	// Now we just replace the extension:
-	if (outPath.endsWith(extName))
+	if (fileName.endsWith(extName))
 	{
-		outPath = outPath.slice(0, outPath.length - extName.length);
+		fileName = fileName.slice(0, fileName.length - extName.length) + replaceWith;
 	}
 
-	return outPath.replace(/\\/g, "/");
+	return fileName.replace(/\\/g, "/");
 }

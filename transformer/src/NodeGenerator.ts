@@ -4,7 +4,6 @@ import {
 	ObjectLiteralElementLike
 }                                             from "typescript";
 import * as ts                                from "typescript";
-import { ConstructorImportDescriptionSource } from "./declarations";
 import { log }                                from "./log";
 
 class NodeGenerator
@@ -44,8 +43,12 @@ class NodeGenerator
 		};
 	}
 
-	createImport(importInformation: { filePath: string, isDefault?: boolean, identifier: string, isTypeOnlyImport?: boolean }): ImportDeclaration
+	createImport(importInformation: { filePath: string, isDefault?: boolean, identifier: string | ts.Identifier, isTypeOnlyImport?: boolean }): ImportDeclaration
 	{
+		const identifier = typeof importInformation.identifier === 'string'
+			? ts.factory.createIdentifier(importInformation.identifier)
+			: importInformation.identifier;
+
 		if (importInformation?.isDefault === true)
 		{
 			return ts.factory.createImportDeclaration(
@@ -53,7 +56,7 @@ class NodeGenerator
 				undefined,
 				ts.factory.createImportClause(
 					importInformation?.isTypeOnlyImport === true,
-					ts.factory.createIdentifier(importInformation.identifier),
+					identifier,
 					undefined
 				),
 				ts.factory.createStringLiteral(importInformation.filePath)
@@ -69,7 +72,7 @@ class NodeGenerator
 					ts.factory.createImportSpecifier(
 						importInformation?.isTypeOnlyImport === true,
 						undefined,
-						ts.factory.createIdentifier(importInformation.identifier)
+						identifier
 					)
 				])
 			),
@@ -83,7 +86,7 @@ class NodeGenerator
 	 * @param data
 	 * @returns {ts.ObjectLiteralExpression}
 	 */
-	createObjectLiteralExpressionNode(data: any):ts.ObjectLiteralExpression
+	createObjectLiteralExpressionNode(data: any): ts.ObjectLiteralExpression
 	{
 		const props: ObjectLiteralElementLike[] = [];
 
@@ -121,30 +124,6 @@ class NodeGenerator
 		}
 
 		return ts.factory.createObjectLiteralExpression(props, true);
-	}
-
-	/**
-	 * Generate statement importing type constructor
-	 */
-	createCtorImport(ctor: ConstructorImportDescriptionSource): ts.Statement
-	{
-		// const statement = ts.factory.createVariableStatement(
-		// 	undefined,
-		// 	[
-		// 		ts.factory.createVariableDeclaration(
-		// 			ts.factory.createIdentifier(ctor.getText()),
-		// 			undefined,
-		// 			undefined,
-		// 			ts.factory.createNull()
-		// 		)
-		// 	]
-		// );
-
-		return this.createImport({
-			filePath: ctor.requirePath,
-			identifier: ctor.name,
-			isDefault: ctor.exportedName === 'default'
-		});
 	}
 }
 

@@ -1,12 +1,7 @@
-import * as path                              from "path";
 import * as ts                                from "typescript";
 import { Context }                            from "./contexts/Context";
-import TransformerContext                     from "./contexts/TransformerContext";
 import { ConstructorImportDescriptionSource } from "./declarations";
-import {
-	getImportFilePathForRuntime,
-	isTsNode
-}                                             from "./helpers";
+import { getOutPathForSourceFile }            from "./helpers";
 import { log }                                from "./log";
 
 export function getExportOfConstructor(
@@ -16,7 +11,6 @@ export function getExportOfConstructor(
 ): ConstructorImportDescriptionSource | undefined
 {
 	const exportSymbol = context.typeChecker.getExportSymbolOfSymbol(symbol);
-
 	if (!exportSymbol)
 	{
 		log.warn("getExportOfConstructor: Failed to find export of the constructor.");
@@ -35,8 +29,6 @@ export function getExportOfConstructor(
 	const source = classDeclaration.getSourceFile();
 	const ctorSource = typeCtor.getSourceFile();
 
-	const relativePath = "./" + path.relative(path.dirname(ctorSource.fileName), source.fileName);
-
 	const outDir = context.transformationContext.getCompilerOptions().outDir;
 	const rootDir = context.transformationContext.getCompilerOptions().rootDir;
 	if (!outDir || !rootDir)
@@ -45,13 +37,10 @@ export function getExportOfConstructor(
 		return undefined;
 	}
 
-	let outPath = getImportFilePathForRuntime(source.fileName, rootDir, outDir);
-
 	return {
-		exportedName: exportSymbol.escapedName.toString(),
-		name: name,
-		filePath: source.fileName,
-		relativePath: relativePath,
-		requirePath: outPath,
+		en: exportSymbol.escapedName.toString(),
+		n: name,
+		srcPath: source.fileName,
+		outPath: getOutPathForSourceFile(source.fileName, rootDir, outDir),
 	};
 }

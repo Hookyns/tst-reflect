@@ -58,9 +58,12 @@ export class Context
 		this._sourceFileContext.typesMetadata.push(metadataEntry);
 	}
 
-	addTypeCtor(ctorDescription: ConstructorImportDescriptionSource)
+	addTypeCtor(ctorDescription: ts.PropertyAccessExpression)
 	{
-		this._sourceFileContext.typesCtors.push(ctorDescription);
+		if (this._sourceFileContext.typesCtors.indexOf(ctorDescription) === -1)
+		{
+			this._sourceFileContext.typesCtors.push(ctorDescription);
+		}
 	}
 
 	visitFunctionLikeDeclaration(node: ts.FunctionLikeDeclarationBase): void

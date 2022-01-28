@@ -301,19 +301,19 @@ export function getTypeDescription(
 		{
 			const constructorExport = getExportOfConstructor(typeSymbol, typeCtor, context);
 
-			properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
-
-			properties.ctor = createCtorGetter(typeCtor);
-			if (constructorExport)
+			if(context.config.isServerMode())
 			{
-				context.addTypeCtor(constructorExport);
+				properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
 			}
 
-			// TODO: Check if it has modifier "export".
-			//  If yes, pass path to file and name of the exported type to the addTypeCtor;
-			//  handle this in index.ts and so on.
-			//  If it is not exported (it is just local module type), don't generate this into the metadata lib file,
-			//  generate it into the local file like in base mode
+			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport)
+			properties.ctor = ctorGetter;
+
+			if (constructorExport && properties.ctor && ctorRequireCall)
+			{
+				context.addTypeCtor(ctorRequireCall);
+			}
+
 		}
 	}
 
