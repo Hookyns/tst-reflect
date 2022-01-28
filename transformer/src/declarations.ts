@@ -176,7 +176,6 @@ export interface ConstructorImportDescriptionSource
 export interface ConstructorDescriptionSource
 {
 	params: Array<ParameterDescriptionSource>;
-	location?: ConstructorImportDescriptionSource;
 }
 
 /**
