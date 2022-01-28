@@ -1,10 +1,11 @@
-import * as ts           from "typescript";
-import { VisitResult }   from "typescript";
+import * as ts                                from "typescript";
+import { VisitResult }                        from "typescript";
+import { ConstructorImportDescriptionSource } from "../declarations";
 import type {
 	MetadataEntry,
 	TransformerVisitor
-}                        from "../declarations";
-import SourceFileContext from "./SourceFileContext";
+}                                             from "../declarations";
+import SourceFileContext                      from "./SourceFileContext";
 
 /**
  * Context of visitors
@@ -57,9 +58,9 @@ export class Context
 		this._sourceFileContext.typesMetadata.push(metadataEntry);
 	}
 
-	addTypeCtor(typeCtor: ts.EntityName | ts.DeclarationName)
+	addTypeCtor(ctorDescription: ConstructorImportDescriptionSource)
 	{
-		this._sourceFileContext.typesCtors.push(typeCtor);
+		this._sourceFileContext.typesCtors.push(ctorDescription);
 	}
 
 	visitFunctionLikeDeclaration(node: ts.FunctionLikeDeclarationBase): void

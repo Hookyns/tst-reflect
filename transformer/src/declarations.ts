@@ -29,7 +29,7 @@ export type MetadataLibrary = Array<MetadataEntry>;
 /**
  * @internal
  */
-export type CtorsLibrary = Array<ts.EntityName | ts.DeclarationName>;
+export type CtorsLibrary = Array<ConstructorImportDescriptionSource>;
 
 /**
  * @internal
@@ -43,7 +43,7 @@ export interface ParameterDescriptionSource
 	// Is optional parameter?
 	// method(param?:string)
 	o?: boolean;
-	t: GetTypeCall|undefined;
+	t: GetTypeCall | undefined;
 }
 
 /**
@@ -140,9 +140,43 @@ export interface MethodDescriptionSource
 /**
  * @internal
  */
+export interface ConstructorImportDescriptionSource
+{
+	/**
+	 * The absolute path of the source file which declared this constructor
+	 */
+	filePath: string;
+	/**
+	 * The relative path of the source file which is using this constructor
+	 * For ex; "/Some/Dir/index.ts" imports and uses constructor from "/Some/Dir/SomeFile.ts"
+	 * This will be "./SomeFile.ts"
+	 */
+	relativePath: string;
+	/**
+	 * This will be the path to create a "require('./SomeFile.ts')" call
+	 */
+	requirePath: string;
+	/**
+	 * The exported name of this constructor from its source file.
+	 * For example;
+	 * "export class SomeClass {}" would be "SomeClass"
+	 * "export default class SomeClass {}" would be "default"
+	 */
+	exportedName: string;
+	/**
+	 * This is the name of the actual declaration
+	 * In the example above, this would be "SomeClass"
+	 */
+	name: string;
+}
+
+/**
+ * @internal
+ */
 export interface ConstructorDescriptionSource
 {
 	params: Array<ParameterDescriptionSource>;
+	location?: ConstructorImportDescriptionSource;
 }
 
 /**
@@ -242,6 +276,11 @@ export interface TypePropertiesSource
 	 * Containing types
 	 */
 	types?: Array<GetTypeCall>;
+
+	/**
+	 * The information required to create the constructor return function at runtime
+	 */
+	ctorDesc?: ts.ObjectLiteralExpression;
 
 	/**
 	 * Constructor return function

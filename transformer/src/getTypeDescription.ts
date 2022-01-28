@@ -7,6 +7,7 @@ import { Context }                  from "./contexts/Context";
 import { TypePropertiesSource }     from "./declarations";
 import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
+import { getExportOfConstructor }   from "./getExports";
 import getLiteralName               from "./getLiteralName";
 import { getMethods }               from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
@@ -21,6 +22,7 @@ import {
 	UNKNOWN_TYPE_PROPERTIES
 }                                   from "./helpers";
 import { log }                      from "./log";
+import { nodeGenerator }            from "./NodeGenerator";
 
 /**
  * Return TypePropertiesSource object describing given type
@@ -292,12 +294,26 @@ export function getTypeDescription(
 
 	if (kind === TypeKind.Class)
 	{
+
 		properties.ctors = getConstructors(symbolType, context);
 
 		if (typeCtor)
 		{
+			const constructorExport = getExportOfConstructor(typeSymbol, typeCtor, context);
+
+			properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
+
 			properties.ctor = createCtorGetter(typeCtor);
-			context.addTypeCtor(typeCtor); // TODO: Check if it has modifier "export". If yes, pass path to file and name of the exported type to the addTypeCtor; handle this in index.ts and so on. If it is not exported (it is just local module type), don't generate this into the metadata lib file, generate it into the local file like in base mode
+			if (constructorExport)
+			{
+				context.addTypeCtor(constructorExport);
+			}
+
+			// TODO: Check if it has modifier "export".
+			//  If yes, pass path to file and name of the exported type to the addTypeCtor;
+			//  handle this in index.ts and so on.
+			//  If it is not exported (it is just local module type), don't generate this into the metadata lib file,
+			//  generate it into the local file like in base mode
 		}
 	}
 

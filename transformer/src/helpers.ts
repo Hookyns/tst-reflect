@@ -206,7 +206,14 @@ export function createCtorGetter(typeCtor: ts.EntityName | ts.DeclarationName | 
 		return undefined;
 	}
 
-	return ts.factory.createArrowFunction(undefined, undefined, [], undefined, ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), typeCtor as ts.Expression);
+	return ts.factory.createArrowFunction(
+		undefined,
+		undefined,
+		[],
+		undefined,
+		ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+		typeCtor as ts.Expression
+	);
 }
 
 /**
@@ -283,4 +290,70 @@ export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChec
 	}
 
 	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)?.[0];
+}
+
+/**
+ * This is useful.... if we're using ts-node for ex, it doesn't use our outDir configured
+ * Instead it will use .ts-node
+ * @returns {boolean}
+ */
+export function isTsNode(): boolean
+{
+	// are we running via a ts-node/ts-node-dev shim?
+	const lastArg = process.execArgv[process.execArgv.length - 1];
+	if (lastArg && path.parse(lastArg).name.indexOf("ts-node") >= 0)
+	{
+		return true;
+	}
+
+	try
+	{
+		/**
+		 * Are we running in typescript at the moment?
+		 * see https://github.com/TypeStrong/ts-node/pull/858 for more details
+		 */
+			//@ts-ignore
+		const isTsNode = process[Symbol.for("ts-node.register.instance")];
+
+		return isTsNode?.ts !== undefined;
+	}
+	catch (error)
+	{
+		console.error(error);
+	}
+	return false;
+}
+
+export function getImportFilePathForRuntime(sourceFileName: string, rootDir: string, outDir: string): string
+{
+	if (isTsNode())
+	{
+		return sourceFileName;
+	}
+
+	// Get the actual file location, regardless of dist/source dir
+	// This should leave us with:
+	// /ctor-reflection/SomeServiceClass.ts
+	let outPath = sourceFileName.replace(rootDir, '');
+	// If we have a slash at the start, it has to  go
+	// Now we have:
+	// ctor-reflection/SomeServiceClass.ts
+	if (outPath.startsWith('/'))
+	{
+		outPath = outPath.slice(1);
+	}
+
+	// Now we can take the build path, from the tsconfig file and combine it
+	// This should give us:
+	// /Users/sam/Code/Packages/ts-reflection/dev/testing/dist/method-reflection/index.ts
+	outPath = path.join(outDir, outPath);
+
+	const extName = path.extname(outPath);
+	// Now we just replace the extension:
+	if (outPath.endsWith(extName))
+	{
+		outPath = outPath.slice(0, outPath.length - extName.length);
+	}
+
+	return outPath.replace(/\\/g, "/");
 }

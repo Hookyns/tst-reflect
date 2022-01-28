@@ -523,6 +523,39 @@ export interface ConstructorDescription
 }
 
 /**
+ * @internal
+ */
+export interface ConstructorImportDescriptionSource
+{
+	/**
+	 * The absolute path of the source file which declared this constructor
+	 */
+	filePath: string;
+	/**
+	 * The relative path of the source file which is using this constructor
+	 * For ex; "/Some/Dir/index.ts" imports and uses constructor from "/Some/Dir/SomeFile.ts"
+	 * This will be "./SomeFile.ts"
+	 */
+	relativePath: string;
+	/**
+	 * This will be the path to create a "require('./SomeFile.ts')" call
+	 */
+	requirePath: string;
+	/**
+	 * The exported name of this constructor from its source file.
+	 * For example;
+	 * "export class SomeClass {}" would be "SomeClass"
+	 * "export default class SomeClass {}" would be "default"
+	 */
+	exportedName: string;
+	/**
+	 * This is the name of the actual declaration
+	 * In the example above, this would be "SomeClass"
+	 */
+	name: string;
+}
+
+/**
  * Constructor details
  */
 export class Constructor extends MethodBase
@@ -607,6 +640,11 @@ export interface TypeProperties
 	types?: Array<Type>;
 
 	/**
+	 * The information required to create the constructor return function at runtime
+	 */
+	ctorDesc?: ConstructorImportDescriptionSource;
+
+	/**
 	 * Ctor getter
 	 */
 	ctor?: () => Function;
@@ -662,6 +700,7 @@ export class Type
 	public static readonly Object: Type;
 
 	private _ctor?: () => Function;
+	private _ctorDesc?: ConstructorImportDescriptionSource;
 	private _kind!: TypeKind;
 	private _name!: string;
 	private _fullName!: string;
@@ -728,6 +767,19 @@ export class Type
 	get ctor(): Function | undefined
 	{
 		return this._ctor?.();
+	}
+
+	get getConstructor()
+	{
+		return () => {
+			if (!this._ctorDesc)
+			{
+				return undefined;
+			}
+
+			const _module = require(this._ctorDesc.requirePath);
+			return _module[this._ctorDesc.exportedName];
+		};
 	}
 
 	/**
@@ -823,6 +875,7 @@ export class Type
 		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
 		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
 		this._ctor = description.ctor;
+		this._ctorDesc = description.ctorDesc;
 		this._baseType = resolveLazyType(description.bt) ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = resolveLazyType(description.iface);
 		this._isUnion = description.union || false;

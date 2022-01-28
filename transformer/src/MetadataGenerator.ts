@@ -1,7 +1,8 @@
-import * as ts               from "typescript";
-import * as fs               from "fs";
-import { nodeGenerator }     from "./NodeGenerator";
-import { GET_TYPE_FNC_NAME } from "tst-reflect/reflect";
+import * as ts                                from "typescript";
+import * as fs                                from "fs";
+import { ConstructorImportDescriptionSource } from "./declarations";
+import { nodeGenerator }                      from "./NodeGenerator";
+import { GET_TYPE_FNC_NAME }                  from "tst-reflect/reflect";
 
 function replaceGetTypeIdentifiersVisitor(getTypeIdentifier: ts.Identifier, transformationContext: ts.TransformationContext): ts.Visitor
 {
@@ -24,10 +25,10 @@ function replaceGetTypeIdentifiersVisitor(getTypeIdentifier: ts.Identifier, tran
 	// 	if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
 	// 	{
 	// 		arguments = ts.visitNodes(node.arguments, )
-	//		
+	//
 	// 		return ts.factory.updateCallExpression(
-	// 			node, 
-	// 			getTypeIdentifier, 
+	// 			node,
+	// 			getTypeIdentifier,
 	// 			node.typeArguments,
 	// 			replaceGetTypeIdentifiers(node.arguments, getTypeIdentifier, transformationContext) as NodeArray<Expression>
 	// 		);
@@ -79,7 +80,7 @@ export default class MetadataGenerator
 	 * @param typesCtors
 	 * @param transformationContext
 	 */
-	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ts.EntityName | ts.DeclarationName>, transformationContext: ts.TransformationContext)
+	addProperties(typesProperties: Array<[typeId: number, properties: ts.ObjectLiteralExpression]>, typesCtors: Set<ConstructorImportDescriptionSource>, transformationContext: ts.TransformationContext)
 	{
 		if (!this._getTypeIdentifier || !this._tsPrinter)
 		{

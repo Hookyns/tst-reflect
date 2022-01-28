@@ -6,7 +6,7 @@
 		"sourceMap": true,
 		"experimentalDecorators": true,
 		"outDir": "dist",
-		"rootDir": "../..",
+		"rootDir": "./src",
 		"typeRoots": [
 			"../../node_modules/@types"
 		],
@@ -17,8 +17,11 @@
 		],
 	},
 	"include": [
-		"**/*"
+		"src/**/*.ts"
 	],
+	"ts-node": {
+		"compiler": "ttypescript"
+	},
 	"reflection": {
 		"metadata": false,
 		"debugMode": true
