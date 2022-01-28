@@ -19,6 +19,7 @@ export default class SourceFileContext
 	private _typesMetadata: MetadataLibrary = [];
 	private _ctorsLibrary: CtorsLibrary = [];
 	private readonly _context: Context;
+	private readonly _currentSourceFile: ts.SourceFile;
 
 	public readonly transformationContext: ts.TransformationContext;
 	public readonly program: ts.Program;
@@ -52,14 +53,19 @@ export default class SourceFileContext
 	 * @param program
 	 * @param checker
 	 */
-	constructor(transformerContext: TransformerContext, transformationContext: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker)
+	constructor(transformerContext: TransformerContext, transformationContext: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker, sourceFile: ts.SourceFile)
 	{
 		this.transformerContext = transformerContext;
 		this.transformationContext = transformationContext;
 		this.program = program;
 		this.checker = checker;
+		this._currentSourceFile = sourceFile;
 
 		this._context = new Context(this, mainVisitor);
+	}
+
+	get currentSourceFile(): ts.SourceFile {
+		return this._currentSourceFile;
 	}
 
 	/**

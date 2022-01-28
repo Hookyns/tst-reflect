@@ -94,4 +94,9 @@ export class Context
 	{
 		return this._sourceFileContext.trySetGetTypeIdentifier(identifier);
 	}
+
+	get currentSourceFile(): ts.SourceFile
+	{
+		return this._sourceFileContext.currentSourceFile;
+	}
 }

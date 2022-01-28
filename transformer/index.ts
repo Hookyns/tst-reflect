@@ -42,7 +42,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 			log.log(LogLevel.Trace, color.cyan, `${PACKAGE_ID}: Visitation of file ${node.fileName} started.`);
 		}
 
-		const sourceFileContext = new SourceFileContext(transformerContext, context, program, typeChecker);
+		const sourceFileContext = new SourceFileContext(transformerContext, context, program, typeChecker, node);
 		let visitedNode = sourceFileContext.context.visit(node) as ts.SourceFile;
 
 		if (visitedNode && sourceFileContext.typesMetadata.length)

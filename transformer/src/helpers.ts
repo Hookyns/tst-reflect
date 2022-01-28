@@ -7,7 +7,10 @@ import {
 	TypeKind
 }                                    from "tst-reflect";
 import * as ts                       from "typescript";
-import { ModifiersArray }            from "typescript";
+import {
+	ModifiersArray,
+	SyntaxKind
+} from "typescript";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
 import {
@@ -15,6 +18,7 @@ import {
 	GetTypeCall
 }                                    from "./declarations";
 import { getTypeCallFromProperties } from "./getTypeCall";
+import { log }                       from "./log";
 
 /**
  * Name of parameter for method/function declarations containing generic getType() calls
@@ -204,7 +208,8 @@ export function hasTraceJsDoc(fncType: ts.Type): boolean
  */
 export function createCtorGetter(
 	typeCtor: ts.EntityName | ts.DeclarationName,
-	constructorDescription: ConstructorImportDescriptionSource | undefined
+	constructorDescription: ConstructorImportDescriptionSource | undefined,
+	context: Context
 ): [ts.ArrowFunction | undefined, ts.PropertyAccessExpression | undefined]
 {
 	if (!constructorDescription)
@@ -212,13 +217,18 @@ export function createCtorGetter(
 		return [undefined, undefined];
 	}
 
+	const relative = getRequireRelativePath(context.currentSourceFile.fileName, constructorDescription.srcPath);
+
+	log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`)
+
 	const requireCall = ts.factory.createPropertyAccessExpression(
 		ts.factory.createCallExpression(
 			ts.factory.createIdentifier("require"),
 			undefined,
 			[
 				ts.factory.createStringLiteral(
-					getRequireRelativePath(typeCtor.getSourceFile().fileName, constructorDescription.srcPath)
+					relative,
+					// getRequireRelativePath(typeCtor.getSourceFile().fileName, constructorDescription.srcPath)
 				)
 				// ts.factory.createStringLiteral(constructorDescription.relativePath.replace('.ts', ''))
 			]
@@ -394,4 +404,19 @@ export function replaceExtension(fileName: string, replaceWith: string): string
 	}
 
 	return fileName.replace(/\\/g, "/");
+}
+
+// TODO: Find the proper way to do this... but this actually works perfectly
+// This allows us to get the ctor node which we resolve descriptor info and create the ctor require
+export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier|undefined {
+	if(!symbol.valueDeclaration) {
+		return undefined;
+	}
+	const potentialTypeReference = ((symbol as any).valueDeclaration.type.typeName)
+
+	if(potentialTypeReference && potentialTypeReference?.kind === SyntaxKind.Identifier) {
+		return potentialTypeReference;
+	}
+
+	return undefined
 }

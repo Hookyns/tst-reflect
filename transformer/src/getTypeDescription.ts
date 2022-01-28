@@ -306,7 +306,7 @@ export function getTypeDescription(
 				properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
 			}
 
-			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport)
+			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport, context)
 			properties.ctor = ctorGetter;
 
 			if (constructorExport && properties.ctor && ctorRequireCall)
