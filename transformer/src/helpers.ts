@@ -20,6 +20,8 @@ import {
 import { getTypeCallFromProperties } from "./getTypeCall";
 import { log }                       from "./log";
 
+export const PATH_SEPARATOR_REGEX = /\\/g;
+
 /**
  * Name of parameter for method/function declarations containing generic getType() calls
  */
@@ -125,7 +127,7 @@ export function getTypeFullName(typeSymbol?: ts.Symbol)
 	}
 	else if (rootDir)
 	{
-		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(/\\/g, "/");
+		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(PATH_SEPARATOR_REGEX, "/");
 	}
 
 	return filePath + ":" + typeSymbol.getName() + "#" + ((typeSymbol as any).id || "0");
@@ -403,7 +405,7 @@ export function replaceExtension(fileName: string, replaceWith: string): string
 		fileName = fileName.slice(0, fileName.length - extName.length) + replaceWith;
 	}
 
-	return fileName.replace(/\\/g, "/");
+	return fileName.replace(PATH_SEPARATOR_REGEX, "/");
 }
 
 // TODO: Find the proper way to do this... but this actually works perfectly
