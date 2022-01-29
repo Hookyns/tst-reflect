@@ -954,11 +954,19 @@ export class Type
 	}
 
 	/**
+	 * Check if this is a native type("string", "number", "boolean" etc.)
+	 */
+	isNative(): boolean
+	{
+		return this.kind === TypeKind.Native;
+	}
+
+	/**
 	 * Check if this type is a string
 	 */
 	isString(): boolean
 	{
-		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "string";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "string";
 	}
 
 	/**
@@ -966,7 +974,7 @@ export class Type
 	 */
 	isNumber(): boolean
 	{
-		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "number";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "number";
 	}
 
 	/**
@@ -974,7 +982,7 @@ export class Type
 	 */
 	isBoolean(): boolean
 	{
-		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "boolean";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "boolean";
 	}
 
 	/**
@@ -982,7 +990,7 @@ export class Type
 	 */
 	isArray(): boolean
 	{
-		return (this.kind == TypeKind.Native || this.kind == TypeKind.LiteralType) && this.name == "Array";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "Array";
 	}
 
 	/**
