@@ -13,11 +13,6 @@ import {
 	getType,
 	getUnknownTypeCall,
 }                        from "./helpers";
-import {
-	color,
-	log,
-	LogLevel
-}                        from "./log";
 
 /**
  * Process the signature of the method and create a parameter description for each parameter
@@ -37,30 +32,15 @@ export function getMethodParameters(signature: ts.Signature, context: Context): 
 
 	const parameters: Array<ParameterDescriptionSource> = [];
 
-	for (let i = 0; i < methodParameters.length; i++)
+	for (let parameter of methodParameters)
 	{
-		const parameter = methodParameters[i];
 		const declaration = parameter.valueDeclaration as ts.ParameterDeclaration;
 		const type = getType(parameter, context.typeChecker);
-
-		if (declaration.type === undefined)
-		{
-			log.log(
-				LogLevel.Warning,
-				color.yellow,
-				`Failed to get type for parameter of method: ${signature.getDeclaration().name?.getText()}, parameter: ${parameter.name}`
-			);
-			continue;
-		}
-
-		// TODO: Figure why `methodParamsType({ name }: MethodParamsType)` {name} param is "__0" and type cannot be set to Type instance
-		const paramType = type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context);
 
 		parameters.push({
 			n: parameter.getName(),
 			o: (parameter.flags & ts.TypeFlags.Object) === ts.TypeFlags.Object,
-			t: paramType,
-			i: i
+			t: type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context),
 		});
 	}
 

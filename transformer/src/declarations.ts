@@ -38,8 +38,6 @@ export interface ParameterDescriptionSource
 {
 	// Name of the parameter
 	n: string;
-	// Index of the parameter in the method
-	i?: number;
 	// Is optional parameter?
 	// method(param?:string)
 	o?: boolean;
