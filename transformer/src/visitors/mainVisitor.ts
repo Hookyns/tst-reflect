@@ -5,9 +5,9 @@ import {
 import * as ts                          from "typescript";
 import { Context }                      from "../contexts/Context";
 import {
-	hasReflectDecoratorJsDoc,
-	hasReflectGenericJsDoc
+	hasReflectDecoratorJsDoc
 }                                       from "../helpers";
+import { log }                          from "../log";
 import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";
 import { processGetTypeCallExpression } from "../processGetTypeCallExpression";
@@ -21,6 +21,7 @@ import DeclarationVisitor               from "./declarationVisitor";
 export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | undefined
 {
 	const node = DeclarationVisitor.instance.visitDeclaration(nodeToVisit, context);
+	const config = context.config;
 
 	if (node === undefined)
 	{
@@ -58,23 +59,23 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 		else
 		{
 			let identifier: ts.Identifier | ts.PrivateIdentifier | undefined = undefined;
-			
-			if (ts.isIdentifier(node.expression)) {
+
+			if (ts.isIdentifier(node.expression))
+			{
 				identifier = node.expression;
 			}
-			else if (ts.isPropertyAccessExpression(node.expression)) {
+			else if (ts.isPropertyAccessExpression(node.expression))
+			{
 				identifier = node.expression.name;
 			}
-			
+
 			if (identifier !== undefined)
 			{
 				const type = context.typeChecker.getTypeAtLocation(identifier);
 
-				// It is generic function or method, or it has our special JSDoc comment. (Note: It can be called on property access)
-				if (node.typeArguments?.length
-					// NOTE: I don't remember why hasReflectGenericJsDoc is here.
-					/* || hasReflectGenericJsDoc(type.getSymbol())*/
-				)
+				// If call expression has typeArguments OR declaration of called function/method has type parameters.
+				// Later there is check if the declaration has the @reflectGeneric JSDoc comment.
+				if (node.typeArguments?.length || (type.getSymbol()?.valueDeclaration as ts.FunctionLikeDeclaration | undefined)?.typeParameters?.length)
 				{
 					const res = processGenericCallExpression(node, type, context);
 
@@ -82,6 +83,10 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 					{
 						return ts.visitEachChild(res, context.visitor, context.transformationContext);
 					}
+				}
+				else if (config.debugMode)
+				{
+					log.info(`There is an callExpression '${identifier.escapedText}' but no declaration has been found.`);
 				}
 			}
 		}
