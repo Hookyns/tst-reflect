@@ -10,7 +10,7 @@ import * as ts                       from "typescript";
 import {
 	ModifiersArray,
 	SyntaxKind
-} from "typescript";
+}                                    from "typescript";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
 import {
@@ -205,14 +205,14 @@ export function hasTraceJsDoc(fncType: ts.Type): boolean
 }
 
 /**
- * Return getter (arrow function/lambda) for runtime type's Ctor.
- * @description Arrow function generated cuz of possible "Type is referenced before declaration".
+ * Return getter function for runtime type's Ctor.
+ * @description Function generated so that, the require call isn't made until we actually call the function
  */
 export function createCtorGetter(
 	typeCtor: ts.EntityName | ts.DeclarationName,
 	constructorDescription: ConstructorImportDescriptionSource | undefined,
 	context: Context
-): [ts.ArrowFunction | undefined, ts.PropertyAccessExpression | undefined]
+): [ts.FunctionDeclaration | undefined, ts.PropertyAccessExpression | undefined]
 {
 	if (!constructorDescription)
 	{
@@ -221,30 +221,29 @@ export function createCtorGetter(
 
 	const relative = getRequireRelativePath(context.currentSourceFile.fileName, constructorDescription.srcPath);
 
-	log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`)
+	if (context.config.debugMode)
+	{
+		log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`);
+	}
 
 	const requireCall = ts.factory.createPropertyAccessExpression(
 		ts.factory.createCallExpression(
 			ts.factory.createIdentifier("require"),
 			undefined,
-			[
-				ts.factory.createStringLiteral(
-					relative,
-					// getRequireRelativePath(typeCtor.getSourceFile().fileName, constructorDescription.srcPath)
-				)
-				// ts.factory.createStringLiteral(constructorDescription.relativePath.replace('.ts', ''))
-			]
+			[ts.factory.createStringLiteral(relative)]
 		),
 		ts.factory.createIdentifier(constructorDescription.en)
 	);
 
-	const requireGetter = ts.factory.createArrowFunction(
+	const requireGetter = ts.factory.createFunctionDeclaration(
 		undefined,
+		undefined,
+		undefined,
+		ts.factory.createIdentifier(""),
 		undefined,
 		[],
 		undefined,
-		ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
-		requireCall
+		ts.factory.createBlock([ts.factory.createReturnStatement(requireCall)], true)
 	);
 
 	return [requireGetter, requireCall];
@@ -410,15 +409,18 @@ export function replaceExtension(fileName: string, replaceWith: string): string
 
 // TODO: Find the proper way to do this... but this actually works perfectly
 // This allows us to get the ctor node which we resolve descriptor info and create the ctor require
-export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier|undefined {
-	if(!symbol.valueDeclaration) {
+export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefined
+{
+	if (!symbol.valueDeclaration)
+	{
 		return undefined;
 	}
-	const potentialTypeReference = ((symbol as any).valueDeclaration.type.typeName)
+	const potentialTypeReference = ((symbol as any).valueDeclaration.type.typeName);
 
-	if(potentialTypeReference && potentialTypeReference?.kind === SyntaxKind.Identifier) {
+	if (potentialTypeReference && potentialTypeReference?.kind === SyntaxKind.Identifier)
+	{
 		return potentialTypeReference;
 	}
 
-	return undefined
+	return undefined;
 }

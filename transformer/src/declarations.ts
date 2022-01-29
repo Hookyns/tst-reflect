@@ -281,7 +281,7 @@ export interface TypePropertiesSource
 	/**
 	 * Constructor return function
 	 */
-	ctor?: ts.ArrowFunction;
+	ctor?: ts.FunctionDeclaration;
 
 	/**
 	 * Base type
