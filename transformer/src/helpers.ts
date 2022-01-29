@@ -212,7 +212,7 @@ export function createCtorGetter(
 	typeCtor: ts.EntityName | ts.DeclarationName,
 	constructorDescription: ConstructorImportDescriptionSource | undefined,
 	context: Context
-): [ts.FunctionDeclaration | undefined, ts.PropertyAccessExpression | undefined]
+): [ts.FunctionExpression | undefined, ts.PropertyAccessExpression | undefined]
 {
 	if (!constructorDescription)
 	{
@@ -235,11 +235,10 @@ export function createCtorGetter(
 		ts.factory.createIdentifier(constructorDescription.en)
 	);
 
-	const requireGetter = ts.factory.createFunctionDeclaration(
+	const requireGetter = ts.factory.createFunctionExpression(
 		undefined,
 		undefined,
 		undefined,
-		ts.factory.createIdentifier(""),
 		undefined,
 		[],
 		undefined,

@@ -279,7 +279,7 @@ export interface TypePropertiesSource
 	/**
 	 * Constructor return function
 	 */
-	ctor?: ts.FunctionDeclaration;
+	ctor?: ts.FunctionExpression;
 
 	/**
 	 * Base type
