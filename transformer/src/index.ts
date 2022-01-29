@@ -1,13 +1,13 @@
-import * as ts                                from "typescript";
-import SourceFileContext                      from "./src/contexts/SourceFileContext";
-import TransformerContext                     from "./src/contexts/TransformerContext";
-import { PACKAGE_ID }                         from "./src/helpers";
+import * as ts            from "typescript";
+import SourceFileContext  from "./contexts/SourceFileContext";
+import TransformerContext from "./contexts/TransformerContext";
+import { PACKAGE_ID }     from "./helpers";
 import {
 	color,
 	log,
 	LogLevel
-}                                             from "./src/log";
-import { nodeGenerator }                      from "./src/NodeGenerator";
+}                         from "./log";
+import { nodeGenerator }  from "./NodeGenerator";
 
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
 {

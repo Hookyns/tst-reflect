@@ -1,8 +1,8 @@
 import {
 	getType,
 	Type
-}                                 from "../../runtime";
-import { IServiceCollection }     from "./IServiceCollection";
+}                             from "tst-reflect";
+import { IServiceCollection } from "./IServiceCollection";
 import { IServiceProvider }       from "./IServiceProvider";
 import { ServiceCollectionEntry } from "./ServiceCollectionEntry";
 
@@ -87,7 +87,7 @@ export class TypedServiceProvider implements IServiceProvider
         {
             throw new Error(`No service '${serviceIdentifier}' registered.`);
         }
-        
+
         return service;
     }
 }

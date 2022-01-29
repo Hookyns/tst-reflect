@@ -2,15 +2,15 @@
 	"name": "tst-reflect",
 	"version": "0.6.0-alpha.10",
 	"description": "Runtime of TypeScript Transformer for Runtime Types & Reflection",
-	"main": "reflect.js",
-	"types": "reflect.ts",
+	"main": "dist/index.js",
+	"types": "dist/reflect.d.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
 		"prepare": "npx tsc"
 	},
 	"files": [
-		"reflect.js",
-		"reflect.ts"
+		"dist/**/*.js",
+		"dist/**/*.d.ts"
 	],
 	"keywords": [
 		"runtime",

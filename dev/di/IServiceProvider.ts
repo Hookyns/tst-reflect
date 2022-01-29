@@ -1,4 +1,4 @@
-import { Type } from "../../runtime";
+import { Type } from "tst-reflect";
 
 export interface IServiceProvider
 {
@@ -20,7 +20,7 @@ export interface IServiceProvider
      */
     getServices<TService>(serviceIdentifier: string): Iterable<TService>;
 
-    
+
     /**
      * Resolve and return instance of last registered implementation of the service.
      * @reflectGeneric

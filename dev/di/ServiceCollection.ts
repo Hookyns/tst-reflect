@@ -1,7 +1,7 @@
 import {
     Type,
     getType
-} from "../../runtime";
+} from "tst-reflect";
 
 // export class ServiceCollection
 // {
@@ -36,7 +36,7 @@ import {
 //         {
 //             dependencyType = getType<TDependency>();
 //         }
-//        
+//
 //         if (dependencyImplementation === undefined)
 //         {
 //             dependencyImplementation = getType<TImplementation>();

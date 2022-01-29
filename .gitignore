@@ -4,7 +4,9 @@
 **/*.d.ts
 !dev/dev-compiler.js
 !repl/install.js
-
+dist
+runtime/dist
+transformer/dist
 # Logs
 logs
 *.log

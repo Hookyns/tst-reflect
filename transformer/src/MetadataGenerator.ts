@@ -1,7 +1,7 @@
 import * as ts                                from "typescript";
 import * as fs                                from "fs";
 import { nodeGenerator }                      from "./NodeGenerator";
-import { GET_TYPE_FNC_NAME }                  from "tst-reflect/reflect";
+import { GET_TYPE_FNC_NAME }                  from "tst-reflect";
 
 function replaceGetTypeIdentifiersVisitor(getTypeIdentifier: ts.Identifier, transformationContext: ts.TransformationContext): ts.Visitor
 {

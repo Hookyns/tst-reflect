@@ -96,9 +96,6 @@ export enum AccessModifier
 	Public
 }
 
-/**
- * @internal
- */
 export interface ConditionalTypeDescription
 {
 	/**
@@ -135,9 +132,6 @@ export interface ConditionalType
 	falseType: Type;
 }
 
-/**
- * @internal
- */
 export interface IndexedAccessTypeDescription
 {
 	/**
@@ -164,9 +158,6 @@ export interface IndexedAccessType
 	indexType: Type;
 }
 
-/**
- * @internal
- */
 export interface ParameterDescription
 {
 	/**
@@ -185,9 +176,6 @@ export interface ParameterDescription
 	o: boolean;
 }
 
-/**
- * @internal
- */
 export interface PropertyDescription
 {
 	/**
@@ -267,9 +255,6 @@ export interface Property
 	readonly: boolean;
 }
 
-/**
- * @internal
- */
 export interface DecoratorDescription
 {
 	n: string;
@@ -313,9 +298,6 @@ export interface MethodParameter
 	optional: boolean;
 }
 
-/**
- * @internal
- */
 export interface MethodDescription
 {
 	/**
@@ -514,9 +496,6 @@ class MethodActivator extends Method
 {
 }
 
-/**
- * @internal
- */
 export interface ConstructorDescription
 {
 	params: Array<ParameterDescription>;
@@ -524,7 +503,6 @@ export interface ConstructorDescription
 
 /**
  * This data is not set when the config mode is set to "universal"
- * @internal
  */
 export interface ConstructorImportDescription
 {

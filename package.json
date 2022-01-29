@@ -5,6 +5,11 @@
 		"runtime",
 		"transformer"
 	],
+	"scripts": {
+		"build:transformer": "npx tsc --p transformer/tsconfig.json ",
+		"build:runtime": "npx tsc --p runtime/tsconfig.json ",
+		"build": "npm run build:transformer && npm run build:runtime"
+	},
 	"engines": {
 		"npm": ">=7.10.0",
 		"node": ">=16.0.0"

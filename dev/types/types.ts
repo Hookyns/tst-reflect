@@ -1,4 +1,4 @@
-import { getType } from "../../runtime";
+import { getType } from "tst-reflect";
 
 module foobar
 {

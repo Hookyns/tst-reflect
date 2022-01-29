@@ -1,4 +1,4 @@
-import { TypeKind }              from "tst-reflect/reflect";
+import { TypeKind }              from "tst-reflect";
 import * as ts                   from "typescript";
 import { TypeFlags }             from "typescript";
 import { Context }               from "./contexts/Context";

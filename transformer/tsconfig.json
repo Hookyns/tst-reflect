@@ -6,7 +6,9 @@
 		"sourceMap": true,
 		"stripInternal": true,
 		"strict": true,
-		"rootDir": ".",
+		"rootDir": "./src",
+		"baseUrl": "./src",
+		"outDir" : "dist",
 		"typeRoots": [
 			"../node_modules/@types",
 			"node_modules/@types"
@@ -14,8 +16,5 @@
 	},
 	"include": [
 		"./src/**/*.ts",
-		"./src/*.ts",
-		"./index.ts",
-		"./generics.ts"
 	]
 }

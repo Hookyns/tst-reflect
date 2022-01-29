@@ -1,4 +1,4 @@
-import { Type } from "../../runtime/reflect";
+import { Type }                   from "tst-reflect";
 import { ServiceCollectionEntry } from "./ServiceCollectionEntry";
 import { ServiceDescriptor }      from "./ServiceDescriptor";
 import { ServiceFactory }         from "./ServiceFactory";
