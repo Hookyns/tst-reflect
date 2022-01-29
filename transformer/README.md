@@ -1,53 +1,56 @@
-# TypeScript Transformer for Runtime Types & Reflection (tst-reflect-transformer)
-
-> This package is compile/transpile time part of `tst-reflect`.
+<h1>Runtime Types & Reflection (tst-reflect) <sub><i>transformer part</i></sub></h1>
 
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect)
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
 This is TypeScript transformer generating Type objects that are working at runtime, providing metadata about types such as list of properties and their types, list of constructors and their parameters
-and their types and much more.
+and their types and so on.
 
+**With working runtime generic types!**
 
-### Simple Example
+## Simple Example
+
 ```typescript
-import { getType } from "tst-reflect";
+import { getType, Type } from "tst-reflect";
 
-function printTypeProperties<TType>() {
-    const type = getType<TType>(); // <--- getting type of generic type in runtime :)
-    console.log(type.getProperties().map(prop => prop.name + ": " + prop.type.name).join("\n"));
+function printClassInfo<TType>()
+{
+    const type: Type = getType<TType>();
+
+    console.log(type.name); // > Animal
+    console.log(type.fullName); // > @@this/index.ts:Animal#21869
+
+    console.log(type.getProperties().map(p => `${p.name}: ${p.type.name}`).join("\n")); // > name: string
+    console.log(type.getMethods().map(m => `${m.name}(): ${m.returnType.name}`).join("\n")); // > makeSound(): string
+
+    return type.name;
 }
 
-interface SomeType {
-    foo: string;
-    bar: number;
-    baz: Date;
+abstract class Animal
+{
+    private name: string;
+    abstract makeSound(): string;
 }
 
-printTypeProperties<SomeType>();
+printClassInfo<Animal>();
 ```
 
-Output:
+## How to Start
+
+1. Install packages.
 ```
-foo: string
-bar: number
-baz: Date
+npm i tst-reflect && npm i tst-reflect-transformer -D
 ```
 
-More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder.
 
-## How to start
+2. In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
+```
+npm i ttypescript -D
+```
 
-`npm i tst-reflect && npm i tst-reflect-transformer -D`
 
-In order to use transformer plugin you will need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on your own), eg.
-package [ttypescript](https://www.npmjs.com/package/ttypescript).
-
-`npm i ttypescript -D`
-
-Now just add transformer to `tsconfig.json` and run `npx ttsc` instead of `tsc`.
-
+3. Add transformer to `tsconfig.json`
 ```json5
 {
     "compilerOptions": {
@@ -62,23 +65,76 @@ Now just add transformer to `tsconfig.json` and run `npx ttsc` instead of `tsc`.
     }
 }
 ```
+4. Now just transpile your code by `ttsc` instead of `tsc`
+```
+npx ttsc
+```
 
-or with Webpack
-
+### Using Webpack
+Modify your webpack config. Use `options.compiler` of `ts-loader` to set `ttypescript` compiler.
 ```javascript
 ({
     test: /\.(ts|tsx)$/,
-    loader: require.resolve("awesome-typescript-loader"),
-    // or loader: require.resolve("ts-loader"),
+    loader: require.resolve("ts-loader"),
     options: {
         compiler: "ttypescript"
     }
 })
 ```
 
+### Using Parcel
+Install Parcel plugin.
+```
+npm i parcel-plugin-ttypescript
+```
+
+### Using Rollup
+Install Rollup plugin
+```
+npm i rollup-plugin-typescript2
+```
+and modify your rollup config.
+```javascript
+import ttypescript from "ttypescript";
+import tsPlugin from "rollup-plugin-typescript2";
+
+export default {
+    // your options...
+    
+    plugins: [
+        // ADD THIS!
+        tsPlugin({
+            typescript: ttypescript
+        })
+    ]
+}
+```
+
+### Using ts-node
+Modify your `tsconfig.json`.
+```json5
+{
+    "compilerOptions": {
+        // your options...
+
+        "plugins": [
+            {
+                "transform": "tst-reflect-transformer"
+            }
+        ]
+    },
+    
+    // ADD THIS!
+    "ts-node": {
+        // This can be omitted when using ts-patch
+        "compiler": "ttypescript"
+    },
+}
+```
+
 ## Obtaining Type
 
-This package contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance, just call `getType<InterfaceOrClassOrSomeType>()`.
+Runtime package (`tst-reflect`) contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance, you have to call `getType<InterfaceOrClassOrSomeType>()`.
 
 ## How does it work
 
@@ -120,9 +176,9 @@ getType({
 }, 22976);
 ```
 
-### Configuration
+## Configuration
 
-There is an optional configuration you can set in `tsconfig.json` file.
+There is an optional configuration you can set in the `tsconfig.json` file.
 
 ```json5
 {
@@ -141,10 +197,13 @@ There is an optional configuration you can set in `tsconfig.json` file.
 Property `metadata: false | string` allows you to switch behavior. Default behavior generates metadata library file. You can change name and/or location of this file by setting own path. Or you can
 set `false` to disable generation of that file; metadata will be separated in files where they are used. Metadata can be redundant if same types are used in more files.
 
-## Examples
 
-Watch Examples section in the main [README](https://github.com/Hookyns/ts-reflection#examples) of the repository.
+## More Information
+
+More information in [README](https://github.com/Hookyns/ts-reflection) in the root repository folder.
+
+Or check [examples](https://github.com/Hookyns/ts-reflection/tree/main/examples)
+or [dev scripts](https://github.com/Hookyns/ts-reflection/tree/main/dev) we use to test things.
 
 ## License
-
 This project is licensed under the [MIT license](./LICENSE).

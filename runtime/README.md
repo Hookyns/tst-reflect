@@ -1,54 +1,56 @@
-# Runtime Part of TypeScript Transformer for Runtime Types & Reflection (tst-reflect)
+<h1>Runtime Types & Reflection (tst-reflect) <sub><i>runtime part</i></sub></h1>
 
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect)
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 
-This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer generating Type objects that are working at runtime, providing
-metadata about types such as list of properties and their types, list of constructors and their parameters and their types and much more.
+This package is runtime part of `tst-reflect-transformer`, which is TypeScript transformer/plugin generating Type metadata objects that are working at runtime, providing
+information about types such as list of properties and their types, list of constructors and their parameters and types and so on.
 
-**Working runtime generics!**
+**With working runtime generic types!**
 
-Simple example:
-
-```typescript
-import { getType } from "tst-reflect";
-
-function inferType<TType>() {
-    return getType<TType>().name;
-}
-
-const variable = 5;
-inferType<typeof variable>(); // "number"
-```
-
-or
+## Simple Example
 
 ```typescript
-import { getType } from "tst-reflect";
+import { getType, Type } from "tst-reflect";
 
-/** @reflectGeneric */
-function inferType<TType>(val: TType) {
-    return getType<TType>().name;
+function printClassInfo<TType>()
+{
+    const type: Type = getType<TType>();
+
+    console.log(type.name); // > Animal
+    console.log(type.fullName); // > @@this/index.ts:Animal#21869
+
+    console.log(type.getProperties().map(p => `${p.name}: ${p.type.name}`).join("\n")); // > name: string
+    console.log(type.getMethods().map(m => `${m.name}(): ${m.returnType.name}`).join("\n")); // > makeSound(): string
+
+    return type.name;
 }
 
-const variable = 5;
-inferType(variable); // "number"; thanks to @reflectGeneric, you don't have to pass generic param
+abstract class Animal
+{
+    private name: string;
+    abstract makeSound(): string;
+}
+
+printClassInfo<Animal>();
 ```
 
-More in [README](https://github.com/Hookyns/ts-reflection) in root repository folder too.
+## How to Start
 
-## How to start
+1. Install packages.
+```
+npm i tst-reflect && npm i tst-reflect-transformer -D
+```
 
-`npm i tst-reflect && npm i tst-reflect-transformer -D`
 
-In order to use transformer plugin you will need TypeScript compiler which support plugins (if you don't want to write custom compiler via TypeScript API on
-your own), eg. package [ttypescript](https://www.npmjs.com/package/ttypescript).
+2. In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
+```
+npm i ttypescript -D
+```
 
-`npm i ttypescript -D`
 
-Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
-
+3. Add transformer to `tsconfig.json`
 ```json5
 {
     "compilerOptions": {
@@ -63,14 +65,16 @@ Now just add transformer to `tsconfig.json` and run `ttsc` instead of `tsc`.
     }
 }
 ```
+4. Now just transpile your code by `ttsc` instead of `tsc`
+```
+npx ttsc
+```
 
-or with Webpack
-
+### Using Webpack
+Modify your webpack config. Use `options.compiler` of `ts-loader` to set `ttypescript` compiler.
 ```javascript
 ({
     test: /\.(ts|tsx)$/,
-    loader: require.resolve("awesome-typescript-loader"),
-    // or
     loader: require.resolve("ts-loader"),
     options: {
         compiler: "ttypescript"
@@ -78,406 +82,128 @@ or with Webpack
 })
 ```
 
-### Obtaining Type
+### Using Parcel
+Install Parcel plugin.
+```
+npm i parcel-plugin-ttypescript
+```
 
-This package contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance you have to call `getType<SomeTypeScriptType>()`.
+### Using Rollup
+Install Rollup plugin
+```
+npm i rollup-plugin-typescript2
+```
+and modify your rollup config.
+```javascript
+import ttypescript from "ttypescript";
+import tsPlugin from "rollup-plugin-typescript2";
 
-## Synopsis
-
-```typescript
-/**
- * Object representing TypeScript type in memory
- */
-export declare class Type
-{
-    static readonly Object: Type;
-
-    /**
-     * Returns information about generic conditional type.
-     */
-    get condition(): ConditionalType | undefined;
-
-    /**
-     * Returns a value indicating whether the Type is container for unified Types or not
-     */
-    get union(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is container for intersecting Types or not
-     */
-    get intersection(): boolean;
-
-    /**
-     * List of underlying types in case Type is union or intersection
-     */
-    get types(): ReadonlyArray<Type> | undefined;
-
-    /**
-     * Constructor function in case Type is class
-     */
-    get ctor(): Function | undefined;
-
-    /**
-     * Base type
-     * @description Base type from which this type extends from or undefined if type is Object.
-     */
-    get baseType(): Type | undefined;
-
-    /**
-     * Interface which this type implements
-     */
-    get interface(): Type | undefined;
-
-    /**
-     * Get type full-name
-     * @description Contains file path base to project root
-     */
-    get fullName(): string;
-
-    /**
-     * Get type name
-     */
-    get name(): string;
-
-    /**
-     * Get kind of type
-     */
-    get kind(): TypeKind;
-
-    /**
-     * Underlying value in case of literal type
-     */
-    get literalValue(): any;
-
-    /**
-     * Returns true if types are equals
-     * @param type
-     */
-    is(type: Type): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is a class or not
-     */
-    isClass(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is a interface or not
-     */
-    isInterface(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is an literal or not
-     */
-    isLiteral(): boolean;
-
-    /**
-     * Returns a value indicating whether the Type is an object literal or not
-     */
-    isObjectLiteral(): boolean;
-
-    /**
-     * Returns true if type is union or intersection of types
-     */
-    isUnionOrIntersection(): boolean;
-
-    /**
-     * Check if this type is a string
-     */
-    isString(): boolean;
-
-    /**
-     * Check if this type is a number
-     */
-    isNumber(): boolean;
-
-    /**
-     * Check if this type is a boolean
-     */
-    isBoolean(): boolean;
-
-    /**
-     * Check if this type is an array
-     */
-    isArray(): boolean;
-
-    /**
-     *
-     * @return {boolean}
-     */
-    isObjectLike(): boolean;
-
-    /**
-     * Returns array of type parameters.
-     */
-    getTypeParameters(): ReadonlyArray<Type>;
-
-    /**
-     * Returns type arguments in case of generic type
-     */
-    getTypeArguments(): ReadonlyArray<Type>;
-
-    /**
-     * Returns constructor description when Type is a class
-     */
-    getConstructors(): ReadonlyArray<Constructor> | undefined;
-
-    /**
-     * Returns array of properties
-     */
-    getProperties(): ReadonlyArray<Property>;
-
-    /**
-     * Returns array of methods
-     */
-    getMethods(): ReadonlyArray<Method>;
-
-    /**
-     * Returns array of decorators
-     */
-    getDecorators(): ReadonlyArray<Decorator>;
-
-    /**
-     * Determines whether the class represented by the current Type derives from the class represented by the specified Type
-     * @param {Type} classType
-     */
-    isSubclassOf(classType: Type): boolean;
-
-    /**
-     * Determines whether the current Type derives from the specified Type
-     * @param {Type} targetType
-     */
-    isDerivedFrom(targetType: Type): boolean;
-
-    /**
-     * Determines whether the Object represented by the current Type is structurally compatible and assignable to the Object represented by the specified Type
-     * @param {Type} target
-     * @return {boolean}
-     * @private
-     */
-    isStructurallyAssignableTo(target: Type): boolean;
-
-    /**
-     * Determines whether an instance of the current Type can be assigned to an instance of the specified Type.
-     * @description This is fulfilled by derived types or compatible types.
-     * @param target
-     */
-    isAssignableTo(target: Type): boolean;
-}
-
-export declare enum TypeKind
-{
-    Interface = 0,
-    Class = 1,
-    Native = 2,
-    Container = 3,
-    TransientTypeReference = 4,
-    Object = 5,
-    LiteralType = 6,
-    Tuple = 7,
-    TypeParameter = 8,
-    ConditionalType = 9
-}
-
-export declare enum Accessor {
-    None = 0,
-    Getter = 1,
-    Setter = 2
-}
-export declare enum AccessModifier {
-    Private = 0,
-    Protected = 1,
-    Public = 2
-}
-
-export interface ConditionalType {
-    /**
-     * Extends type
-     */
-    extends: Type;
-    /**
-     * True type
-     */
-    trueType: Type;
-    /**
-     * False type
-     */
-    falseType: Type;
-}
-
-/**
- * Property description
- */
-export interface Property {
-    /**
-     * Property name
-     */
-    name: string;
-    /**
-     * Property type
-     */
-    type: Type;
-    /**
-     * Property decorators
-     */
-    decorators: Array<Decorator>;
-}
-
-/**
- * Decoration description
- */
-export interface Decorator {
-    /**
-     * Decorator name
-     */
-    name: string;
-    /**
-     * Decorator full name
-     */
-    fullName?: string;
-}
-
-/**
- * Method parameter description
- */
-export interface MethodParameter {
-    /**
-     * Parameter name
-     */
-    name: string;
-    /**
-     * Parameter type
-     */
-    type: Type;
-}
-
-/**
- * Constructor description object
- */
-export interface Constructor {
-    /**
-     * Constructor parameters
-     */
-    parameters: Array<MethodParameter>;
+export default {
+    // your options...
+    
+    plugins: [
+        // ADD THIS!
+        tsPlugin({
+            typescript: ttypescript
+        })
+    ]
 }
 ```
 
-```typescript
-/**
- * Returns Type of generic parameter
- */
-export declare function getType<T>(): Type;
+### Using ts-node
+Modify your `tsconfig.json`.
+```json5
+{
+    "compilerOptions": {
+        // your options...
+
+        "plugins": [
+            {
+                "transform": "tst-reflect-transformer"
+            }
+        ]
+    },
+    
+    // ADD THIS!
+    "ts-node": {
+        // This can be omitted when using ts-patch
+        "compiler": "ttypescript"
+    },
+}
 ```
+
+## Obtaining Type
+
+Runtime package (`tst-reflect`) contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance, you have to call `getType<InterfaceOrClassOrSomeType>()`.
 
 ## How does it work
 
-Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic. It generates object literals describing referred types and
-instances of `Type` are created from those objects.
+Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic. It generates object literals describing referred types and instances of `Type`
+are created from those objects.
 
-It use some kind of cache (per file; it's impossible for TS to get main runtime module and create cache there under GlobalThis; so it's in every file).
+### Metadata
 
-> example.ts
+Mentioned object literals describing types are called **metadata**. Default behavior collect metadata of all used types and generate file `metadata.lib.js` in project root (
+location of tsconfig.json).
 
-```typescript
-import {
-    getType,
-    Type
-} from "tst-reflect";
-import {
-    IService,
-    Service
-} from "./dependency";
-
-class ServiceCollection
-{
-    public readonly services: Array<[Type, any]> = [];
-
-    addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any)
-    {
-        this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
-    }
-}
-
-class ServiceProvider
-{
-    // ...
-}
-
-const serviceCollection = new ServiceCollection();
-serviceCollection.addTransient(getType<IService>(), getType<Service>());
-// or with generic
-serviceCollection.addTransient<IService, Service>();
-
-const serviceProvider = new ServiceProvider(serviceCollection);
-
-const s1 = serviceProvider.getService<IService>();
-console.log("Type created using reflection: ", s1);
-console.log("s1 is instanceof Service: ", s1 instanceof Service); // true
-```
-
-Generated output
+Metadata library file looks like this:
 
 ```javascript
-const tst_reflect_1 = require("tst-reflect");
-const dependency_1 = require("./dependency");
-tst_reflect_1.getType({n: "ILogger", fn: "W:/tst-reflect/dev/dependency.ts:ILogger", k: 0}, 22961);
-tst_reflect_1.getType({
-    n: "IService",
-    fn: "W:/tst-reflect/dev/dependency.ts:IService",
-    props: [{
-        n: "prop",
-        t: tst_reflect_1.getType({
-            k: 3,
-            types: [tst_reflect_1.getType({n: "string", fn: "string", k: 2}), tst_reflect_1.getType({n: "number", fn: "number", k: 2})],
-            union: true,
-            inter: false
-        })
-    }],
-    k: 0
-}, 22963);
-tst_reflect_1.getType({
-    n: "Service",
-    fn: "W:/tst-reflect/dev/dependency.ts:Service",
-    props: [{
-        n: "prop",
-        t: tst_reflect_1.getType({
-            k: 3,
-            types: [tst_reflect_1.getType({n: "string", fn: "string", k: 2}), tst_reflect_1.getType({n: "number", fn: "number", k: 2})],
-            union: true,
-            inter: false
-        })
-    }, {n: "logger", t: tst_reflect_1.getType(22961), d: [{n: "inject"}]}, {n: "Logger", t: tst_reflect_1.getType(22961)}],
-    ctors: [{params: [{n: "logger", t: tst_reflect_1.getType(22961)}]}],
-    decs: [{n: "injectable"}],
+var {getType} = require("tst-reflect");
+getType({
+    k: 5,
+    props: [{n: "foo", t: getType({n: "string", k: 2})}, {
+        n: "bar",
+        t: getType({k: 3, types: [getType({k: 6, v: "a"}), getType({k: 6, v: "b"})], union: true, inter: false})
+    }]
+}, 22974);
+getType({k: 5, props: [{n: "foo", t: getType({n: "string", k: 2})}, {n: "bar", t: getType({n: "string", k: 2})}]}, 22969);
+getType({
+    n: "SomeType",
+    fn: "..\\logger.ts:SomeType",
+    props: [{n: "array", t: getType({k: 4, n: "Array", args: [getType(22969)]})}],
+    ctors: [{params: []}],
     k: 1,
-    ctor: () => dependency_1.Service,
-    iface: tst_reflect_1.getType(22963)
+    ctor: () => SomeType
 }, 22965);
-
-class ServiceCollection {
-    constructor() {
-        this.services = [];
-    }
-
-    addTransient(dependencyType, dependencyImplementation, __genericParams__) {
-        this.services.push([dependencyType ?? __genericParams__.TDep, dependencyImplementation ?? __genericParams__.TImp]);
-    }
-}
-
-class ServiceProvider {
-    // ...
-}
-
-const serviceCollection = new ServiceCollection();
-serviceCollection.addTransient(tst_reflect_1.getType(22963), tst_reflect_1.getType(22965));
-serviceCollection.addTransient({TDep: tst_reflect_1.getType(22963), TImp: tst_reflect_1.getType(22965)});
-const serviceProvider = new ServiceProvider(serviceCollection);
-const s1 = serviceProvider.getService({TDependency: tst_reflect_1.getType(22963)});
-console.log("Type created using reflection: ", s1);
-console.log("s1 is instanceof Service: ", s1 instanceof dependency_1.Service);
+getType({
+    n: "Foo",
+    fn: "..\\logger.ts:Foo",
+    props: [{n: "prop", t: getType({n: "number", k: 2})}],
+    ctors: [{params: [{n: "prop", t: getType({n: "number", k: 2})}]}],
+    k: 1,
+    ctor: () => Foo
+}, 22976);
 ```
 
-## Examples
-Watch Examples section in the main [README](https://github.com/Hookyns/ts-reflection#examples) of the repository.
+## Configuration
+
+There is an optional configuration you can set in the `tsconfig.json` file.
+
+```json5
+{
+    "compilerOptions": {
+        // ...
+    },
+    "reflection": {
+        "metadata": false,
+        // false | string, default "./metadata.lib.js"
+        "debugMode": true
+        // boolean, default "false"
+    }
+}
+```
+
+Property `metadata: false | string` allows you to switch behavior. Default behavior generates metadata library file. You can change name and/or location of this file by setting own path. Or you can
+set `false` to disable generation of that file; metadata will be separated in files where they are used. Metadata can be redundant if same types are used in more files.
+
+
+## More Information
+
+More information in [README](https://github.com/Hookyns/ts-reflection) in the root repository folder.
+
+Or check [examples](https://github.com/Hookyns/ts-reflection/tree/main/examples)
+or [dev scripts](https://github.com/Hookyns/ts-reflection/tree/main/dev) we use to test things.
 
 ## License
 This project is licensed under the [MIT license](./LICENSE).
