@@ -11,7 +11,7 @@
 		],
 		"plugins": [
 			{
-				"transform": "../../transformer/index.js"
+				"transform": "../../transformer/dist/index.js"
 			}
 		]
 	},
