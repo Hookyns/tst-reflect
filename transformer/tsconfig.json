@@ -8,13 +8,22 @@
 		"strict": true,
 		"rootDir": "./src",
 		"baseUrl": "./src",
-		"outDir" : "dist",
+		"outDir": "dist",
+		"composite": true,
 		"typeRoots": [
 			"../node_modules/@types",
 			"node_modules/@types"
 		]
 	},
+	"references": [
+		{
+			"path": "../runtime"
+		}
+	],
 	"include": [
-		"./src/**/*.ts",
+		"./src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules/**/*"
 	]
 }
