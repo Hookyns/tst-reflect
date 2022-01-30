@@ -587,13 +587,17 @@ export class ConstructorImport
 	/**
 	 * @internal
 	 */
-	constructor(description: ConstructorImportDescription)
+	constructor(description: ConstructorImportDescription | undefined)
 	{
 		if (new.target != ConstructorImportActivator)
 		{
 			throw new Error("You cannot create instance of Method manually!");
 		}
 
+		if (!description)
+		{
+			return;
+		}
 		this._name = description.n;
 		this._exportName = description.en;
 		this._sourcePath = description.srcPath;

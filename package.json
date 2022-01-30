@@ -6,7 +6,8 @@
 		"transformer"
 	],
 	"scripts": {
-		"build": "tsc --build"
+		"build": "tsc --build",
+		"watch": "tsc --build --watch"
 	},
 	"engines": {
 		"npm": ">=7.10.0",
