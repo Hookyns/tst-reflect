@@ -1020,6 +1020,11 @@ export class Type
 		return type != undefined && this._fullName == type._fullName && !!this._fullName;
 	}
 
+	isInstantiable(): boolean
+	{
+		return !!this.getConstructors()?.length;
+	}
+
 	/**
 	 * Returns a value indicating whether the Type is a class or not
 	 */

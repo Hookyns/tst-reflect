@@ -1,6 +1,7 @@
 import { getType }                               from "tst-reflect";
 import { SomeService }                           from "./Service/SomeService";
 import { SomeServiceInterface }                  from "./Service/SomeServiceInterface";
+import { AnotherServiceClassWithAbstract }       from "./SomeServiceClass";
 import { TestingClass }                          from "./TestingClass";
 import { TestingClassWithDifferentNativeParams } from "./TestingClassWithDifferentNativeParams";
 
@@ -25,19 +26,23 @@ import { TestingClassWithDifferentNativeParams } from "./TestingClassWithDiffere
 // console.log(nestedClassResolved);
 
 
-const interfaceType = getType<SomeServiceInterface>();
-const someServiceClass = getType<SomeService>();
-const testingClass = getType<TestingClass>();
-const testingNativeParams = getType<TestingClassWithDifferentNativeParams>();
+const t = getType<AnotherServiceClassWithAbstract>();
 
+debugger;
 
-const testingClassCtorParams = testingNativeParams.getConstructors()[0].getParameters();
-
-for (let testingClassCtorParam of testingClassCtorParams)
-{
-	console.log(`Param ${testingClassCtorParam.name} type: `, typeof testingClassCtorParam.type.ctor, testingClassCtorParam.type.ctor);
-	console.log(`Param ${testingClassCtorParam.name} type name: `, testingClassCtorParam.type.name);
-	console.log(`Param ${testingClassCtorParam.name} is native?: `, testingClassCtorParam.type.isNative());
-}
+// const interfaceType = getType<SomeServiceInterface>();
+// const someServiceClass = getType<SomeService>();
+// const testingClass = getType<TestingClass>();
+// const testingNativeParams = getType<TestingClassWithDifferentNativeParams>();
+//
+//
+// const testingClassCtorParams = testingNativeParams.getConstructors()[0].getParameters();
+//
+// for (let testingClassCtorParam of testingClassCtorParams)
+// {
+// 	console.log(`Param ${testingClassCtorParam.name} type: `, typeof testingClassCtorParam.type.ctor, testingClassCtorParam.type.ctor);
+// 	console.log(`Param ${testingClassCtorParam.name} type name: `, testingClassCtorParam.type.name);
+// 	console.log(`Param ${testingClassCtorParam.name} is native?: `, testingClassCtorParam.type.isNative());
+// }
 
 debugger
