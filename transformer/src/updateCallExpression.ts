@@ -23,6 +23,8 @@ export function updateCallExpression(
 
 	for (let param of typeArgumentsTypes)
 	{
+		if (param.genericTypeName === undefined) continue;
+		if (param.reflectedType === undefined) continue;
 		args.push(
 			ts.factory.createPropertyAssignment(
 				param.genericTypeName,

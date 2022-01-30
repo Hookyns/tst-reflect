@@ -1,11 +1,12 @@
-import * as ts            from "typescript";
-import { Context }        from "./Context";
+import * as ts                 from "typescript";
+import { ExtendedTsLibWriter } from "../meta-writer/extended-ts-lib-writer/ExtendedTsLibWriter";
+import { Context }             from "./Context";
 import type {
 	CtorsLibrary,
 	MetadataLibrary
-}                         from "../declarations";
-import { mainVisitor }    from "../visitors/mainVisitor";
-import TransformerContext from "./TransformerContext";
+}                              from "../declarations";
+import { mainVisitor }         from "../visitors/mainVisitor";
+import TransformerContext      from "./TransformerContext";
 
 export default class SourceFileContext
 {
@@ -96,5 +97,10 @@ export default class SourceFileContext
 		}
 
 		return false;
+	}
+
+	get metaWriter(): ExtendedTsLibWriter | undefined
+	{
+		return this.transformerContext.metaWriter;
 	}
 }

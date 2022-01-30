@@ -1,4 +1,6 @@
+import { getType }       from "tst-reflect";
 import { AbstractClass } from "./AbstractClass";
+import { SomeService }   from "./Service/SomeService";
 
 export class SomeServiceClass
 {
@@ -13,6 +15,13 @@ export class AnotherServiceClassWithAbstract extends AbstractClass
 	someMethod()
 	{
 		return "Hi :)";
+	}
+
+	getAType()
+	{
+		// const ttt = getType<SomeService>();
+		// const firstKey = Object.keys(process["tst-reflect-store"].store)[0];
+		// return process["tst-reflect-store"].__typeGetter(Number(firstKey));
 	}
 
 	methodAbstract()

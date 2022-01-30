@@ -1,11 +1,11 @@
-import * as ts                                from "typescript";
-import { VisitResult }                        from "typescript";
-import { ConstructorImportDescriptionSource } from "../declarations";
+import * as ts                 from "typescript";
+import { VisitResult }         from "typescript";
 import type {
 	MetadataEntry,
 	TransformerVisitor
-}                                             from "../declarations";
-import SourceFileContext                      from "./SourceFileContext";
+}                              from "../declarations";
+import { ExtendedTsLibWriter } from "../meta-writer/extended-ts-lib-writer/ExtendedTsLibWriter";
+import SourceFileContext       from "./SourceFileContext";
 
 /**
  * Context of visitors
@@ -98,5 +98,10 @@ export class Context
 	get currentSourceFile(): ts.SourceFile
 	{
 		return this._sourceFileContext.currentSourceFile;
+	}
+
+	get metaWriter(): ExtendedTsLibWriter | undefined
+	{
+		return this._sourceFileContext.metaWriter;
 	}
 }

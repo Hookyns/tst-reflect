@@ -9,6 +9,7 @@ import {
 }                         from "./log";
 import { nodeGenerator }  from "./NodeGenerator";
 
+
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
 {
 	TransformerContext.instance.init(program);
@@ -47,9 +48,9 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 
 		if (visitedNode && sourceFileContext.typesMetadata.length)
 		{
-			if (config.useMetadata)
+			if (config.useMetadata || transformerContext.metaWriter)
 			{
-				if (!transformerContext.metadataGenerator)
+				if (!transformerContext.metadataGenerator && !transformerContext.metaWriter)
 				{
 					throw new Error("MetadataGenerator does not exists.");
 				}
@@ -74,7 +75,15 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 					typeCtor.add(ctor);
 				}
 
-				transformerContext.metadataGenerator.addProperties(propertiesStatements, typeCtor, context);
+				if (transformerContext.metadataGenerator)
+				{
+					transformerContext.metadataGenerator.addProperties(propertiesStatements, typeCtor, context);
+				}
+				if (transformerContext.metaWriter)
+				{
+					transformerContext.metaWriter.addProperties(propertiesStatements, typeCtor, context);
+				}
+
 			}
 
 			visitedNode = updateSourceFile(sourceFileContext, visitedNode);
@@ -85,6 +94,10 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 			log.trace(`${PACKAGE_ID}: Visitation of file ${node.fileName} has been finished.`);
 		}
 
+		if (transformerContext.metaWriter)
+		{
+			visitedNode = transformerContext.metaWriter.addLibImportToSourceFile(visitedNode);
+		}
 		return visitedNode;
 	};
 }
@@ -93,7 +106,7 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 {
 	const statements: Array<ts.Statement> = [];
 
-	if (sourceFileContext.shouldGenerateGetTypeImport)
+	if (sourceFileContext.shouldGenerateGetTypeImport && !sourceFileContext.metaWriter)
 	{
 		const { statement } = nodeGenerator.createGetTypeImport(sourceFileContext.getGetTypeIdentifier());
 		statements.push(statement);
@@ -115,6 +128,18 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 			}
 			typeIdUniqueObj[typeId] = true;
 
+			if (sourceFileContext.metaWriter)
+			{
+				// statements.push(ts.factory.createExpressionStatement(
+				// 	ts.factory.createCallExpression(
+				// 		sourceFileContext.metaWriter.newGetTypeIdentifier.sourceFile,
+				// 		[],
+				// 		[ts.factory.createNumericLiteral(typeId)]
+				// 	)
+				// ));
+				continue;
+			}
+
 			statements.push(ts.factory.createExpressionStatement(
 				ts.factory.createCallExpression(getTypeIdentifier, [], [properties, ts.factory.createNumericLiteral(typeId)])
 			));
@@ -128,10 +153,10 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 		log.warn("Reflection: getType<T>() used, but no import found.");
 	}
 
-	return ts.factory.updateSourceFile(
-		visitedNode,
-		importsCount == -1
-			? [...statements, ...visitedNode.statements]
-			: visitedNode.statements.slice(0, importsCount).concat(statements).concat(visitedNode.statements.slice(importsCount))
-	);
+	const finalizedStatements = importsCount == -1
+		? [...statements, ...visitedNode.statements]
+		: visitedNode.statements.slice(0, importsCount).concat(statements).concat(visitedNode.statements.slice(importsCount));
+
+
+	return ts.factory.updateSourceFile(visitedNode, finalizedStatements);
 }

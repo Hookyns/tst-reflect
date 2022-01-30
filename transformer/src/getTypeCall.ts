@@ -1,12 +1,12 @@
-import * as ts                    from "typescript";
-import { GET_TYPE_LAZY_FNC_NAME } from "tst-reflect";
+import * as ts                       from "typescript";
+import { GET_TYPE_LAZY_FNC_NAME }    from "tst-reflect";
 import {
 	GetTypeCall,
 	TypePropertiesSource
-} from "./declarations";
-import { createValueExpression }  from "./createValueExpression";
-import { getTypeDescription }     from "./getTypeDescription";
-import { Context }                from "./contexts/Context";
+}                                    from "./declarations";
+import { createValueExpression }     from "./createValueExpression";
+import { getTypeDescription }        from "./getTypeDescription";
+import { Context }                   from "./contexts/Context";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 
@@ -40,15 +40,21 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 		typePropertiesObjectLiteral = createdTypes.get(id);
 	}
 
+	let props: any;
 	const getTypeIdentifier = context.getGetTypeIdentifier();
 
 	if (!typePropertiesObjectLiteral)
 	{
 		if (id)
 		{
+			// getType.lazy()
 			if (creatingTypes.includes(id))
 			{
-				// getType.lazy()
+				if (context.metaWriter)
+				{
+					return context.metaWriter.nodeGenerator.getTypeFromStoreLazily(id);
+				}
+
 				return ts.factory.createCallExpression(
 					ts.factory.createPropertyAccessExpression(getTypeIdentifier, GET_TYPE_LAZY_FNC_NAME),
 					[],
@@ -59,7 +65,7 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 			creatingTypes.push(id);
 		}
 
-		const props = getTypeDescription(type, symbol, context, typeCtor);
+		props = getTypeDescription(type, symbol, context, typeCtor);
 		typePropertiesObjectLiteral = createValueExpression(props) as ts.ObjectLiteralExpression;
 
 		if (id)
@@ -73,11 +79,24 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 		context.addTypeMetadata([id, typePropertiesObjectLiteral]);
 		createdTypes.set(id, typePropertiesObjectLiteral);
 
-		// Just call getType() with typeId; Type is gonna be take from storage
+		/**
+		 * Just call `getType()` with typeId; Type is going to be loaded from storage
+		 */
+		if (context.metaWriter)
+		{
+			return context.metaWriter.nodeGenerator.getTypeFromStore(id);
+		}
+
 		return ts.factory.createCallExpression(getTypeIdentifier, [], [ts.factory.createNumericLiteral(id)]);
 	}
 
-	// Type is not registered (no Id or no sourceFileContext) so direct type construction returned
+	/**
+	 * Type is not registered (no id or no sourceFileContext) so direct type construction returned
+	 */
+	if (context.metaWriter)
+	{
+		return context.metaWriter.nodeGenerator.createDescriptionWithoutAddingToStore(props);
+	}
 	return ts.factory.createCallExpression(getTypeIdentifier, [], [typePropertiesObjectLiteral]);
 }
 
@@ -89,5 +108,10 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 export function getTypeCallFromProperties(properties: TypePropertiesSource, context: Context): GetTypeCall
 {
 	const getTypeIdentifier = context.getGetTypeIdentifier();
+	if (context.metaWriter)
+	{
+		return context.metaWriter.nodeGenerator.createDescriptionWithoutAddingToStore(properties);
+	}
 	return ts.factory.createCallExpression(getTypeIdentifier, [], [createValueExpression(properties)]);
 }
+

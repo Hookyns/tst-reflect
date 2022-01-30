@@ -1,5 +1,53 @@
 /* eslint-disable */
 
+export interface MetaStoreImpl
+{
+	get store(): { [key: number]: Type };
+
+	/**
+	 * Get a type from the store by its number id
+	 *
+	 * @param {number} id
+	 * @returns {Type | undefined}
+	 */
+	get(id: number): Type | undefined;
+
+	//	__getDescription: (typeId: number) => any;
+
+	/**
+	 * Get a type, but it's wrapped in a function to prevent any circular dependencies.
+	 *
+	 * @param {number} id
+	 * @returns {() => (Type | undefined)}
+	 */
+	getLazy(id: number): () => Type | undefined;
+
+	//	__lazyTypeGetter: (typeId: number) => () => Type | undefined;
+
+	/**
+	 * This is used when we return a basic type object from the transformer, but it's
+	 * not a type that can be assigned an id. So we just wrap it in a Type class.
+	 *
+	 * @param {any} description
+	 * @returns {Type}
+	 */
+	wrap(description: any): Type;
+
+	//__createType: (description?: any | number | string) => Type;
+
+	/**
+	 * Set a type on the store
+	 *
+	 * @param {number} id
+	 * @param {any} description
+	 * @returns {Type}
+	 */
+	set(id: number, description: any): Type;
+
+	//	__setDescription: (typeId: number, data: any) => void;
+
+}
+
 /**
  * Kind of type
  */
@@ -808,6 +856,9 @@ export class Type
 	/** @internal */
 	private _genericTypeDefault?: Type;
 
+	/** @internal */
+	private static _store: MetaStoreImpl;
+
 
 	/**
 	 * Returns information about generic conditional type.
@@ -985,30 +1036,36 @@ export class Type
 		this._genericTypeDefault = resolveLazyType(description.def);
 	}
 
-	/**
-	 * @internal
-	 * @param typeId
-	 */
-	public static _getTypeMeta(typeId: number)
+	// /**
+	//  * @internal
+	//  * @param typeId
+	//  */
+	// public static _getTypeMeta(typeId: number)
+	// {
+	// 	const type = getFromMetaCache(typeId);
+	//
+	// 	if (!type)
+	// 	{
+	// 		throw new Error(`Unknown type identifier '${typeId}'. Metadata not found.`);
+	// 	}
+	//
+	// 	return type;
+	// }
+
+	// /**
+	//  * @internal
+	//  * @param typeId
+	//  * @param type
+	//  */
+	// public static _storeTypeMeta(typeId: number, type: Type)
+	// {
+	// 	process[REFLECT_STORE_SYMBOL].store[typeId] = type;
+	// }
+
+	/** @internal */
+	static _setStore(store: MetaStoreImpl)
 	{
-		const type = typesMetaCache[typeId];
-
-		if (!type)
-		{
-			throw new Error(`Unknown type identifier '${typeId}'. Metadata not found.`);
-		}
-
-		return type;
-	}
-
-	/**
-	 * @internal
-	 * @param typeId
-	 * @param type
-	 */
-	public static _storeTypeMeta(typeId: number, type: Type)
-	{
-		typesMetaCache[typeId] = type;
+		this._store = store;
 	}
 
 	/**
@@ -1324,7 +1381,7 @@ export class Type
 	}
 }
 
-class TypeActivator extends Type
+export class TypeActivator extends Type
 {
 }
 
@@ -1343,33 +1400,38 @@ class TypeActivator extends Type
 export function getType<T>(): Type | undefined
 // TODO: Uncomment and use this line. Waiting for TypeScript issue to be resolved. https://github.com/microsoft/TypeScript/issues/46155
 // export function getType<T = void>(..._: (T extends void ? ["You must provide a type parameter"] : [])): Type | undefined
-/** @internal */
-export function getType<T>(description?: TypeProperties | number | string, typeId?: number): Type | undefined
+export function getType<T>(): Type | undefined
 {
-	// Return type from storage
-	if (typeof description == "number")
-	{
-		return Type._getTypeMeta(description);
-	}
-
-	// Construct Type instance
-	if (description && description.constructor === Object)
-	{
-		const type = Reflect.construct(Type, [], TypeActivator);
-
-		// Store Type if it has ID
-		if (typeId)
-		{
-			Type._storeTypeMeta(typeId, type);
-		}
-
-		type.initialize(description);
-
-		return type;
-	}
-
 	return undefined;
 }
+
+/** @internal */
+// export function getType<T>(description?: TypeProperties | number | string, typeId?: number): Type | undefined
+// {
+// 	// Return type from storage
+// 	if (typeof description == "number")
+// 	{
+// 		return Type._getTypeMeta(description);
+// 	}
+//
+// 	// Construct Type instance
+// 	if (description && description.constructor === Object)
+// 	{
+// 		const type = Reflect.construct(Type, [], TypeActivator);
+//
+// 		// Store Type if it has ID
+// 		if (typeId)
+// 		{
+// 			Type._storeTypeMeta(typeId, type);
+// 		}
+//
+// 		type.initialize(description);
+//
+// 		return type;
+// 	}
+//
+// 	return undefined;
+// }
 
 /** @internal */
 getType.__tst_reflect__ = true;
@@ -1434,3 +1496,6 @@ export const GET_TYPE_FNC_NAME = "getType";
  * @type {string}
  */
 export const GET_TYPE_LAZY_FNC_NAME = "lazy";
+
+export const REFLECT_STORE_SYMBOL = Symbol('tst_reflect_store');
+

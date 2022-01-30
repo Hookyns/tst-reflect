@@ -1,3 +1,4 @@
+import { factory }        from "typescript";
 import * as ts            from "typescript";
 import { Context }        from "./contexts/Context";
 import { getError }       from "./getError";
@@ -5,7 +6,10 @@ import { getTypeCall }    from "./getTypeCall";
 import { GENERIC_PARAMS } from "./helpers";
 import { log }            from "./log";
 
-export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | ts.ParenthesizedExpression | undefined
+export function processGetTypeCallExpression(
+	node: ts.CallExpression,
+	context: Context
+): ts.PropertyAccessExpression | ts.CallExpression | ts.ParenthesizedExpression | undefined
 {
 	// TODO: Use isGetTypeCall()
 
@@ -31,10 +35,14 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 		if (ts.isTypeReferenceNode(genericTypeNode) && ts.isIdentifier(genericTypeNode.typeName))
 		{
 			return ts.factory.createParenthesizedExpression(
-				ts.factory.createBinaryExpression(ts.factory.createIdentifier(GENERIC_PARAMS), ts.SyntaxKind.AmpersandAmpersandToken, ts.factory.createPropertyAccessExpression(
+				ts.factory.createBinaryExpression(
 					ts.factory.createIdentifier(GENERIC_PARAMS),
-					ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
-				))
+					ts.SyntaxKind.AmpersandAmpersandToken,
+					ts.factory.createPropertyAccessExpression(
+						ts.factory.createIdentifier(GENERIC_PARAMS),
+						ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
+					)
+				)
 			);
 		}
 
@@ -51,11 +59,23 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 			// throw getError(node, "Symbol of generic type argument not found.");
 		}
 
-		return getTypeCall(
+		let call = getTypeCall(
 			genericType,
 			genericTypeSymbol,
 			context,
 			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 		);
+
+		if (context.metaWriter)
+		{
+			call = ts.factory.updateCallExpression(
+				call,
+				factory.createIdentifier("_tst_reflect_get"),
+				call.typeArguments,
+				call.arguments
+			);
+		}
+
+		return call;
 	}
 }

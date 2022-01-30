@@ -54,18 +54,20 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 				}
 			}
 		}
-		// It is call of some other function. 
+		// It is call of some other function.
 		else
 		{
 			let identifier: ts.Identifier | ts.PrivateIdentifier | undefined = undefined;
-			
-			if (ts.isIdentifier(node.expression)) {
+
+			if (ts.isIdentifier(node.expression))
+			{
 				identifier = node.expression;
 			}
-			else if (ts.isPropertyAccessExpression(node.expression)) {
+			else if (ts.isPropertyAccessExpression(node.expression))
+			{
 				identifier = node.expression.name;
 			}
-			
+
 			if (identifier !== undefined)
 			{
 				const type = context.typeChecker.getTypeAtLocation(identifier);

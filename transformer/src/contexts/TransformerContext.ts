@@ -1,11 +1,12 @@
-import * as ts           from "typescript";
-import * as fs           from "fs";
-import * as path         from "path";
+import * as ts                 from "typescript";
+import * as fs                 from "fs";
+import * as path               from "path";
 import {
 	ConfigObject,
 	createConfig
-}                        from "../config";
-import MetadataGenerator from "../MetadataGenerator";
+}                              from "../config";
+import { ExtendedTsLibWriter } from "../meta-writer/extended-ts-lib-writer/ExtendedTsLibWriter";
+import MetadataGenerator       from "../MetadataGenerator";
 
 const UnknownPackageName = "@@this";
 const InstanceKey: symbol = Symbol.for("tst-reflect.TransformerContext");
@@ -15,6 +16,9 @@ export default class TransformerContext
 {
 	private _config?: ConfigObject;
 	private _metadataGenerator?: MetadataGenerator;
+
+	private _metaWriter?: ExtendedTsLibWriter;
+	public program?: ts.Program;
 
 	/**
 	 * Get singleton instance of TransformerContext.
@@ -35,6 +39,11 @@ export default class TransformerContext
 	get metadataGenerator(): MetadataGenerator | undefined
 	{
 		return this._metadataGenerator;
+	}
+
+	get metaWriter(): ExtendedTsLibWriter | undefined
+	{
+		return this._metaWriter;
 	}
 
 	/**
@@ -69,12 +78,17 @@ export default class TransformerContext
 	init(program: ts.Program)
 	{
 		this.prepareConfig(program);
+		this.program = program;
 
 		// If metadata library allowed
 		if (this.config.useMetadata)
 		{
 			this._metadataGenerator = new MetadataGenerator(this.config.metadataFilePath);
 			this._metadataGenerator.recreateLibFile();
+		}
+		if (!this._metaWriter)
+		{
+			this._metaWriter = new ExtendedTsLibWriter(`src/reflection.meta.ts`, this);
 		}
 	}
 

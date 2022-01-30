@@ -219,7 +219,12 @@ export function createCtorGetter(
 		return [undefined, undefined];
 	}
 
-	const relative = getRequireRelativePath(context.currentSourceFile.fileName, constructorDescription.srcPath);
+	let relative = getRequireRelativePath(context.currentSourceFile.fileName, constructorDescription.srcPath);
+	if (context.metaWriter)
+	{
+		relative = context.metaWriter.getPathRelativeToLib(constructorDescription.srcPath);
+	}
+
 
 	if (context.config.debugMode)
 	{
