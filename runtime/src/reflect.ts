@@ -96,6 +96,9 @@ export enum AccessModifier
 	Public
 }
 
+/**
+ * @internal
+ */
 export interface ConditionalTypeDescription
 {
 	/**
@@ -132,6 +135,9 @@ export interface ConditionalType
 	falseType: Type;
 }
 
+/**
+ * @internal
+ */
 export interface IndexedAccessTypeDescription
 {
 	/**
@@ -158,6 +164,9 @@ export interface IndexedAccessType
 	indexType: Type;
 }
 
+/**
+ * @internal
+ */
 export interface ParameterDescription
 {
 	/**
@@ -176,6 +185,9 @@ export interface ParameterDescription
 	o: boolean;
 }
 
+/**
+ * @internal
+ */
 export interface PropertyDescription
 {
 	/**
@@ -255,6 +267,9 @@ export interface Property
 	readonly: boolean;
 }
 
+/**
+ * @internal
+ */
 export interface DecoratorDescription
 {
 	n: string;
@@ -298,6 +313,9 @@ export interface MethodParameter
 	optional: boolean;
 }
 
+/**
+ * @internal
+ */
 export interface MethodDescription
 {
 	/**
@@ -496,13 +514,41 @@ class MethodActivator extends Method
 {
 }
 
+/**
+ * @internal
+ */
 export interface ConstructorDescription
 {
 	params: Array<ParameterDescription>;
 }
 
 /**
+ * Constructor details
+ */
+export class Constructor extends MethodBase
+{
+	/**
+	 * Internal constructor
+	 * @internal
+	 */
+	constructor(description: ConstructorDescription)
+	{
+		super(description.params);
+
+		if (new.target != ConstructorActivator)
+		{
+			throw new Error("You cannot create instance of Constructor manually!");
+		}
+	}
+}
+
+class ConstructorActivator extends Constructor
+{
+}
+
+/**
  * This data is not set when the config mode is set to "universal"
+ * @internal
  */
 export interface ConstructorImportDescription
 {
@@ -529,26 +575,69 @@ export interface ConstructorImportDescription
 }
 
 /**
- * Constructor details
+ * Method details
  */
-export class Constructor extends MethodBase
+export class ConstructorImport
 {
+	private readonly _name: string | undefined;
+	private readonly _exportName: string | undefined;
+	private readonly _sourcePath: string | undefined;
+	private readonly _outPath: string | undefined;
+
 	/**
-	 * Internal constructor
 	 * @internal
 	 */
-	constructor(description: ConstructorDescription)
+	constructor(description: ConstructorImportDescription)
 	{
-		super(description.params);
-
-		if (new.target != ConstructorActivator)
+		if (new.target != ConstructorImportActivator)
 		{
-			throw new Error("You cannot create instance of Constructor manually!");
+			throw new Error("You cannot create instance of Method manually!");
 		}
+
+		this._name = description.n;
+		this._exportName = description.en;
+		this._sourcePath = description.srcPath;
+		this._outPath = description.outPath;
+	}
+
+	/**
+	 * This is the name of the actual declaration
+	 * In the example above, this would be "SomeClass"
+	 */
+	get name(): string | undefined
+	{
+		return this._name;
+	}
+
+	/**
+	 * The exported name of this constructor from its source file.
+	 * For example;
+	 * "export class SomeClass {}" would be "SomeClass"
+	 * "export default class SomeClass {}" would be "default"
+	 */
+	get exportName(): string | undefined
+	{
+		return this._exportName;
+	}
+
+	/**
+	 * The absolute path of the source file for this constructor
+	 */
+	get sourcePath(): string | undefined
+	{
+		return this._sourcePath;
+	}
+
+	/**
+	 * The absolute path for the javascript file of this constructor
+	 */
+	get outPath(): string | undefined
+	{
+		return this._outPath;
 	}
 }
 
-class ConstructorActivator extends Constructor
+class ConstructorImportActivator extends ConstructorImport
 {
 }
 
@@ -672,28 +761,49 @@ const typesMetaCache: { [key: number]: Type } = {};
 export class Type
 {
 	public static readonly Object: Type;
-
+	/** @internal */
 	private _ctor?: () => Function;
-	private _ctorDesc?: ConstructorImportDescription;
+	/** @internal */
+	private _ctorDesc?: ConstructorImport;
+	/** @internal */
 	private _kind!: TypeKind;
+	/** @internal */
 	private _name!: string;
+	/** @internal */
 	private _fullName!: string;
+	/** @internal */
 	private _isUnion!: boolean;
+	/** @internal */
 	private _isIntersection!: boolean;
+	/** @internal */
 	private _types?: Array<Type>;
+	/** @internal */
 	private _properties!: Array<Property>;
+	/** @internal */
 	private _methods!: Array<Method>;
+	/** @internal */
 	private _decorators!: Array<Decorator>;
+	/** @internal */
 	private _constructors!: Array<Constructor>;
+	/** @internal */
 	private _typeParameters!: Array<Type>;
+	/** @internal */
 	private _baseType?: Type;
+	/** @internal */
 	private _interface?: Type;
+	/** @internal */
 	private _literalValue?: any;
+	/** @internal */
 	private _typeArgs!: Array<Type>;
+	/** @internal */
 	private _conditionalType?: ConditionalType;
+	/** @internal */
 	private _indexedAccessType?: IndexedAccessType;
+	/** @internal */
 	private _genericTypeConstraint?: Type;
+	/** @internal */
 	private _genericTypeDefault?: Type;
+
 
 	/**
 	 * Returns information about generic conditional type.
@@ -746,17 +856,10 @@ export class Type
 	/**
 	 * Get meta for the module of the defined constructor
 	 * This data is not set when the config mode is set to "universal"
-	 *
-	 * @returns {ConstructorImportDescription}
 	 */
-	get constructorDescription(): ConstructorImportDescription
+	get constructorDescription(): ConstructorImport | undefined
 	{
-		return this._ctorDesc ?? {
-			n: undefined,
-			en: undefined,
-			srcPath: undefined,
-			outPath: undefined,
-		};
+		return this._ctorDesc || undefined;
 	}
 
 	/**
@@ -852,7 +955,7 @@ export class Type
 		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
 		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
 		this._ctor = description.ctor;
-		this._ctorDesc = description.ctorDesc;
+		this._ctorDesc = Reflect.construct(ConstructorImport, [description.ctorDesc], ConstructorImportActivator);
 		this._baseType = resolveLazyType(description.bt) ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = resolveLazyType(description.iface);
 		this._isUnion = description.union || false;
@@ -1059,6 +1162,7 @@ export class Type
 	 * Returns object with all methods and properties from current Type and all methods and properties inherited from base types and interfaces to this Type.
 	 * @return {{properties: {[p: string]: Property}, methods: {[p: string]: Method}}}
 	 * @private
+	 * @internal
 	 */
 	private flattenInheritedMembers(): {
 		properties: { [propertyName: string]: Property },
@@ -1258,7 +1362,7 @@ export function getType<T>(description?: TypeProperties | number | string, typeI
 	return undefined;
 }
 
-
+/** @internal */
 getType.__tst_reflect__ = true;
 
 /**
@@ -1271,6 +1375,9 @@ getType.lazy = function (typeId: number) {
 	};
 };
 
+/**
+ * @internal
+ */
 function resolveLazyType(type?: Type | Function)
 {
 	if (typeof type == "function" && type.name == "lazyType")
