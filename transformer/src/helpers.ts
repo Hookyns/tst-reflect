@@ -204,6 +204,69 @@ export function hasTraceJsDoc(fncType: ts.Type): boolean
 	return symbol.getJsDocTags().some(tag => tag.name === TRACE_DECORATOR);
 }
 
+export function getSourceFileImports(sourceFile: ts.SourceFile): ts.ImportDeclaration[]
+{
+	return sourceFile.statements.filter(st => ts.isImportDeclaration(st)) as ts.ImportDeclaration[];
+}
+
+export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, string[], number]
+{
+	const imports = getSourceFileImports(sourceFile);
+
+	if (!imports?.length)
+	{
+		return [false, [], -1];
+	}
+
+	let getTypeNodePosition = -1;
+	let isImported = false;
+	const namedImports: string[] = [];
+
+	for (let fileImp of imports)
+	{
+		if ((<any>fileImp?.moduleSpecifier)?.text?.toString() !== 'tst-reflect')
+		{
+			continue;
+		}
+
+		isImported = true;
+
+		const clause: any = fileImp.importClause;
+
+		if (!ts.isImportClause(clause) || clause?.namedBindings === undefined)
+		{
+			continue;
+		}
+
+		const bindings: ts.NamedImportBindings = clause?.namedBindings;
+		if (!ts.isNamedImports(bindings))
+		{
+			continue;
+		}
+
+		bindings.elements.forEach(e => {
+			if (!e?.name?.text?.toString() || namedImports.includes(e.name.text.toString()))
+			{
+				return;
+			}
+			if (e.name.text.toString() === 'getType')
+			{
+				getTypeNodePosition = fileImp.pos;
+			}
+
+			namedImports.push(e.name.text.toString());
+		});
+	}
+
+
+	return [isImported, namedImports, getTypeNodePosition];
+}
+
+export function getProjectSrcRoot(program: ts.Program): string
+{
+	return path.resolve(program.getCompilerOptions()?.rootDir || program.getCurrentDirectory());
+}
+
 /**
  * Return getter function for runtime type's Ctor.
  * @description Function generated so that, the require call isn't made until we actually call the function
@@ -220,7 +283,8 @@ export function createCtorGetter(
 	}
 
 	let relative = getRequireRelativePath(context.currentSourceFile.fileName, constructorDescription.srcPath);
-	if (context.metaWriter)
+
+	if (context.metaWriter.is('ts-lib-file'))
 	{
 		relative = context.metaWriter.getPathRelativeToLib(constructorDescription.srcPath);
 	}

@@ -1,56 +1,15 @@
-import { REFLECT_STORE_SYMBOL, Type, TypeActivator, MetaStoreImpl } from "tst-reflect";
-/** @internal */
-declare global {
-    export var process: NodeJS.Process;
-    namespace NodeJS {
-        interface Process {
-            [REFLECT_STORE_SYMBOL]: NodeProcessMetaStore;
-        }
-    }
-}
-export class NodeProcessMetaStore implements MetaStoreImpl {
-    private _store: {
-        [p: number]: Type;
-    } = {};
-    get store(): {
-        [p: number]: Type;
-    } {
-        return this._store;
-    }
-    get(id: number): Type | undefined {
-        return this._store[id] ?? undefined;
-    }
-    getLazy(id: number): () => (Type | undefined) {
-        return function () {
-            return process[REFLECT_STORE_SYMBOL].get(id) ?? undefined;
-        };
-    }
-    set(id: number, description: any): Type {
-        const type = this.wrap(description);
-        this._store[id] = type;
-        return type;
-    }
-    wrap(description: any): Type {
-        const type = Reflect.construct(Type, [], TypeActivator);
-        type.initialize(description);
-        return type;
-    }
-}
-if (!process[REFLECT_STORE_SYMBOL]) {
-    process[REFLECT_STORE_SYMBOL] = new NodeProcessMetaStore();
-}
-(Type as any)._setStore(process[REFLECT_STORE_SYMBOL]);
+import { NodeProcessMetaStore } from "tst-reflect";
 function _tst_reflect_wrap(description?: any) {
-    return process[REFLECT_STORE_SYMBOL].wrap(description);
+    return NodeProcessMetaStore.get().wrap(description);
 }
 function _tst_reflect_lazy(typeId: number) {
-    return process[REFLECT_STORE_SYMBOL].getLazy(typeId);
+    return NodeProcessMetaStore.get().getLazy(typeId);
 }
 function _tst_reflect_set(typeId: number, data: any): void {
-    process[REFLECT_STORE_SYMBOL].set(typeId, data);
+    NodeProcessMetaStore.get().set(typeId, data);
 }
 function _tst_reflect_get(typeId: number) {
-    return process[REFLECT_STORE_SYMBOL].get(typeId);
+    return NodeProcessMetaStore.get().get(typeId);
 }
 _tst_reflect_set(15, { k: 1, n: "SomeServiceClass", fn: "@@this/dev/testing/src/ctor-reflection/SomeServiceClass.ts:SomeServiceClass#15", meths: [{ n: "someMethod", params: [], rt: _tst_reflect_wrap({ n: "string", k: 2, ctor: function () {
                     return String();

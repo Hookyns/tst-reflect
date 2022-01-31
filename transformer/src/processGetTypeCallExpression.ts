@@ -1,4 +1,3 @@
-import { factory }        from "typescript";
 import * as ts            from "typescript";
 import { Context }        from "./contexts/Context";
 import { getError }       from "./getError";
@@ -59,23 +58,14 @@ export function processGetTypeCallExpression(
 			// throw getError(node, "Symbol of generic type argument not found.");
 		}
 
-		let call = getTypeCall(
-			genericType,
-			genericTypeSymbol,
-			context,
-			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
+		return context.metaWriter.factory.updateSourceFileGetTypeCall(
+			getTypeCall(
+				genericType,
+				genericTypeSymbol,
+				context,
+				ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
+			),
+			context.currentSourceFile,
 		);
-
-		if (context.metaWriter)
-		{
-			call = ts.factory.updateCallExpression(
-				call,
-				factory.createIdentifier("_tst_reflect_get"),
-				call.typeArguments,
-				call.arguments
-			);
-		}
-
-		return call;
 	}
 }

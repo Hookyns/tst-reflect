@@ -1,5 +1,5 @@
 import { Type }                 from "tst-reflect";
-import { TypePropertiesSource } from "../declarations";
+import { TypePropertiesSource } from "../../declarations";
 
 
 export interface MetaStoreImpl

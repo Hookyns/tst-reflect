@@ -1,7 +1,7 @@
 {
 	"compilerOptions": {
 		"module": "commonjs",
-		"target": "ES2020",
+		"target": "ES2015",
 		"removeComments": true,
 		"sourceMap": true,
 		"experimentalDecorators": true,
@@ -24,7 +24,11 @@
 	},
 	"reflection": {
 		"mode": "server",
-		"metadata": false,
+		"metadata": {
+			"type": "inline"
+			//			"type": "ts-lib-file"
+		},
+		//		"metadataType": "js-lib-file",
 		"debugMode": true
 	}
 }

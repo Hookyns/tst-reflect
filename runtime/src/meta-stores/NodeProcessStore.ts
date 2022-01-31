@@ -1,9 +1,5 @@
-import {
-	REFLECT_STORE_SYMBOL,
-	Type,
-	TypeActivator,
-	MetaStoreImpl
-} from "tst-reflect";
+import { REFLECT_STORE_SYMBOL, Type, TypeActivator } from "../reflect";
+import { MetaStoreImpl }                             from "./MetaStoreImpl";
 
 /** @internal */
 declare global
@@ -22,6 +18,30 @@ export class NodeProcessMetaStore implements MetaStoreImpl
 {
 
 	private _store: { [p: number]: Type } = {};
+
+	public static initiate(): MetaStoreImpl
+	{
+		if (!process)
+		{
+			throw new Error('This environment does not support the nodejs process store. Are you running this from a browser?');
+		}
+
+		if (process[REFLECT_STORE_SYMBOL])
+		{
+			return process[REFLECT_STORE_SYMBOL];
+		}
+
+		process[REFLECT_STORE_SYMBOL] = new NodeProcessMetaStore();
+
+		(Type as any)._setStore(process[REFLECT_STORE_SYMBOL]);
+
+		return process[REFLECT_STORE_SYMBOL];
+	}
+
+	public static get(): MetaStoreImpl
+	{
+		return process[REFLECT_STORE_SYMBOL] || this.initiate();
+	}
 
 	get store(): { [p: number]: Type }
 	{
@@ -57,36 +77,4 @@ export class NodeProcessMetaStore implements MetaStoreImpl
 	}
 
 }
-
-if (!process[REFLECT_STORE_SYMBOL])
-{
-	process[REFLECT_STORE_SYMBOL] = new NodeProcessMetaStore();
-}
-
-(Type as any)._setStore(process[REFLECT_STORE_SYMBOL]);
-
-function _tst_reflect_wrap(description?: any)
-{
-	return process[REFLECT_STORE_SYMBOL].wrap(description);
-}
-
-function _tst_reflect_lazy(typeId: number)
-{
-	return process[REFLECT_STORE_SYMBOL].getLazy(typeId);
-}
-
-function _tst_reflect_set(typeId: number, data: any): void
-{
-	process[REFLECT_STORE_SYMBOL].set(typeId, data);
-}
-
-function _tst_reflect_get(typeId: number)
-{
-	return process[REFLECT_STORE_SYMBOL].get(typeId);
-}
-
-export {
-	_tst_reflect_get,
-	_tst_reflect_wrap,
-};
 

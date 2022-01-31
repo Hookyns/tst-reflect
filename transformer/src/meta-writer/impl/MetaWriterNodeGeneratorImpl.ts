@@ -1,5 +1,5 @@
 import * as ts                  from 'typescript';
-import { TypePropertiesSource } from "../declarations";
+import { TypePropertiesSource } from "../../declarations";
 
 export interface MetaWriterNodeGeneratorImpl
 {
@@ -14,5 +14,7 @@ export interface MetaWriterNodeGeneratorImpl
 
 	createDescriptionWithoutAddingToStore(description: TypePropertiesSource): ts.CallExpression;
 
-	addDescriptionToStore(typeId: number, description: TypePropertiesSource): ts.CallExpression;
+	addDescriptionToStore(typeId: number, description: TypePropertiesSource | ts.ObjectLiteralExpression): ts.CallExpression;
+
+	updateSourceFileGetTypeCall(call: ts.CallExpression, sourceFile?: ts.SourceFile): ts.CallExpression;
 }

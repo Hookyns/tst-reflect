@@ -19,9 +19,10 @@ export class AnotherServiceClassWithAbstract extends AbstractClass
 
 	getAType()
 	{
-		// const ttt = getType<SomeService>();
-		// const firstKey = Object.keys(process["tst-reflect-store"].store)[0];
-		// return process["tst-reflect-store"].__typeGetter(Number(firstKey));
+		const someService = getType<SomeServiceClass>();
+
+		console.log(someService.ctor, someService.fullName);
+		debugger;
 	}
 
 	methodAbstract()

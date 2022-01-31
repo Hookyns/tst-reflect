@@ -48,13 +48,8 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 
 		if (visitedNode && sourceFileContext.typesMetadata.length)
 		{
-			if (config.useMetadata || transformerContext.metaWriter)
+			if (config.useMetadata)
 			{
-				if (!transformerContext.metadataGenerator && !transformerContext.metaWriter)
-				{
-					throw new Error("MetadataGenerator does not exists.");
-				}
-
 				const propertiesStatements: Array<[number, ts.ObjectLiteralExpression]> = [];
 				const typeIdUniqueObj: { [key: number]: boolean } = {};
 
@@ -75,15 +70,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 					typeCtor.add(ctor);
 				}
 
-				if (transformerContext.metadataGenerator)
-				{
-					transformerContext.metadataGenerator.addProperties(propertiesStatements, typeCtor, context);
-				}
-				if (transformerContext.metaWriter)
-				{
-					transformerContext.metaWriter.addProperties(propertiesStatements, typeCtor, context);
-				}
-
+				transformerContext.metaWriter.writeMetaProperties(propertiesStatements, typeCtor, context);
 			}
 
 			visitedNode = updateSourceFile(sourceFileContext, visitedNode);
@@ -94,10 +81,8 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 			log.trace(`${PACKAGE_ID}: Visitation of file ${node.fileName} has been finished.`);
 		}
 
-		if (transformerContext.metaWriter)
-		{
-			visitedNode = transformerContext.metaWriter.addLibImportToSourceFile(visitedNode);
-		}
+		visitedNode = transformerContext.metaWriter.addLibImportToSourceFile(visitedNode);
+
 		return visitedNode;
 	};
 }
@@ -112,7 +97,8 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 		statements.push(statement);
 	}
 
-	// Must be called after "sourceFileContext.shouldGenerateGetTypeImport" check otherwise the information will be lost cuz shouldGenerateGetTypeImport will be set to true
+	// Must be called after "sourceFileContext.shouldGenerateGetTypeImport" check otherwise
+	// the information will be lost cause shouldGenerateGetTypeImport will be set to true
 	const getTypeIdentifier = sourceFileContext.getGetTypeIdentifier();
 
 	const typeIdUniqueObj: { [key: number]: boolean } = {};
@@ -128,21 +114,12 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 			}
 			typeIdUniqueObj[typeId] = true;
 
-			if (sourceFileContext.metaWriter)
-			{
-				// statements.push(ts.factory.createExpressionStatement(
-				// 	ts.factory.createCallExpression(
-				// 		sourceFileContext.metaWriter.newGetTypeIdentifier.sourceFile,
-				// 		[],
-				// 		[ts.factory.createNumericLiteral(typeId)]
-				// 	)
-				// ));
-				continue;
-			}
-
 			statements.push(ts.factory.createExpressionStatement(
-				ts.factory.createCallExpression(getTypeIdentifier, [], [properties, ts.factory.createNumericLiteral(typeId)])
+				sourceFileContext.metaWriter.factory.addDescriptionToStore(typeId, properties)
 			));
+			// statements.push(ts.factory.createExpressionStatement(
+			// 	ts.factory.createCallExpression(getTypeIdentifier, [], [properties, ts.factory.createNumericLiteral(typeId)])
+			// ));
 		}
 	}
 
@@ -156,7 +133,6 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 	const finalizedStatements = importsCount == -1
 		? [...statements, ...visitedNode.statements]
 		: visitedNode.statements.slice(0, importsCount).concat(statements).concat(visitedNode.statements.slice(importsCount));
-
 
 	return ts.factory.updateSourceFile(visitedNode, finalizedStatements);
 }

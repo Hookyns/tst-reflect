@@ -1,9 +1,14 @@
-import { getType }                         from "tst-reflect";
-import NestedClass                         from "./Nested/NestedClass";
-import { SomeServiceClass }                from "./SomeServiceClass";
+import * as TstReflect      from 'tst-reflect';
+import { getType }          from "tst-reflect";
+import NestedClass                                           from "./Nested/NestedClass";
+import { AnotherServiceClassWithAbstract, SomeServiceClass } from "./SomeServiceClass";
 
 const someServiceClassReflected = getType<SomeServiceClass>();
 const someServiceClassResolved = Reflect.construct(someServiceClassReflected.ctor, []);
+
+const anotherServiceClassReflected = getType<AnotherServiceClassWithAbstract>();
+const anotherServiceClassResolved = Reflect.construct(anotherServiceClassReflected.ctor, []) as AnotherServiceClassWithAbstract;
+anotherServiceClassResolved.getAType();
 
 console.log(someServiceClassResolved instanceof SomeServiceClass);
 console.log(someServiceClassResolved.someMethod());

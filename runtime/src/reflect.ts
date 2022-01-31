@@ -1,53 +1,8 @@
 /* eslint-disable */
 
-export interface MetaStoreImpl
-{
-	get store(): { [key: number]: Type };
 
-	/**
-	 * Get a type from the store by its number id
-	 *
-	 * @param {number} id
-	 * @returns {Type | undefined}
-	 */
-	get(id: number): Type | undefined;
-
-	//	__getDescription: (typeId: number) => any;
-
-	/**
-	 * Get a type, but it's wrapped in a function to prevent any circular dependencies.
-	 *
-	 * @param {number} id
-	 * @returns {() => (Type | undefined)}
-	 */
-	getLazy(id: number): () => Type | undefined;
-
-	//	__lazyTypeGetter: (typeId: number) => () => Type | undefined;
-
-	/**
-	 * This is used when we return a basic type object from the transformer, but it's
-	 * not a type that can be assigned an id. So we just wrap it in a Type class.
-	 *
-	 * @param {any} description
-	 * @returns {Type}
-	 */
-	wrap(description: any): Type;
-
-	//__createType: (description?: any | number | string) => Type;
-
-	/**
-	 * Set a type on the store
-	 *
-	 * @param {number} id
-	 * @param {any} description
-	 * @returns {Type}
-	 */
-	set(id: number, description: any): Type;
-
-	//	__setDescription: (typeId: number, data: any) => void;
-
-}
-
+import { MetaStoreImpl } from "./meta-stores/MetaStoreImpl";
+import { InlineStore }   from "./meta-stores/InlineStore";
 /**
  * Kind of type
  */
@@ -805,8 +760,6 @@ export interface TypeProperties
 	iat?: IndexedAccessTypeDescription;
 }
 
-const typesMetaCache: { [key: number]: Type } = {};
-
 /**
  * Object representing TypeScript type in memory
  */
@@ -857,8 +810,60 @@ export class Type
 	private _genericTypeDefault?: Type;
 
 	/** @internal */
-	private static _store: MetaStoreImpl;
+	private static _store: MetaStoreImpl = InlineStore.initiate();
 
+	/**
+	 * Internal Type constructor
+	 * @internal
+	 */
+	constructor()
+	{
+		if (new.target != TypeActivator)
+		{
+			throw new Error("You cannot create instance of Type manually!");
+		}
+	}
+
+	/**
+	 * @internal
+	 * @param {TypeProperties} description
+	 */
+	initialize(description: TypeProperties)
+	{
+		this._name = description.n || "";
+		this._fullName = description.fn || description.n || "";
+		this._kind = description.k;
+		this._constructors = description.ctors?.map(Mapper.mapConstructors) || [];
+		this._properties = description.props?.map(Mapper.mapProperties) || [];
+		this._methods = description.meths?.map(m => Reflect.construct(Method, [m], MethodActivator)) || [];
+		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
+		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
+		this._ctor = description.ctor;
+		this._ctorDesc = Reflect.construct(ConstructorImport, [description.ctorDesc], ConstructorImportActivator);
+		this._baseType = resolveLazyType(description.bt) ?? (description.ctor == Object ? undefined : Type.Object);
+		this._interface = resolveLazyType(description.iface);
+		this._isUnion = description.union || false;
+		this._isIntersection = description.inter || false;
+		this._types = description.types?.map(t => resolveLazyType(t));
+		this._literalValue = description.v;
+		this._typeArgs = description.args?.map(t => resolveLazyType(t)) || [];
+		this._conditionalType = description.ct ? {
+			extends: description.ct.e,
+			trueType: resolveLazyType(description.ct.tt),
+			falseType: resolveLazyType(description.ct.ft)
+		} : undefined;
+		this._conditionalType = description.ct ? {
+			extends: description.ct.e,
+			trueType: resolveLazyType(description.ct.tt),
+			falseType: resolveLazyType(description.ct.ft)
+		} : undefined;
+		this._indexedAccessType = description.iat ? {
+			objectType: description.iat.ot,
+			indexType: resolveLazyType(description.iat.it)
+		} : undefined;
+		this._genericTypeConstraint = resolveLazyType(description.con);
+		this._genericTypeDefault = resolveLazyType(description.def);
+	}
 
 	/**
 	 * Returns information about generic conditional type.
@@ -984,83 +989,30 @@ export class Type
 	}
 
 	/**
-	 * Internal Type constructor
-	 * @internal
+	 * Search the type store for a specific type
+	 *
+	 * Runs the provided filter callback on each type. If your filter returns true, it returns this type.
+	 *
+	 * @param {(type: Type) => boolean} filter
+	 * @returns {Type | undefined}
 	 */
-	constructor()
+	static find(filter: (type: Type) => boolean): Type | undefined
 	{
-		if (new.target != TypeActivator)
+		for (let storeKey in this._store.store)
 		{
-			throw new Error("You cannot create instance of Type manually!");
+			if (filter(this._store.store[storeKey]))
+			{
+				return this._store.store[storeKey];
+			}
 		}
+
+		return undefined;
 	}
 
-	/**
-	 * @internal
-	 * @param {TypeProperties} description
-	 */
-	initialize(description: TypeProperties)
+	static get store(): MetaStoreImpl
 	{
-		this._name = description.n || "";
-		this._fullName = description.fn || description.n || "";
-		this._kind = description.k;
-		this._constructors = description.ctors?.map(Mapper.mapConstructors) || [];
-		this._properties = description.props?.map(Mapper.mapProperties) || [];
-		this._methods = description.meths?.map(m => Reflect.construct(Method, [m], MethodActivator)) || [];
-		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
-		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
-		this._ctor = description.ctor;
-		this._ctorDesc = Reflect.construct(ConstructorImport, [description.ctorDesc], ConstructorImportActivator);
-		this._baseType = resolveLazyType(description.bt) ?? (description.ctor == Object ? undefined : Type.Object);
-		this._interface = resolveLazyType(description.iface);
-		this._isUnion = description.union || false;
-		this._isIntersection = description.inter || false;
-		this._types = description.types?.map(t => resolveLazyType(t));
-		this._literalValue = description.v;
-		this._typeArgs = description.args?.map(t => resolveLazyType(t)) || [];
-		this._conditionalType = description.ct ? {
-			extends: description.ct.e,
-			trueType: resolveLazyType(description.ct.tt),
-			falseType: resolveLazyType(description.ct.ft)
-		} : undefined;
-		this._conditionalType = description.ct ? {
-			extends: description.ct.e,
-			trueType: resolveLazyType(description.ct.tt),
-			falseType: resolveLazyType(description.ct.ft)
-		} : undefined;
-		this._indexedAccessType = description.iat ? {
-			objectType: description.iat.ot,
-			indexType: resolveLazyType(description.iat.it)
-		} : undefined;
-		this._genericTypeConstraint = resolveLazyType(description.con);
-		this._genericTypeDefault = resolveLazyType(description.def);
+		return this._store;
 	}
-
-	// /**
-	//  * @internal
-	//  * @param typeId
-	//  */
-	// public static _getTypeMeta(typeId: number)
-	// {
-	// 	const type = getFromMetaCache(typeId);
-	//
-	// 	if (!type)
-	// 	{
-	// 		throw new Error(`Unknown type identifier '${typeId}'. Metadata not found.`);
-	// 	}
-	//
-	// 	return type;
-	// }
-
-	// /**
-	//  * @internal
-	//  * @param typeId
-	//  * @param type
-	//  */
-	// public static _storeTypeMeta(typeId: number, type: Type)
-	// {
-	// 	process[REFLECT_STORE_SYMBOL].store[typeId] = type;
-	// }
 
 	/** @internal */
 	static _setStore(store: MetaStoreImpl)
@@ -1404,34 +1356,6 @@ export function getType<T>(): Type | undefined
 {
 	return undefined;
 }
-
-/** @internal */
-// export function getType<T>(description?: TypeProperties | number | string, typeId?: number): Type | undefined
-// {
-// 	// Return type from storage
-// 	if (typeof description == "number")
-// 	{
-// 		return Type._getTypeMeta(description);
-// 	}
-//
-// 	// Construct Type instance
-// 	if (description && description.constructor === Object)
-// 	{
-// 		const type = Reflect.construct(Type, [], TypeActivator);
-//
-// 		// Store Type if it has ID
-// 		if (typeId)
-// 		{
-// 			Type._storeTypeMeta(typeId, type);
-// 		}
-//
-// 		type.initialize(description);
-//
-// 		return type;
-// 	}
-//
-// 	return undefined;
-// }
 
 /** @internal */
 getType.__tst_reflect__ = true;

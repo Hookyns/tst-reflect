@@ -1,12 +1,9 @@
-import * as ts                 from "typescript";
-import { ExtendedTsLibWriter } from "../meta-writer/extended-ts-lib-writer/ExtendedTsLibWriter";
-import { Context }             from "./Context";
-import type {
-	CtorsLibrary,
-	MetadataLibrary
-}                              from "../declarations";
-import { mainVisitor }         from "../visitors/mainVisitor";
-import TransformerContext      from "./TransformerContext";
+import * as ts                                from "typescript";
+import { MetaWriter }                         from "../meta-writer/base/MetaWriter";
+import { Context }                            from "./Context";
+import type { CtorsLibrary, MetadataLibrary } from "../declarations";
+import { mainVisitor }                        from "../visitors/mainVisitor";
+import TransformerContext                     from "./TransformerContext";
 
 export default class SourceFileContext
 {
@@ -53,8 +50,15 @@ export default class SourceFileContext
 	 * @param transformationContext
 	 * @param program
 	 * @param checker
+	 * @param sourceFile
 	 */
-	constructor(transformerContext: TransformerContext, transformationContext: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker, sourceFile: ts.SourceFile)
+	constructor(
+		transformerContext: TransformerContext,
+		transformationContext: ts.TransformationContext,
+		program: ts.Program,
+		checker: ts.TypeChecker,
+		sourceFile: ts.SourceFile
+	)
 	{
 		this.transformerContext = transformerContext;
 		this.transformationContext = transformationContext;
@@ -65,7 +69,8 @@ export default class SourceFileContext
 		this._context = new Context(this, mainVisitor);
 	}
 
-	get currentSourceFile(): ts.SourceFile {
+	get currentSourceFile(): ts.SourceFile
+	{
 		return this._currentSourceFile;
 	}
 
@@ -99,7 +104,12 @@ export default class SourceFileContext
 		return false;
 	}
 
-	get metaWriter(): ExtendedTsLibWriter | undefined
+	/**
+	 * Get the metadata library writer handler
+	 *
+	 * @returns {MetaWriter}
+	 */
+	get metaWriter(): MetaWriter
 	{
 		return this.transformerContext.metaWriter;
 	}

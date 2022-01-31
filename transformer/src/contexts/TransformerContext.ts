@@ -1,12 +1,9 @@
-import * as ts                 from "typescript";
-import * as fs                 from "fs";
-import * as path               from "path";
-import {
-	ConfigObject,
-	createConfig
-}                              from "../config";
-import { ExtendedTsLibWriter } from "../meta-writer/extended-ts-lib-writer/ExtendedTsLibWriter";
-import MetadataGenerator       from "../MetadataGenerator";
+import * as ts                        from "typescript";
+import * as fs                        from "fs";
+import * as path                      from "path";
+import { ConfigObject, createConfig } from "../config";
+import { MetaWriter }                 from "../meta-writer/base/MetaWriter";
+import { createMetaWriter }           from "../meta-writer/MetaWriterFactory";
 
 const UnknownPackageName = "@@this";
 const InstanceKey: symbol = Symbol.for("tst-reflect.TransformerContext");
@@ -15,9 +12,8 @@ let instance: TransformerContext = (global as any)[InstanceKey] || null;
 export default class TransformerContext
 {
 	private _config?: ConfigObject;
-	private _metadataGenerator?: MetadataGenerator;
+	private _metaWriter?: MetaWriter;
 
-	private _metaWriter?: ExtendedTsLibWriter;
 	public program?: ts.Program;
 
 	/**
@@ -34,15 +30,17 @@ export default class TransformerContext
 	}
 
 	/**
-	 * Metadata library generator.
+	 * Get the metadata library writer handler
+	 *
+	 * @returns {MetaWriter}
 	 */
-	get metadataGenerator(): MetadataGenerator | undefined
+	get metaWriter(): MetaWriter
 	{
-		return this._metadataGenerator;
-	}
+		if (!this._metaWriter)
+		{
+			throw new Error("TransformerContext has not been initiated yet.");
+		}
 
-	get metaWriter(): ExtendedTsLibWriter | undefined
-	{
 		return this._metaWriter;
 	}
 
@@ -81,14 +79,9 @@ export default class TransformerContext
 		this.program = program;
 
 		// If metadata library allowed
-		if (this.config.useMetadata)
-		{
-			this._metadataGenerator = new MetadataGenerator(this.config.metadataFilePath);
-			this._metadataGenerator.recreateLibFile();
-		}
 		if (!this._metaWriter)
 		{
-			this._metaWriter = new ExtendedTsLibWriter(`src/reflection.meta.ts`, this);
+			this._metaWriter = createMetaWriter(this);
 		}
 	}
 
