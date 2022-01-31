@@ -74,24 +74,6 @@ export class Context
 		return contextAction(context);
 	}
 
-	/**
-	 * Get identifier of getType() function for current file.
-	 */
-	getGetTypeIdentifier(): ts.Identifier
-	{
-		return this._sourceFileContext.getGetTypeIdentifier();
-	}
-
-	/**
-	 * Try set identifier of getType() function for current
-	 * @param identifier
-	 * @return boolean Returns true if set, false otherwise.
-	 */
-	trySetGetTypeIdentifier(identifier: ts.Identifier): boolean
-	{
-		return this._sourceFileContext.trySetGetTypeIdentifier(identifier);
-	}
-
 	get currentSourceFile(): ts.SourceFile
 	{
 		return this._sourceFileContext.currentSourceFile;

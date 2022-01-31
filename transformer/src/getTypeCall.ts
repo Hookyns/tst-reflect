@@ -41,7 +41,6 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 	}
 
 	let props: any;
-	const getTypeIdentifier = context.getGetTypeIdentifier();
 
 	if (!typePropertiesObjectLiteral)
 	{
@@ -110,11 +109,6 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
  */
 export function getTypeCallFromProperties(properties: TypePropertiesSource, context: Context): GetTypeCall
 {
-	const getTypeIdentifier = context.getGetTypeIdentifier();
-	if (context.metaWriter)
-	{
-		return context.metaWriter.factory.createDescriptionWithoutAddingToStore(properties);
-	}
-	return ts.factory.createCallExpression(getTypeIdentifier, [], [createValueExpression(properties)]);
+	return context.metaWriter.factory.createDescriptionWithoutAddingToStore(properties);
 }
 

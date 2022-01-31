@@ -12,12 +12,6 @@ export function processGetTypeCallExpression(
 {
 	// TODO: Use isGetTypeCall()
 
-	// Add identifier into context; will be used for all calls
-	if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
-	{
-		log.info("Identifier of existing getType() call stored inside context.");
-	}
-
 	let genericTypeNode = node.typeArguments?.[0];
 
 	if (!genericTypeNode)

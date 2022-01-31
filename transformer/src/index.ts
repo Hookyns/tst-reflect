@@ -91,16 +91,6 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 {
 	const statements: Array<ts.Statement> = [];
 
-	if (sourceFileContext.shouldGenerateGetTypeImport && !sourceFileContext.metaWriter)
-	{
-		const { statement } = nodeGenerator.createGetTypeImport(sourceFileContext.getGetTypeIdentifier());
-		statements.push(statement);
-	}
-
-	// Must be called after "sourceFileContext.shouldGenerateGetTypeImport" check otherwise
-	// the information will be lost cause shouldGenerateGetTypeImport will be set to true
-	const getTypeIdentifier = sourceFileContext.getGetTypeIdentifier();
-
 	const typeIdUniqueObj: { [key: number]: boolean } = {};
 
 	// Add metadata into statements if metadata lib file is disabled
