@@ -59,7 +59,6 @@ export function processGetTypeCallExpression(
 				context,
 				ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 			),
-			context.currentSourceFile,
 		);
 	}
 }

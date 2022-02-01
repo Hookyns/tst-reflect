@@ -5,8 +5,7 @@ import {
 import * as ts                          from "typescript";
 import { Context }                      from "../contexts/Context";
 import {
-	hasReflectDecoratorJsDoc,
-	hasReflectGenericJsDoc
+	hasReflectDecoratorJsDoc
 }                                       from "../helpers";
 import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";

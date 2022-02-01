@@ -7,7 +7,6 @@ import {
 	log,
 	LogLevel
 }                         from "./log";
-import { nodeGenerator }  from "./NodeGenerator";
 
 
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>

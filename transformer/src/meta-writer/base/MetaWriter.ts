@@ -1,13 +1,20 @@
-import * as fs                                                 from "fs";
-import * as path                                               from "path";
-import * as ts                                                 from "typescript";
-import TransformerContext                                      from "../../contexts/TransformerContext";
-import { getRequireRelativePath }                              from "../../helpers";
-import { color, log, LogLevel }                                from "../../log";
-import { nodeGenerator }                                       from "../../NodeGenerator";
-import { TsLibFileNodeGenerator }                              from "../ts-lib-file/TsLibFileNodeGenerator";
-import { TsLibFileMetaTransformer }                            from "../ts-lib-file/TsLibFileMetaTransformer";
-import { MetaLibTransformerImpl, MetaWriterNodeGeneratorImpl } from "../impl";
+import * as fs                      from "fs";
+import * as path                    from "path";
+import * as ts                      from "typescript";
+import TransformerContext           from "../../contexts/TransformerContext";
+import { getRequireRelativePath }   from "../../helpers";
+import {
+	color,
+	log,
+	LogLevel
+}                                   from "../../log";
+import { nodeGenerator }            from "../../NodeGenerator";
+import { TsLibFileNodeGenerator }   from "../ts-lib-file/TsLibFileNodeGenerator";
+import { TsLibFileMetaTransformer } from "../ts-lib-file/TsLibFileMetaTransformer";
+import {
+	MetaLibTransformerImpl,
+	MetaWriterNodeGeneratorImpl
+}                                   from "../impl";
 
 export type MetaWriterType = 'inline' | 'ts-lib-file';
 
@@ -178,7 +185,7 @@ export abstract class MetaWriter
 			throw new Error('[Extended Meta Lib] : Program is not attached to context?');
 		}
 
-		let sourcePath = path.resolve(path.dirname(__filename), '..', 'stubs', 'base-ts-lib-extended-stub.ts');
+		let sourcePath = path.resolve(path.dirname(__filename), '..', 'stubs', stubFileName);
 		if (sourcePath.includes('/dist/'))
 		{
 			sourcePath = sourcePath.replace('/dist/', '/src/');

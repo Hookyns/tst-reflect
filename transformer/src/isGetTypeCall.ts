@@ -5,7 +5,6 @@ import {
 }                   from "tst-reflect";
 import { Context }  from "./contexts/Context";
 import { getError } from "./getError";
-import { log }      from "./log";
 
 /**
  * Function detecting right getType() call

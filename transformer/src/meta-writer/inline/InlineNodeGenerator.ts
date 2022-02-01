@@ -1,7 +1,5 @@
-import { GET_TYPE_LAZY_FNC_NAME }      from "tst-reflect";
 import { createValueExpression }       from "../../createValueExpression";
 import { TypePropertiesSource }        from "../../declarations";
-import { hasRuntimePackageImport }     from "../../helpers";
 import { MetaWriterNodeGeneratorImpl } from "../impl";
 import * as ts                         from 'typescript';
 import { factory }                     from 'typescript';
@@ -146,7 +144,7 @@ export class InlineNodeGenerator implements MetaWriterNodeGeneratorImpl
 	 * @param {ts.CallExpression} call
 	 * @returns {ts.CallExpression}
 	 */
-	updateSourceFileGetTypeCall(call: ts.CallExpression, sourceFile?: ts.SourceFile): ts.CallExpression
+	updateSourceFileGetTypeCall(call: ts.CallExpression): ts.CallExpression
 	{
 		return ts.factory.updateCallExpression(
 			call,

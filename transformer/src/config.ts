@@ -97,7 +97,7 @@ function setConfig(c: ConfigObject)
 	config = c;
 }
 
-function readConfig(configPath: string, projectPath: string, rootDir: string): {
+function readConfig(configPath: string, projectPath: string, rootDir: string, projectRootDir : string): {
 	metadataFilePath: string,
 	useMetadata: boolean,
 	useMetadataType: MetaWriterType,
@@ -130,7 +130,7 @@ function readConfig(configPath: string, projectPath: string, rootDir: string): {
 			throw new Error(`tsconfig.json error: "reflection.metadata.filePath" must use the .ts extension. A .js version will be built to your projects out dir.`);
 		}
 
-		metadata.filePath = metadata.filePath ? resolve(projectPath, metadata.filePath) : join(projectPath, "reflection.meta.ts");
+		metadata.filePath = metadata.filePath ? resolve(projectRootDir, metadata.filePath) : join(projectRootDir, "reflection.meta.ts");
 	}
 
 	return {
@@ -151,7 +151,7 @@ export function createConfig(options: ts.CompilerOptions, root: string, packageN
 {
 	const rawConfigObject = options as any;
 	const configPath = rawConfigObject.configFilePath;
-	const config = readConfig(configPath, dirname(configPath), root);
+	const config = readConfig(configPath, dirname(configPath), root, rawConfigObject.rootDir);
 
 	return {
 		mode: config.mode,

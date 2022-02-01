@@ -1,4 +1,4 @@
-import { REFLECT_STORE_SYMBOL, Type, TypeActivator } from "../reflect";
+import { Type, TypeActivator } from "../reflect";
 import { MetaStoreImpl }                             from "./MetaStoreImpl";
 
 let store: InlineStore | null = null;

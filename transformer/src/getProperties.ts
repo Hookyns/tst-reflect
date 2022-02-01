@@ -1,4 +1,3 @@
-import { SyntaxKind }                from "typescript";
 import * as ts                       from "typescript";
 import { Context }                   from "./contexts/Context";
 import { PropertyDescriptionSource } from "./declarations";

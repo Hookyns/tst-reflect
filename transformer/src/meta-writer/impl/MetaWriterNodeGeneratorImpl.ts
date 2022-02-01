@@ -16,5 +16,5 @@ export interface MetaWriterNodeGeneratorImpl
 
 	addDescriptionToStore(typeId: number, description: TypePropertiesSource | ts.ObjectLiteralExpression): ts.CallExpression;
 
-	updateSourceFileGetTypeCall(call: ts.CallExpression, sourceFile?: ts.SourceFile): ts.CallExpression;
+	updateSourceFileGetTypeCall(call: ts.CallExpression): ts.CallExpression;
 }

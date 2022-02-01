@@ -1,23 +1,23 @@
-import { NodeProcessMetaStore } from "tst-reflect";
+import { getMetaFileStore } from "tst-reflect";
 
 function _tst_reflect_wrap(description?: any)
 {
-	return NodeProcessMetaStore.get().wrap(description);
+	return getMetaFileStore().wrap(description);
 }
 
 function _tst_reflect_lazy(typeId: number)
 {
-	return NodeProcessMetaStore.get().getLazy(typeId);
+	return getMetaFileStore().getLazy(typeId);
 }
 
 function _tst_reflect_set(typeId: number, data: any): void
 {
-	NodeProcessMetaStore.get().set(typeId, data);
+	getMetaFileStore().set(typeId, data);
 }
 
 function _tst_reflect_get(typeId: number)
 {
-	return NodeProcessMetaStore.get().get(typeId);
+	return getMetaFileStore().get(typeId);
 }
 
 export {

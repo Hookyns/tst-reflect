@@ -1,47 +1,49 @@
 import { REFLECT_STORE_SYMBOL } from "../const";
-import { Type, TypeActivator }  from "../reflect";
+import {
+	Type,
+	TypeActivator
+}                               from "../reflect";
 import { MetaStoreImpl }        from "./MetaStoreImpl";
 
 /** @internal */
 declare global
 {
-	export var process: NodeJS.Process;
-	namespace NodeJS
+	export var window: Window & typeof globalThis;
+
+	interface Window
 	{
-		interface Process
-		{
-			[REFLECT_STORE_SYMBOL]: NodeProcessMetaStore;
-		}
+		[REFLECT_STORE_SYMBOL]: WindowMetaStore;
 	}
+
 }
 
-export class NodeProcessMetaStore implements MetaStoreImpl
+export class WindowMetaStore implements MetaStoreImpl
 {
 
 	private _store: { [p: number]: Type } = {};
 
 	public static initiate(): MetaStoreImpl
 	{
-		if (!process)
+		if (!window)
 		{
-			throw new Error('This environment does not support the nodejs process store. Are you running this from a browser?');
+			throw new Error('This environment does not support window store. Are you running this in a nodejs environment?');
 		}
 
-		if (process[REFLECT_STORE_SYMBOL])
+		if (window[REFLECT_STORE_SYMBOL])
 		{
-			return process[REFLECT_STORE_SYMBOL];
+			return window[REFLECT_STORE_SYMBOL];
 		}
 
-		process[REFLECT_STORE_SYMBOL] = new NodeProcessMetaStore();
+		window[REFLECT_STORE_SYMBOL] = new WindowMetaStore();
 
-		(Type as any)._setStore(process[REFLECT_STORE_SYMBOL]);
+		(Type as any)._setStore(window[REFLECT_STORE_SYMBOL]);
 
-		return process[REFLECT_STORE_SYMBOL];
+		return window[REFLECT_STORE_SYMBOL];
 	}
 
 	public static get(): MetaStoreImpl
 	{
-		return process[REFLECT_STORE_SYMBOL] || this.initiate();
+		return window[REFLECT_STORE_SYMBOL] || this.initiate();
 	}
 
 	get store(): { [p: number]: Type }
@@ -57,7 +59,7 @@ export class NodeProcessMetaStore implements MetaStoreImpl
 	getLazy(id: number): () => (Type | undefined)
 	{
 		return function () {
-			return process[REFLECT_STORE_SYMBOL].get(id) ?? undefined;
+			return window[REFLECT_STORE_SYMBOL].get(id) ?? undefined;
 		};
 	}
 

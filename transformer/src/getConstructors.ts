@@ -1,4 +1,3 @@
-import { SyntaxKind }                   from "typescript";
 import * as ts                          from "typescript";
 import { ConstructorDescriptionSource } from "./declarations";
 import {
