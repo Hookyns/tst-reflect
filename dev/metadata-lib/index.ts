@@ -1,4 +1,4 @@
-import "metadata.lib";
+import { getType } from "tst-reflect";
 
 class Animal
 {
@@ -9,3 +9,5 @@ class WalkingAnimal extends Animal
 {
 	legCount: number;
 }
+
+getType<WalkingAnimal>();

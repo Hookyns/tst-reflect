@@ -1,10 +1,13 @@
-import { TypeKind }                     from "../flags";
-import { Type}                          from "../reflect";
+import { TypeKind }                     from "../enums";
+import { Type }                         from "../reflect";
 import { ConditionalTypeDescription }   from "./conditional-type";
 import { ConstructorImportDescription } from "./constructor-import";
 import { DecoratorDescription }         from "./decorator";
 import { IndexedAccessTypeDescription } from "./indexed-access-type";
-import {ConstructorDescription, MethodDescription} from "./method";
+import {
+	ConstructorDescription,
+	MethodDescription
+}                                       from "./method";
 import { PropertyDescription }          from "./property";
 
 /**

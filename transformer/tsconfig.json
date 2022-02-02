@@ -8,7 +8,7 @@
 		"strict": true,
 		"rootDir": "./src",
 		"baseUrl": "./src",
-		"outDir": "dist",
+		"outDir": "./dist",
 		"composite": true,
 		"typeRoots": [
 			"../node_modules/@types",

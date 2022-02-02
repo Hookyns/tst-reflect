@@ -1,22 +1,26 @@
-import { MetaStoreImpl }        from "./MetaStoreImpl";
-import { NodeProcessMetaStore } from "./NodeProcessStore";
-import { WindowMetaStore }      from "./WindowStore";
+import { MetadataStore }            from "./MetadataStore";
+import { NodeProcessMetadataStore } from "./NodeProcessMetadataStore";
+import { WindowMetadataStore }      from "./WindowMetadataStore";
 
-export * from './InlineStore';
-export * from './WindowStore';
-export * from './MetaStoreImpl';
-export * from './NodeProcessStore';
+export * from "./InlineMetadataStore";
+export * from "./WindowMetadataStore";
+export * from "./MetadataStore";
+export * from "./NodeProcessMetadataStore";
 
-
-export function getMetaFileStore(): MetaStoreImpl
+/**
+ * Function used in transformer templates for metadata files. 
+ * @return {MetadataStore}
+ */
+export function getMetadataStore(): MetadataStore
 {
 	if (typeof process !== "undefined")
 	{
-		return NodeProcessMetaStore.get();
+		return NodeProcessMetadataStore.get();
 	}
+
 	if (typeof window !== "undefined")
 	{
-		return WindowMetaStore.get();
+		return WindowMetadataStore.get();
 	}
 
 	throw new Error(`Failed to initialize a store for your environment, the global "process" and "window" vars aren't available.`);

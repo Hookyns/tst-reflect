@@ -1,9 +1,10 @@
-import {Type} from "../reflect";
+import { Type } from "../reflect";
 
 /**
  * @internal
  */
-export interface IndexedAccessTypeDescription {
+export interface IndexedAccessTypeDescription
+{
 	/**
 	 * Object type
 	 */
@@ -15,7 +16,8 @@ export interface IndexedAccessTypeDescription {
 	it: Type;
 }
 
-export interface IndexedAccessType {
+export interface IndexedAccessType
+{
 	/**
 	 * Object type
 	 */

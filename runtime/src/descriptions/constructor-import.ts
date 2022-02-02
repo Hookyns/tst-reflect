@@ -2,7 +2,8 @@
  * This data is not set when the config mode is set to "universal"
  * @internal
  */
-export interface ConstructorImportDescription {
+export interface ConstructorImportDescription
+{
 	/**
 	 * This is the name of the actual declaration
 	 * In the example above, this would be "SomeClass"
@@ -28,7 +29,8 @@ export interface ConstructorImportDescription {
 /**
  * Method details
  */
-export class ConstructorImport {
+export class ConstructorImport
+{
 	private readonly _name: string | undefined;
 	private readonly _exportName: string | undefined;
 	private readonly _sourcePath: string | undefined;
@@ -37,25 +39,29 @@ export class ConstructorImport {
 	/**
 	 * @internal
 	 */
-	constructor(description: ConstructorImportDescription | undefined) {
-		if (new.target != ConstructorImportActivator) {
+	constructor(description: ConstructorImportDescription | undefined)
+	{
+		if (new.target != ConstructorImportActivator)
+		{
 			throw new Error("You cannot create instance of Method manually!");
 		}
 
-		if (!description) {
+		if (!description)
+		{
 			return;
 		}
-		this._name       = description.n;
+		this._name = description.n;
 		this._exportName = description.en;
 		this._sourcePath = description.srcPath;
-		this._outPath    = description.outPath;
+		this._outPath = description.outPath;
 	}
 
 	/**
 	 * This is the name of the actual declaration
 	 * In the example above, this would be "SomeClass"
 	 */
-	get name(): string | undefined {
+	get name(): string | undefined
+	{
 		return this._name;
 	}
 
@@ -65,24 +71,31 @@ export class ConstructorImport {
 	 * "export class SomeClass {}" would be "SomeClass"
 	 * "export default class SomeClass {}" would be "default"
 	 */
-	get exportName(): string | undefined {
+	get exportName(): string | undefined
+	{
 		return this._exportName;
 	}
 
 	/**
 	 * The absolute path of the source file for this constructor
 	 */
-	get sourcePath(): string | undefined {
+	get sourcePath(): string | undefined
+	{
 		return this._sourcePath;
 	}
 
 	/**
 	 * The absolute path for the javascript file of this constructor
 	 */
-	get outPath(): string | undefined {
+	get outPath(): string | undefined
+	{
 		return this._outPath;
 	}
 }
 
-export class ConstructorImportActivator extends ConstructorImport {
+/**
+ * @internal
+ */
+export class ConstructorImportActivator extends ConstructorImport
+{
 }

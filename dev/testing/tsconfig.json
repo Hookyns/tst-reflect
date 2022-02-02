@@ -12,7 +12,7 @@
 		],
 		"plugins": [
 			{
-				"transform": "../../transformer/dist/index.js"
+				"transform": "tst-reflect-transformer"
 			}
 		]
 	},
@@ -26,9 +26,9 @@
 		"mode": "server",
 		"metadata": {
 			"type": "inline"
-			//			"type": "ts-lib-file"
+//			"type": "ts-lib-file"
 		},
-		//		"metadataType": "js-lib-file",
+//		"metadataType": "js-lib-file",
 		"debugMode": true
 	}
 }

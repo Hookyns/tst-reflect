@@ -3,7 +3,8 @@ import { Type } from "../reflect";
 /**
  * @internal
  */
-export interface ParameterDescription {
+export interface ParameterDescription
+{
 	/**
 	 * Name of the parameter
 	 */

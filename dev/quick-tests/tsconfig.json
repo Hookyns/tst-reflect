@@ -16,11 +16,10 @@
 		]
 	},
 	"include": [
-		"**/*"
+		"**/*.ts"
 	],
 	"reflection": {
 		"metadata": false,
-//		"metadata": "metadata.lib.js",
 		"debugMode": true
 	}
 }

@@ -7,18 +7,21 @@
 		"experimentalDecorators": true,
 		"rootDir": "../..",
 		"typeRoots": [
-			"../node_modules/@types"
+			"../../node_modules/@types"
 		],
 		"plugins": [
 			{
-				"transform": "../../transformer/dist/index.js"
+				"transform": "tst-reflect-transformer"
 			}
 		]
 	},
 	"include": [
-		"index.ts"
+		"**/*.ts"
 	],
 	"reflection": {
+		"metadata": {
+			"type": "typelib"
+		},
 		"debugMode": true
 	}
 }

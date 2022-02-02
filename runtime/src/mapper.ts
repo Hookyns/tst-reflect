@@ -1,6 +1,12 @@
-import { AccessModifier, Accessor }                                  from "./flags";
-import { Type }                                                      from "./reflect";
-import { Decorator, DecoratorDescription }                           from "./descriptions/decorator";
+import {
+	AccessModifier,
+	Accessor
+}               from "./enums";
+import { Type } from "./reflect";
+import {
+	Decorator,
+	DecoratorDescription
+}               from "./descriptions/decorator";
 import {
 	Constructor,
 	ConstructorActivator,
@@ -8,9 +14,15 @@ import {
 	Method,
 	MethodActivator,
 	MethodDescription
-} from "./descriptions/method";
-import { MethodParameter, ParameterDescription }                     from "./descriptions/parameter";
-import { Property, PropertyDescription }                             from "./descriptions/property";
+}               from "./descriptions/method";
+import {
+	MethodParameter,
+	ParameterDescription
+}               from "./descriptions/parameter";
+import {
+	Property,
+	PropertyDescription
+}               from "./descriptions/property";
 
 
 /**

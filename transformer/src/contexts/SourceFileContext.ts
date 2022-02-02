@@ -1,9 +1,12 @@
-import * as ts                                from "typescript";
-import { MetaWriter }                         from "../meta-writer/base/MetaWriter";
-import { Context }                            from "./Context";
-import type { CtorsLibrary, MetadataLibrary } from "../declarations";
-import { mainVisitor }                        from "../visitors/mainVisitor";
-import TransformerContext                     from "./TransformerContext";
+import * as ts from "typescript";
+import { IMetadataWriter } from "../meta-writer/IMetadataWriter";
+import { Context } from "./Context";
+import type {
+	CtorsLibrary,
+	MetadataLibrary
+} from "../declarations";
+import { mainVisitor } from "../visitors/mainVisitor";
+import TransformerContext from "./TransformerContext";
 
 export default class SourceFileContext
 {
@@ -64,10 +67,8 @@ export default class SourceFileContext
 
 	/**
 	 * Get the metadata library writer handler
-	 *
-	 * @returns {MetaWriter}
 	 */
-	get metaWriter(): MetaWriter
+	get metaWriter(): IMetadataWriter
 	{
 		return this.transformerContext.metaWriter;
 	}

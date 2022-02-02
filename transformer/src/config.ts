@@ -1,13 +1,26 @@
 import {
-	join,
 	dirname,
+	join,
 	resolve
-}              from "path";
-import * as ts from "typescript";
+}                     from "path";
+import * as ts        from "typescript";
 import {
-	MetaWriter,
-	MetaWriterType
-}              from "./meta-writer/base/MetaWriter";
+	DEFAULT_METADATA_LIB_FILE_NAME,
+	MetadataType,
+	MetadataTypeValues,
+	Mode,
+	ModeValues
+}                     from "./config-options";
+import { PACKAGE_ID } from "./helpers";
+
+type ConfigReflectionSection = {
+	mode: Mode,
+	metadata: {
+		type: MetadataType,
+		filePath: string
+	},
+	debugMode: "true" | "false" | "0" | "1" | boolean
+}
 
 export interface ConfigObject
 {
@@ -26,7 +39,7 @@ export interface ConfigObject
 	 * Generation of metadata file is enabled/disabled
 	 */
 	useMetadata: boolean;
-	useMetadataType: MetaWriterType;
+	useMetadataType: MetadataType;
 
 	/**
 	 * Path to metadata file which will be generated and will contain description of al the types.
@@ -42,7 +55,7 @@ export interface ConfigObject
 	 * "universal" is basic usage for both server and browser. But there will be no redundant information.
 	 * "server" will have extended metadata.
 	 */
-	mode: "server" | "universal";
+	mode: Mode;
 
 	isUniversalMode(): boolean;
 
@@ -66,7 +79,7 @@ let config: ConfigObject = {
 	{
 		throw new Error("Configuration not loaded yet.");
 	},
-	get useMetadataType(): MetaWriterType
+	get useMetadataType(): MetadataType
 	{
 		throw new Error("Configuration not loaded yet.");
 	},
@@ -78,7 +91,7 @@ let config: ConfigObject = {
 	{
 		throw new Error("Configuration not loaded yet.");
 	},
-	get mode(): "server" | "universal"
+	get mode(): Mode
 	{
 		throw new Error("Configuration not loaded yet.");
 	},
@@ -97,54 +110,69 @@ function setConfig(c: ConfigObject)
 	config = c;
 }
 
-function readConfig(configPath: string, projectPath: string, rootDir: string, projectRootDir : string): {
-	metadataFilePath: string,
-	useMetadata: boolean,
-	useMetadataType: MetaWriterType,
-	debugMode: boolean,
-	mode: "server" | "universal"
-}
+/**
+ * Returns "reflection" section from config. Assigned over default values.
+ * @param {string} configPath
+ * @return {ConfigReflectionSection}
+ */
+function getConfigReflectionSection(configPath: string): ConfigReflectionSection
 {
 	const result = ts.readConfigFile(configPath, ts.sys.readFile);
 
 	if (result.error)
 	{
-		throw new Error("tsconfig.json error: " + result.error.messageText);
+		throw new Error(`${PACKAGE_ID}: tsconfig.json error: ${result.error.messageText}`);
 	}
 
-	const reflection = result.config?.reflection;
-	const metadata = reflection?.metadata ?? { type: 'inline', filePath: undefined };
-
-	if (reflection?.metadata)
-	{
-		metadata.type = reflection?.metadata?.type;
-		metadata.filePath = reflection?.metadata?.filePath;
-
-		const metaTypes = MetaWriter.metaWriterConfigNames();
-		if (!metaTypes.includes(metadata.type))
-		{
-			throw new Error(`tsconfig.json error: "reflection.metadata.type" must be one of ${metaTypes.map(t => `"${t}"`).join(', ')}`);
-		}
-		if (metadata?.filePath && metadata?.filePath.toString().endsWith('.js'))
-		{
-			throw new Error(`tsconfig.json error: "reflection.metadata.filePath" must use the .ts extension. A .js version will be built to your projects out dir.`);
-		}
-
-		metadata.filePath = metadata.filePath ? resolve(projectRootDir, metadata.filePath) : join(projectRootDir, "reflection.meta.ts");
-	}
+	const reflection = result.config?.reflection || {};
 
 	return {
-		mode: ["server", "universal"].includes(reflection?.mode) ? reflection?.mode : "universal",
-		useMetadata: metadata.type !== 'inline',
-		useMetadataType: metadata.type,
-		metadataFilePath: metadata.filePath,
-		debugMode: ["true", "1"].includes(reflection?.debugMode?.toString()),
+		mode: reflection.mode || ModeValues.universal,
+		debugMode: reflection.debugMode || false,
+		metadata: {
+			type: reflection.metadata?.type || MetadataTypeValues.inline,
+			filePath: reflection.metadata?.filePath?.toString() || ""
+		}
 	};
 }
 
-export function getConfig()
+function readConfig(configPath: string, projectPath: string, rootDir: string, projectRootDir: string): {
+	metadataFilePath: string,
+	useMetadata: boolean,
+	useMetadataType: MetadataType,
+	debugMode: boolean,
+	mode: Mode
+}
 {
-	return config;
+	const reflection = getConfigReflectionSection(configPath);
+
+	const modes = Object.values(ModeValues);
+	const metadataTypes = Object.values(MetadataTypeValues);
+
+	if (!modes.includes(reflection.mode))
+	{
+		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.mode" must be one of ${modes.map(t => `"${t}"`).join(", ")}`);
+	}
+
+	if (!metadataTypes.includes(reflection.metadata.type))
+	{
+		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.metadata.type" must be one of ${metadataTypes.map(t => `"${t}"`).join(", ")}`);
+	}
+
+	if (reflection.metadata.filePath.endsWith(".js"))
+	{
+		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.metadata.filePath" must use the .ts extension. A .js version will be built to your projects out dir.`);
+	}
+
+	reflection.metadata.filePath = reflection.metadata.filePath ? resolve(projectRootDir, reflection.metadata.filePath) : join(projectRootDir, DEFAULT_METADATA_LIB_FILE_NAME);
+
+	return {
+		mode: reflection.mode,
+		useMetadata: reflection.metadata.type !== MetadataTypeValues.inline,
+		useMetadataType: reflection.metadata.type,
+		metadataFilePath: reflection.metadata.filePath,
+		debugMode: ["true", "1"].includes(reflection?.debugMode?.toString()),
+	};
 }
 
 export function createConfig(options: ts.CompilerOptions, root: string, packageName: string): ConfigObject
@@ -164,11 +192,11 @@ export function createConfig(options: ts.CompilerOptions, root: string, packageN
 		debugMode: config.debugMode,
 		isUniversalMode(): boolean
 		{
-			return config.mode === "universal";
+			return config.mode === ModeValues.universal;
 		},
 		isServerMode(): boolean
 		{
-			return config.mode === "server";
+			return config.mode === ModeValues.server;
 		},
 	};
 }

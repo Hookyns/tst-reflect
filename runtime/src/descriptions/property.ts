@@ -1,11 +1,18 @@
-import { AccessModifier, Accessor }        from "../flags";
-import { Type }                  from "../reflect";
-import { Decorator, DecoratorDescription } from "./decorator";
+import {
+	AccessModifier,
+	Accessor
+}               from "../enums";
+import { Type } from "../reflect";
+import {
+	Decorator,
+	DecoratorDescription
+}               from "./decorator";
 
 /**
  * @internal
  */
-export interface PropertyDescription {
+export interface PropertyDescription
+{
 	/**
 	 * Name of the property
 	 */

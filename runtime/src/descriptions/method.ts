@@ -1,4 +1,4 @@
-import { AccessModifier } from "../flags";
+import { AccessModifier } from "../enums";
 import {
 	Mapper,
 	resolveLazyType
@@ -54,7 +54,7 @@ export interface MethodDescription
 	am: AccessModifier;
 }
 
-export class MethodBase
+export abstract class MethodBase
 {
 	private readonly _parameters: Array<MethodParameter>;
 
@@ -159,6 +159,9 @@ export class Method extends MethodBase
 	}
 }
 
+/**
+ * @internal
+ */
 export class MethodActivator extends Method
 {
 }
@@ -191,6 +194,9 @@ export class Constructor extends MethodBase
 	}
 }
 
+/**
+ * @internal
+ */
 export class ConstructorActivator extends Constructor
 {
 }

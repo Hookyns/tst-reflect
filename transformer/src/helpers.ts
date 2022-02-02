@@ -11,6 +11,7 @@ import {
 	ModifiersArray,
 	SyntaxKind
 }                                    from "typescript";
+import { MetadataTypeValues }        from "./config-options";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
 import {
@@ -224,7 +225,7 @@ export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, st
 
 	for (let fileImp of imports)
 	{
-		if ((<any>fileImp?.moduleSpecifier)?.text?.toString() !== 'tst-reflect')
+		if ((<any>fileImp?.moduleSpecifier)?.text?.toString() !== "tst-reflect")
 		{
 			continue;
 		}
@@ -249,7 +250,7 @@ export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, st
 			{
 				return;
 			}
-			if (e.name.text.toString() === 'getType')
+			if (e.name.text.toString() === "getType")
 			{
 				getTypeNodePosition = fileImp.pos;
 			}
@@ -282,13 +283,7 @@ export function createCtorGetter(
 		return [undefined, undefined];
 	}
 
-	let relative = getRequireRelativePath(context.currentSourceFile.fileName, constructorDescription.srcPath);
-
-	if (context.metaWriter.is('ts-lib-file'))
-	{
-		relative = context.metaWriter.getPathRelativeToLib(constructorDescription.srcPath);
-	}
-
+	let relative = context.metaWriter.getRequireRelativePath(context, constructorDescription.srcPath);
 
 	if (context.config.debugMode)
 	{
@@ -429,7 +424,7 @@ export function getRequireRelativePath(sourceFileDefiningImport: string, sourceF
 {
 	return replaceExtension(
 		"./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting),
-		''
+		""
 	);
 }
 
@@ -443,12 +438,12 @@ export function getOutPathForSourceFile(sourceFileName: string, rootDir: string,
 	// Get the actual file location, regardless of dist/source dir
 	// This should leave us with:
 	// /ctor-reflection/SomeServiceClass.ts
-	let outPath = sourceFileName.replace(rootDir, '');
+	let outPath = sourceFileName.replace(rootDir, "");
 
 	// If we have a slash at the start, it has to go
 	// Now we have:
 	// ctor-reflection/SomeServiceClass.ts
-	if (outPath.startsWith('/'))
+	if (outPath.startsWith("/"))
 	{
 		outPath = outPath.slice(1);
 	}
@@ -458,7 +453,7 @@ export function getOutPathForSourceFile(sourceFileName: string, rootDir: string,
 	// /Users/sam/Code/Packages/ts-reflection/dev/testing/dist/method-reflection/index.ts
 	outPath = path.join(outDir, outPath);
 
-	return replaceExtension(outPath, '.js');
+	return replaceExtension(outPath, ".js");
 }
 
 export function replaceExtension(fileName: string, replaceWith: string): string

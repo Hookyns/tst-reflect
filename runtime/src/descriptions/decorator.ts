@@ -1,15 +1,24 @@
 /**
  * @internal
  */
-export interface DecoratorDescription {
+export interface DecoratorDescription
+{
+	/**
+	 * Decorator name
+	 */
 	n: string;
+
+	/**
+	 * Decorator full name
+	 */
 	fn: string;
 }
 
 /**
  * Decoration description
  */
-export interface Decorator {
+export interface Decorator
+{
 	/**
 	 * Decorator name
 	 */

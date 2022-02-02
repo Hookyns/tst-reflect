@@ -1,9 +1,10 @@
-import {Type} from "../reflect";
+import { Type } from "../reflect";
 
 /**
  * @internal
  */
-export interface ConditionalTypeDescription {
+export interface ConditionalTypeDescription
+{
 	/**
 	 * Extends type
 	 */
@@ -20,7 +21,8 @@ export interface ConditionalTypeDescription {
 	ft: Type;
 }
 
-export interface ConditionalType {
+export interface ConditionalType
+{
 	/**
 	 * Extends type
 	 */

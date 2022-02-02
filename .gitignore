@@ -8,6 +8,8 @@ dist
 runtime/dist
 transformer/dist
 **/tsconfig.tsbuildinfo
+reflection.meta.js
+reflection.meta.ts
 
 # Logs
 logs

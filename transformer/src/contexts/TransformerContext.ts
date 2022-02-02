@@ -1,9 +1,12 @@
-import * as ts                        from "typescript";
-import * as fs                        from "fs";
-import * as path                      from "path";
-import { ConfigObject, createConfig } from "../config";
-import { MetaWriter }                 from "../meta-writer/base/MetaWriter";
-import { createMetaWriter }           from "../meta-writer/MetaWriterFactory";
+import * as ts                   from "typescript";
+import * as fs                   from "fs";
+import * as path                 from "path";
+import {
+	ConfigObject,
+	createConfig
+}                                from "../config";
+import { IMetadataWriter }       from "../meta-writer/IMetadataWriter";
+import { MetadataWriterFactory } from "../meta-writer/factories/MetaDataWriterFactory";
 
 const UnknownPackageName = "@@this";
 const InstanceKey: symbol = Symbol.for("tst-reflect.TransformerContext");
@@ -12,7 +15,7 @@ let instance: TransformerContext = (global as any)[InstanceKey] || null;
 export default class TransformerContext
 {
 	private _config?: ConfigObject;
-	private _metaWriter?: MetaWriter;
+	private _metaWriter?: IMetadataWriter;
 
 	public program?: ts.Program;
 
@@ -32,9 +35,9 @@ export default class TransformerContext
 	/**
 	 * Get the metadata library writer handler
 	 *
-	 * @returns {MetaWriter}
+	 * @returns {IMetadataWriter}
 	 */
-	get metaWriter(): MetaWriter
+	get metaWriter(): IMetadataWriter
 	{
 		if (!this._metaWriter)
 		{
@@ -81,7 +84,7 @@ export default class TransformerContext
 		// If metadata library allowed
 		if (!this._metaWriter)
 		{
-			this._metaWriter = createMetaWriter(this);
+			this._metaWriter = MetadataWriterFactory.create(this);
 		}
 	}
 

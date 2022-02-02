@@ -11,15 +11,15 @@ import {
 	Method,
 	MethodParameter,
 	Property,
-}                         from "./descriptions";
+}                              from "./descriptions";
 import {
 	Mapper,
 	resolveLazyType
-}                         from "./mapper";
-import { TypeProperties } from "./descriptions/type-properties";
-import { TypeKind }       from "./flags";
-import { InlineStore }    from "./meta-stores/InlineStore";
-import { MetaStoreImpl }  from "./meta-stores/MetaStoreImpl";
+}                              from "./mapper";
+import { TypeProperties }      from "./descriptions/type-properties";
+import { TypeKind }            from "./enums";
+import { InlineMetadataStore } from "./meta-stores/InlineMetadataStore";
+import { MetadataStore }       from "./meta-stores/MetadataStore";
 
 
 /**
@@ -72,7 +72,7 @@ export class Type
 	private _genericTypeDefault?: Type;
 
 	/** @internal */
-	private static _store: MetaStoreImpl = InlineStore.initiate();
+	private static _store: MetadataStore = InlineMetadataStore.initiate();
 
 	/**
 	 * Internal Type constructor
@@ -271,13 +271,13 @@ export class Type
 		return undefined;
 	}
 
-	static get store(): MetaStoreImpl
+	static get store(): MetadataStore
 	{
 		return this._store;
 	}
 
 	/** @internal */
-	static _setStore(store: MetaStoreImpl)
+	static _setStore(store: MetadataStore)
 	{
 		this._store = store;
 	}

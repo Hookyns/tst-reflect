@@ -1,7 +1,7 @@
 import * as ts                                    from "typescript";
 import { VisitResult }                            from "typescript";
 import type { MetadataEntry, TransformerVisitor } from "../declarations";
-import { MetaWriter }                             from "../meta-writer/base/MetaWriter";
+import { IMetadataWriter }                        from "../meta-writer/IMetadataWriter";
 import SourceFileContext                          from "./SourceFileContext";
 
 /**
@@ -81,10 +81,8 @@ export class Context
 
 	/**
 	 * Get the metadata library writer handler
-	 *
-	 * @returns {MetaWriter}
 	 */
-	get metaWriter(): MetaWriter
+	get metaWriter(): IMetadataWriter
 	{
 		return this._sourceFileContext.metaWriter;
 	}
