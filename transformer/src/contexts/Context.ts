@@ -18,6 +18,11 @@ export class Context
 	 */
 	public usedGenericParameters: Array<string> = [];
 
+	get log()
+	{
+		return this._sourceFileContext.log;
+	}
+	
 	get config()
 	{
 		return this._sourceFileContext.transformerContext.config;

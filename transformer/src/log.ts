@@ -2,6 +2,7 @@ import { PACKAGE_ID } from "./helpers";
 
 export const color = {
 	yellow: 33,
+	red: 31,
 	blue: 34,
 	magenta: 35,
 	cyan: 36,
@@ -13,14 +14,29 @@ export enum LogLevel
 	Trace = "TRA",
 	Info = "INF",
 	Warning = "WRN",
-	Error = "ERR"
+	Error = "ERR",
+	Debug = "DBG"
 }
 
-class Logger
+export class Logger
 {
-	log(level: LogLevel, color: number, ...args: any[])
+	private readonly contextSuffix: string;
+
+	constructor(context?: string)
 	{
-		console.log.apply(undefined, [`\x1b[${color}m[${level}] ${PACKAGE_ID}`, ...args, "\x1b[0m"]);
+		this.contextSuffix = context ? "\n\tIn " + context : "";
+	}
+
+	log(level: LogLevel, color?: number, ...args: any[])
+	{
+		if (color)
+		{
+			console.log.apply(undefined, [`\x1b[${color}m[${level}] ${PACKAGE_ID}`, ...args, this.contextSuffix, "\x1b[0m"]);
+		}
+		else
+		{
+			console.log.apply(undefined, [`[${level}] ${PACKAGE_ID}`, ...args, this.contextSuffix]);
+		}
 	}
 
 	/**
@@ -29,7 +45,7 @@ class Logger
 	 */
 	info(...args: any[])
 	{
-		console.log.apply(undefined, ["[INF] " + PACKAGE_ID, ...args]);
+		this.log(LogLevel.Info, undefined, ...args);
 	}
 
 	/**
@@ -47,7 +63,7 @@ class Logger
 	 */
 	warn(...args: any[])
 	{
-		console.warn.apply(undefined, ["[WRN] " + PACKAGE_ID, ...args]);
+		this.log(LogLevel.Warning, color.yellow, ...args);
 	}
 
 	/**
@@ -56,7 +72,16 @@ class Logger
 	 */
 	error(...args: any[])
 	{
-		console.error.apply(undefined, ["[ERR] " + PACKAGE_ID, ...args]);
+		this.log(LogLevel.Error, color.red, ...args);
+	}
+
+	/**
+	 * Log DEBUG message
+	 * @param args
+	 */
+	debug(...args: any[])
+	{
+		this.log(LogLevel.Debug, color.magenta, ...args);
 	}
 }
 

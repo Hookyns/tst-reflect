@@ -1,12 +1,13 @@
-import * as ts from "typescript";
+import * as ts             from "typescript";
 import { IMetadataWriter } from "../meta-writer/IMetadataWriter";
-import { Context } from "./Context";
+import { Context }         from "./Context";
+import { Logger }          from "../log";
 import type {
 	CtorsLibrary,
 	MetadataLibrary
-} from "../declarations";
-import { mainVisitor } from "../visitors/mainVisitor";
-import TransformerContext from "./TransformerContext";
+}                          from "../declarations";
+import { mainVisitor }     from "../visitors/mainVisitor";
+import TransformerContext  from "./TransformerContext";
 
 export default class SourceFileContext
 {
@@ -19,6 +20,7 @@ export default class SourceFileContext
 	public readonly program: ts.Program;
 	public readonly checker: ts.TypeChecker;
 	public readonly transformerContext: TransformerContext;
+	public readonly log: Logger;
 
 	get context(): Context
 	{
@@ -51,6 +53,7 @@ export default class SourceFileContext
 		sourceFile: ts.SourceFile
 	)
 	{
+		this.log = new Logger(sourceFile.fileName);
 		this.transformerContext = transformerContext;
 		this.transformationContext = transformationContext;
 		this.program = program;
