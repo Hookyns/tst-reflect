@@ -282,13 +282,14 @@ export function getTypeDescription(
 	const decorators = getDecorators(typeSymbol, checker);
 	const kind = getTypeKind(typeSymbol);
 	const symbolType = getType(typeSymbol, checker);
-
+	const symbolToUse = typeSymbol || symbol;
+	
 	const properties: TypePropertiesSource = {
 		k: kind,
 		n: typeSymbol.getName(),
-		fn: getTypeFullName(typeSymbol || type.getSymbol()),
-		props: getProperties(symbol, type, context),
-		meths: getMethods(symbol, type, context),
+		fn: getTypeFullName(symbolToUse),
+		props: getProperties(symbolToUse, type, context),
+		meths: getMethods(symbolToUse, type, context),
 		decs: decorators,
 	};
 
