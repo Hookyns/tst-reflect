@@ -241,6 +241,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 
 		if (res)
 		{
+			fs.mkdirSync(path.dirname(outFileName), { recursive: true });
 			fs.writeFileSync(outFileName, res.outputText, "utf8");
 		}
 	}
