@@ -7,7 +7,7 @@ import {
 }                                from "../config";
 import { PackageInfo }           from "../declarations";
 import { IMetadataWriter }       from "../meta-writer/IMetadataWriter";
-import { MetadataWriterFactory } from "../meta-writer/factories/MetaDataWriterFactory";
+import { MetadataWriterFactory } from "../meta-writer/factories/MetadataWriterFactory";
 
 const UnknownPackageName = "@@this";
 const InstanceKey: symbol = Symbol.for("tst-reflect.TransformerContext");
