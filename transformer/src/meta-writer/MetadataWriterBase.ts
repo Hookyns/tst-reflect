@@ -132,7 +132,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	 * @returns {[boolean, string|undefined]}
 	 */
 	abstract usesStubFile(): [boolean, string | undefined];
-	
+
 	/**
 	 * @inheritDoc
 	 */
@@ -152,7 +152,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 		}
 
 		let sourcePath = path.resolve(__dirname, "..", "..", "meta-templates", stubFileName);
-		
+
 		// TODO: Remove
 		// if (sourcePath.includes("/dist/"))
 		// {
@@ -212,20 +212,36 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 			return;
 		}
 
-		const pathParsed = path.parse(this.metaSourceFile.fileName);
-		const transpilePath = this.metaSourceFile.fileName
-			.replace("src/", "dist/")
-			.replace(pathParsed.base, pathParsed.name) + ".js";
+		const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(this.context.config.tsConfigPath, undefined, ts.sys as any);
+		let outFileName: string | undefined = undefined;
 
+		if (parsedCommandLine)
+		{
+			if (parsedCommandLine.fileNames.indexOf(this.metaSourceFile.fileName) == -1)
+			{
+				parsedCommandLine.fileNames.push(this.metaSourceFile.fileName);
+			}
+
+			outFileName = ts.getOutputFileNames(parsedCommandLine, this.metaSourceFile.fileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx")[0];
+		}
+
+		if (!outFileName)
+		{
+			const pathParsed = path.parse(this.metaSourceFile.fileName);
+
+			outFileName = this.metaSourceFile.fileName
+				.replace("src/", "dist/")
+				.replace(pathParsed.base, pathParsed.name) + ".js";
+		}
 
 		const res = ts.transpileModule(source, {
-			fileName: transpilePath,
+			fileName: outFileName,
 			compilerOptions: this.context.program?.getCompilerOptions()
 		});
 
 		if (res)
 		{
-			fs.writeFileSync(transpilePath, res.outputText, "utf8");
+			fs.writeFileSync(outFileName, res.outputText, "utf8");
 		}
 	}
 

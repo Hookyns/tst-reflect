@@ -11,6 +11,7 @@ export function getExportOfConstructor(
 ): ConstructorImportDescriptionSource | undefined
 {
 	const exportSymbol = context.typeChecker.getExportSymbolOfSymbol(symbol);
+
 	if (!exportSymbol)
 	{
 		log.warn("getExportOfConstructor: Failed to find export of the constructor.");
@@ -18,8 +19,8 @@ export function getExportOfConstructor(
 	}
 
 	const classDeclaration = symbol.valueDeclaration as ts.ClassDeclaration;
-
 	const name = classDeclaration?.name?.escapedText?.toString();
+
 	if (!name)
 	{
 		log.warn("getExportOfConstructor: Failed to get name of exported parent");
@@ -27,19 +28,11 @@ export function getExportOfConstructor(
 	}
 
 	const source = classDeclaration.getSourceFile();
-	// const ctorSource = typeCtor.getSourceFile(); TODO: Remove
-	const options = context.transformationContext.getCompilerOptions();
-
-	if (!options.outDir || !options.rootDir)
-	{
-		log.warn(`getExportOfConstructor: No "outDir" specified in tsconfig file.`);
-		return undefined;
-	}
 
 	return {
 		en: exportSymbol.escapedName.toString(),
 		n: name,
 		srcPath: source.fileName,
-		outPath: getOutPathForSourceFile(source.fileName, options.rootDir, options.outDir),
+		outPath: getOutPathForSourceFile(source.fileName, context.config.rootDir, context.config.outDir),
 	};
 }

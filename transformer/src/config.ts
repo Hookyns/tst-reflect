@@ -2,16 +2,17 @@ import {
 	dirname,
 	join,
 	resolve
-}                     from "path";
-import * as ts        from "typescript";
+}                      from "path";
+import * as ts         from "typescript";
 import {
 	DEFAULT_METADATA_LIB_FILE_NAME,
 	MetadataType,
 	MetadataTypeValues,
 	Mode,
 	ModeValues
-}                     from "./config-options";
-import { PACKAGE_ID } from "./helpers";
+}                      from "./config-options";
+import { PackageInfo } from "./declarations";
+import { PACKAGE_ID }  from "./helpers";
 
 type ConfigReflectionSection = {
 	mode: Mode,
@@ -28,6 +29,21 @@ export interface ConfigObject
 	 * Base absolute path which will be used as root for type full names.
 	 */
 	rootDir: string;
+
+	/**
+	 * Path of tsconfig.json file.
+	 */
+	tsConfigPath: string;
+	
+	/**
+	 * Output directory.
+	 */
+	outDir: string;
+
+	/**
+	 * Project directory.
+	 * @description It is directory containing tsconfig.json in most cases.
+	 */
 	projectDir: string;
 
 	/**
@@ -39,6 +55,8 @@ export interface ConfigObject
 	 * Generation of metadata file is enabled/disabled
 	 */
 	useMetadata: boolean;
+	
+	
 	useMetadataType: MetadataType;
 
 	/**
@@ -60,54 +78,6 @@ export interface ConfigObject
 	isUniversalMode(): boolean;
 
 	isServerMode(): boolean;
-}
-
-let config: ConfigObject = {
-	get rootDir(): string
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get projectDir(): string
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get packageName(): string
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get useMetadata(): boolean
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get useMetadataType(): MetadataType
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get metadataFilePath(): string
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get debugMode(): boolean
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	get mode(): Mode
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	isUniversalMode(): boolean
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-	isServerMode(): boolean
-	{
-		throw new Error("Configuration not loaded yet.");
-	},
-};
-
-function setConfig(c: ConfigObject)
-{
-	config = c;
 }
 
 /**
@@ -136,7 +106,7 @@ function getConfigReflectionSection(configPath: string): ConfigReflectionSection
 	};
 }
 
-function readConfig(configPath: string, projectPath: string, rootDir: string, projectRootDir: string): {
+function readConfig(configPath: string, rootDir: string): {
 	metadataFilePath: string,
 	useMetadata: boolean,
 	useMetadataType: MetadataType,
@@ -145,7 +115,6 @@ function readConfig(configPath: string, projectPath: string, rootDir: string, pr
 }
 {
 	const reflection = getConfigReflectionSection(configPath);
-
 	const modes = Object.values(ModeValues);
 	const metadataTypes = Object.values(MetadataTypeValues);
 
@@ -164,7 +133,7 @@ function readConfig(configPath: string, projectPath: string, rootDir: string, pr
 		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.metadata.filePath" must use the .ts extension. A .js version will be built to your projects out dir.`);
 	}
 
-	reflection.metadata.filePath = reflection.metadata.filePath ? resolve(projectRootDir, reflection.metadata.filePath) : join(projectRootDir, DEFAULT_METADATA_LIB_FILE_NAME);
+	reflection.metadata.filePath = reflection.metadata.filePath ? resolve(rootDir, reflection.metadata.filePath) : join(rootDir, DEFAULT_METADATA_LIB_FILE_NAME);
 
 	return {
 		mode: reflection.mode,
@@ -175,17 +144,19 @@ function readConfig(configPath: string, projectPath: string, rootDir: string, pr
 	};
 }
 
-export function createConfig(options: ts.CompilerOptions, root: string, packageName: string): ConfigObject
+export function createConfig(options: ts.CompilerOptions, rootDir: string, packageInfo: PackageInfo): ConfigObject
 {
 	const rawConfigObject = options as any;
 	const configPath = rawConfigObject.configFilePath;
-	const config = readConfig(configPath, dirname(configPath), root, rawConfigObject.rootDir);
+	const config = readConfig(configPath, rootDir);
 
 	return {
 		mode: config.mode,
-		rootDir: root,
-		projectDir: dirname(configPath),
-		packageName: packageName,
+		rootDir: packageInfo.rootDir,
+		outDir: options.outDir || rootDir,
+		tsConfigPath: configPath,
+		projectDir: rootDir,
+		packageName: packageInfo.name,
 		useMetadata: config.useMetadata,
 		useMetadataType: config.useMetadataType,
 		metadataFilePath: config.metadataFilePath,

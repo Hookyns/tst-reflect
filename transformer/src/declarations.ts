@@ -9,6 +9,14 @@ import type { Context } from "./contexts/Context";
 /**
  * @internal
  */
+export type PackageInfo = {
+	rootDir: string;
+	name: string;
+}
+
+/**
+ * @internal
+ */
 export type GetTypeCall = ts.CallExpression;
 
 /**

@@ -5,6 +5,7 @@ import {
 	ConfigObject,
 	createConfig
 }                                from "../config";
+import { PackageInfo }           from "../declarations";
 import { IMetadataWriter }       from "../meta-writer/IMetadataWriter";
 import { MetadataWriterFactory } from "../meta-writer/factories/MetaDataWriterFactory";
 
@@ -14,6 +15,7 @@ let instance: TransformerContext = (global as any)[InstanceKey] || null;
 
 export default class TransformerContext
 {
+	private _tsConfig?: ts.CompilerOptions;
 	private _config?: ConfigObject;
 	private _metaWriter?: IMetadataWriter;
 
@@ -61,6 +63,19 @@ export default class TransformerContext
 	}
 
 	/**
+	 * TypeScript CompilerOptions.
+	 */
+	get tsConfig(): ts.CompilerOptions
+	{
+		if (!this._tsConfig)
+		{
+			throw new Error("TransformerContext has not been initiated yet.");
+		}
+
+		return this._tsConfig;
+	}
+
+	/**
 	 * Protected constructor.
 	 * @protected
 	 */
@@ -95,45 +110,49 @@ export default class TransformerContext
 	 */
 	private prepareConfig(program: ts.Program)
 	{
-		const options: ts.CompilerOptions = program.getCompilerOptions();
-		const rootDir = path.resolve(options.rootDir || program.getCurrentDirectory());
-		const [root, packageName] = this.getPackageName(rootDir);
-		this._config = createConfig(options, root, packageName);
+		this._tsConfig = program.getCompilerOptions();
+		const rootDir = path.resolve(this._tsConfig.rootDir || program.getCurrentDirectory());
+		const packageInfo = this.getPackage(rootDir);
+		this._config = createConfig(this._tsConfig, rootDir, packageInfo);
 	}
 
 	/**
-	 * Get name of the package
+	 * Get name and root directory of the package.
+	 * @description If no package found, original root and unknown name (@@this) is returned.
 	 * @return {string}
 	 * @private
 	 */
-	private getPackageName(root: string, recursiveCheck: boolean = false): [root: string, packageName: string]
+	private getPackage(root: string, recursiveCheck: boolean = false): PackageInfo
 	{
 		try
 		{
 			const packageJson = fs.readFileSync(path.join(root, "package.json"), "utf-8");
-			return [root, JSON.parse(packageJson).name || UnknownPackageName];
+			return { rootDir: root, name: JSON.parse(packageJson).name || UnknownPackageName };
 		}
 		catch (e)
 		{
 			if (path.parse(root).root == root)
 			{
 				// as any -> internal
-				return [undefined as any, UnknownPackageName];
+				return { rootDir: undefined as any, name: UnknownPackageName };
 			}
 
-			const [packageRoot, packageName] = this.getPackageName(path.normalize(path.join(root, "..")), true);
-
-			if (packageRoot == undefined)
+			// Try to get parent folder package
+			const packageInfo = this.getPackage(path.normalize(path.join(root, "..")), true);
+			
+			if (packageInfo.rootDir == undefined)
 			{
+				// If this is recursive check, return undefined root as received from parent folder check
 				if (recursiveCheck)
 				{
-					return [packageRoot, packageName];
+					return packageInfo;
 				}
 
-				return [root, packageName];
+				// This is top level check; return original root passed as argument
+				return { rootDir: root, name: packageInfo.name };
 			}
 
-			return [packageRoot, packageName];
+			return packageInfo;
 		}
 	}
 }
