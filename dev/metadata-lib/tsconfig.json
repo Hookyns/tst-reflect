@@ -6,6 +6,7 @@
 		"sourceMap": true,
 		"experimentalDecorators": true,
 		"rootDir": "../..",
+		"outDir": "./",
 		"typeRoots": [
 			"../../node_modules/@types"
 		],
@@ -18,6 +19,7 @@
 	"include": [
 		"**/*.ts"
 	],
+	"exclude": [],
 	"reflection": {
 		"metadata": {
 			"type": "typelib"

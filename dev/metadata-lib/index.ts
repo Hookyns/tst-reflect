@@ -8,6 +8,10 @@ class Animal
 class WalkingAnimal extends Animal
 {
 	legCount: number;
+	sibling: Animal;
 }
 
-getType<WalkingAnimal>();
+const type = getType<WalkingAnimal>();
+
+getType<Animal>();
+console.log(type.getProperties()[1].type.getProperties());

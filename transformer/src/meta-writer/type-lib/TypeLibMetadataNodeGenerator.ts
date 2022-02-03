@@ -27,7 +27,8 @@ export class TypeLibMetadataNodeGenerator implements IMetadataNodeGenerator
 				undefined,
 				factory.createVariableDeclarationList(
 					[factory.createVariableDeclaration(
-						reflectionMetaIdentifier, //factory.createIdentifier("___tst_reflection_meta")
+						reflectionMetaIdentifier, 
+						// factory.createIdentifier("___tst_reflection_meta"),
 						undefined,
 						undefined,
 						factory.createCallExpression(
@@ -47,7 +48,8 @@ export class TypeLibMetadataNodeGenerator implements IMetadataNodeGenerator
 						undefined,
 						undefined,
 						factory.createPropertyAccessExpression(
-							reflectionMetaIdentifier, //factory.createIdentifier("___tst_reflection_meta"),
+							reflectionMetaIdentifier, 
+							// factory.createIdentifier("___tst_reflection_meta"),
 							factory.createIdentifier("_tst_reflect_get")
 						)
 					)],
@@ -62,7 +64,8 @@ export class TypeLibMetadataNodeGenerator implements IMetadataNodeGenerator
 						undefined,
 						undefined,
 						factory.createPropertyAccessExpression(
-							reflectionMetaIdentifier, //factory.createIdentifier("___tst_reflection_meta"),
+							reflectionMetaIdentifier, 
+							// factory.createIdentifier("___tst_reflection_meta"),
 							factory.createIdentifier("_tst_reflect_wrap")
 						)
 					)],

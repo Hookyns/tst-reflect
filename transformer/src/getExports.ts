@@ -27,11 +27,10 @@ export function getExportOfConstructor(
 	}
 
 	const source = classDeclaration.getSourceFile();
-	const ctorSource = typeCtor.getSourceFile();
+	// const ctorSource = typeCtor.getSourceFile(); TODO: Remove
+	const options = context.transformationContext.getCompilerOptions();
 
-	const outDir = context.transformationContext.getCompilerOptions().outDir;
-	const rootDir = context.transformationContext.getCompilerOptions().rootDir;
-	if (!outDir || !rootDir)
+	if (!options.outDir || !options.rootDir)
 	{
 		log.warn(`getExportOfConstructor: No "outDir" specified in tsconfig file.`);
 		return undefined;
@@ -41,6 +40,6 @@ export function getExportOfConstructor(
 		en: exportSymbol.escapedName.toString(),
 		n: name,
 		srcPath: source.fileName,
-		outPath: getOutPathForSourceFile(source.fileName, rootDir, outDir),
+		outPath: getOutPathForSourceFile(source.fileName, options.rootDir, options.outDir),
 	};
 }
