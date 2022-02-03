@@ -31,6 +31,4 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
     - run: npm install
-    - run: npm run prepare -w runtime
-    - run: npm run prepare -w transformer
     - run: npm test --if-present
