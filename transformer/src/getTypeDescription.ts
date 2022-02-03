@@ -7,6 +7,7 @@ import { Context }                  from "./contexts/Context";
 import { TypePropertiesSource }     from "./declarations";
 import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
+import { getExportOfConstructor }   from "./getExports";
 import getLiteralName               from "./getLiteralName";
 import { getMethods }               from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
@@ -21,6 +22,7 @@ import {
 	UNKNOWN_TYPE_PROPERTIES
 }                                   from "./helpers";
 import { log }                      from "./log";
+import { nodeGenerator }            from "./NodeGenerator";
 
 /**
  * Return TypePropertiesSource object describing given type
@@ -49,15 +51,6 @@ export function getTypeDescription(
 		return nativeTypeDescriptionResult.typeDescription;
 	}
 
-	if ((type.flags & ts.TypeFlags.Literal) != 0)
-	{
-		return {
-			k: TypeKind.LiteralType,
-			n: getLiteralName(type),
-			v: (type as any).value,
-		};
-	}
-
 	let typeSymbol = type.getSymbol();
 
 	if (type.aliasSymbol)
@@ -68,6 +61,24 @@ export function getTypeDescription(
 	if (!symbol && typeSymbol)
 	{
 		symbol = typeSymbol;
+	}
+	
+	if (type.isUnion() && (type.flags & ts.TypeFlags.EnumLiteral) == ts.TypeFlags.EnumLiteral) 
+	{
+		return {
+			k: TypeKind.Enum,
+			n: symbol?.escapedName.toString(),
+			types: type.types.map(type => getTypeCall(type, undefined, context)),
+		};
+	}
+
+	if ((type.flags & ts.TypeFlags.Literal) != 0)
+	{
+		return {
+			k: TypeKind.LiteralType,
+			n: getLiteralName(type),
+			v: (type as any).value,
+		};
 	}
 
 	const checker = context.typeChecker;
@@ -226,6 +237,7 @@ export function getTypeDescription(
 		}
 
 		return {
+			n: type.aliasSymbol?.name.toString(),
 			k: TypeKind.Object,
 			props: getProperties(typeSymbol, type, context)
 		};
@@ -279,24 +291,39 @@ export function getTypeDescription(
 	const decorators = getDecorators(typeSymbol, checker);
 	const kind = getTypeKind(typeSymbol);
 	const symbolType = getType(typeSymbol, checker);
+	const symbolToUse = typeSymbol || symbol;
 
 	const properties: TypePropertiesSource = {
 		k: kind,
 		n: typeSymbol.getName(),
-		fn: getTypeFullName(typeSymbol || type.getSymbol()),
-		props: getProperties(symbol, type, context),
-		meths: getMethods(symbol, type, context),
+		fn: getTypeFullName(symbolToUse),
+		props: getProperties(symbolToUse, type, context),
+		meths: getMethods(symbolToUse, type, context),
 		decs: decorators,
 	};
 
 	if (kind === TypeKind.Class)
 	{
+
 		properties.ctors = getConstructors(symbolType, context);
 
 		if (typeCtor)
 		{
-			properties.ctor = createCtorGetter(typeCtor);
-			context.addTypeCtor(typeCtor); // TODO: Check if it has modifier "export". If yes, pass path to file and name of the exported type to the addTypeCtor; handle this in index.ts and so on. If it is not exported (it is just local module type), don't generate this into the metadata lib file, generate it into the local file like in base mode
+			const constructorExport = getExportOfConstructor(typeSymbol, typeCtor, context);
+
+			if (context.config.isServerMode())
+			{
+				properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
+			}
+
+			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport, context);
+			properties.ctor = ctorGetter;
+
+			if (constructorExport && properties.ctor && ctorRequireCall)
+			{
+				context.addTypeCtor(ctorRequireCall);
+			}
+
 		}
 	}
 

@@ -1,24 +1,19 @@
-import * as ts            from "typescript";
-import { Context }        from "./Context";
+import * as ts from "typescript";
+import { IMetadataWriter } from "../meta-writer/IMetadataWriter";
+import { Context } from "./Context";
 import type {
 	CtorsLibrary,
 	MetadataLibrary
-}                         from "../declarations";
-import { mainVisitor }    from "../visitors/mainVisitor";
+} from "../declarations";
+import { mainVisitor } from "../visitors/mainVisitor";
 import TransformerContext from "./TransformerContext";
 
 export default class SourceFileContext
 {
-	/**
-	 * Identifier of getType() function found in current file or created manually if it wasn't present in current file.
-	 * @private
-	 */
-	private _getTypeIdentifier?: ts.Identifier;
-
-	private _shouldGenerateGetTypeImport: boolean = false;
 	private _typesMetadata: MetadataLibrary = [];
 	private _ctorsLibrary: CtorsLibrary = [];
 	private readonly _context: Context;
+	private readonly _currentSourceFile: ts.SourceFile;
 
 	public readonly transformationContext: ts.TransformationContext;
 	public readonly program: ts.Program;
@@ -40,55 +35,41 @@ export default class SourceFileContext
 		return this._ctorsLibrary;
 	}
 
-	get shouldGenerateGetTypeImport(): boolean
-	{
-		return this._shouldGenerateGetTypeImport;
-	}
-
 	/**
 	 * Construct SourceFile context.
 	 * @param transformerContext
 	 * @param transformationContext
 	 * @param program
 	 * @param checker
+	 * @param sourceFile
 	 */
-	constructor(transformerContext: TransformerContext, transformationContext: ts.TransformationContext, program: ts.Program, checker: ts.TypeChecker)
+	constructor(
+		transformerContext: TransformerContext,
+		transformationContext: ts.TransformationContext,
+		program: ts.Program,
+		checker: ts.TypeChecker,
+		sourceFile: ts.SourceFile
+	)
 	{
 		this.transformerContext = transformerContext;
 		this.transformationContext = transformationContext;
 		this.program = program;
 		this.checker = checker;
+		this._currentSourceFile = sourceFile;
 
 		this._context = new Context(this, mainVisitor);
 	}
 
-	/**
-	 * Get identifier of getType() function for current file.
-	 */
-	getGetTypeIdentifier(): ts.Identifier
+	get currentSourceFile(): ts.SourceFile
 	{
-		if (!this._getTypeIdentifier)
-		{
-			this._shouldGenerateGetTypeImport = true;
-			this._getTypeIdentifier = ts.factory.createIdentifier("_tst_getType");
-		}
-
-		return this._getTypeIdentifier;
+		return this._currentSourceFile;
 	}
 
 	/**
-	 * Try set identifier of getType() function for current
-	 * @param identifier
-	 * @return boolean Returns true if set, false otherwise.
+	 * Get the metadata library writer handler
 	 */
-	trySetGetTypeIdentifier(identifier: ts.Identifier): boolean
+	get metaWriter(): IMetadataWriter
 	{
-		if (!this._getTypeIdentifier)
-		{
-			this._getTypeIdentifier = identifier;
-			return true;
-		}
-
-		return false;
+		return this.transformerContext.metaWriter;
 	}
 }

@@ -5,13 +5,18 @@
 		"runtime",
 		"transformer"
 	],
+	"scripts": {
+		"tsc": "tsc --build",
+		"watch": "tsc --build --watch"
+	},
 	"engines": {
 		"npm": ">=7.10.0",
 		"node": ">=16.0.0"
 	},
 	"devDependencies": {
 		"@types/node": "^16.0.0",
+		"ttypescript": "1.x",
 		"typescript": "4.x",
-		"ttypescript": "1.x"
+		"ts-node": "^10.4.0"
 	}
 }

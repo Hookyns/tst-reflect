@@ -1,18 +1,25 @@
 {
-    "compilerOptions": {
-        "module": "commonjs",
-        "target": "ES2019",
-        "sourceMap": true,
-		"removeComments": false,
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2019",
+		"removeComments": true,
+		"sourceMap": true,
 		"experimentalDecorators": true,
+		"rootDir": "../..",
+		"typeRoots": [
+			"../../node_modules/@types"
+		],
 		"plugins": [
-            {
-                "transform": "../../transformer/index.js"
-            }
-        ]
-    },
-    "reflection": {
-        "metadata": false,
-        "debugMode": false
-    }
+			{
+				"transform": "tst-reflect-transformer"
+			}
+		]
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"reflection": {
+		"metadata": false,
+		"debugMode": true
+	}
 }

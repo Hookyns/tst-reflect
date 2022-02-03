@@ -4,6 +4,12 @@
 **/*.d.ts
 !dev/dev-compiler.js
 !repl/install.js
+dist
+runtime/dist
+transformer/dist
+**/tsconfig.tsbuildinfo
+reflection.meta.js
+reflection.meta.ts
 
 # Logs
 logs

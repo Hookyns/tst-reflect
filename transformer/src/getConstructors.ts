@@ -1,6 +1,9 @@
 import * as ts                          from "typescript";
 import { ConstructorDescriptionSource } from "./declarations";
-import { getType }                      from "./helpers";
+import {
+	getCtorTypeReference,
+	getType
+} from "./helpers";
 import { getTypeCall }                  from "./getTypeCall";
 import { Context }                      from "./contexts/Context";
 
@@ -21,7 +24,7 @@ export function getConstructors(type: ts.Type, context: Context)
 
 			params.push({
 				n: paramSymbol.getName(),
-				t: getTypeCall(paramType, paramSymbol, context),
+				t: getTypeCall(paramType, paramSymbol, context, getCtorTypeReference(paramSymbol)),
 				o: declaration.questionToken !== undefined || declaration.initializer !== undefined
 			});
 		}

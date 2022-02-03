@@ -6,16 +6,25 @@
 		"sourceMap": true,
 		"stripInternal": true,
 		"strict": true,
-		"rootDir": ".",
+		"rootDir": "./src",
+		"baseUrl": "./src",
+		"outDir": "./dist",
+		"composite": true,
 		"typeRoots": [
 			"../node_modules/@types",
 			"node_modules/@types"
 		]
 	},
+	"references": [
+		{
+			"path": "../runtime"
+		}
+	],
 	"include": [
-		"./src/**/*.ts",
-		"./src/*.ts",
-		"./index.ts",
-		"./generics.ts"
+		"./src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules/**/*",
+		"dist/**/*"
 	]
 }

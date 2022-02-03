@@ -6,9 +6,10 @@ import { getTypeCall }               from "./getTypeCall";
 import {
 	getAccessModifier,
 	getAccessor,
+	getCtorTypeReference,
 	getType,
 	isReadonly
-}                                    from "./helpers";
+} from "./helpers";
 
 /**
  * Return properties of type
@@ -28,7 +29,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 			{
 				return {
 					n: memberSymbol.escapedName.toString(),
-					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context),
+					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context, getCtorTypeReference(memberSymbol)),
 					d: getDecorators(memberSymbol, context.typeChecker),
 					am: getAccessModifier(memberSymbol.valueDeclaration?.modifiers),
 					acs: getAccessor(memberSymbol.valueDeclaration),

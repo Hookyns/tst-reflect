@@ -1,11 +1,17 @@
-import "metadata.lib";
+import { getType } from "tst-reflect";
 
-class Animal
+interface Animal
 {
 	name: string;
 }
 
-class WalkingAnimal extends Animal
+export class WalkingAnimal implements Animal
 {
 	legCount: number;
+	sibling: Animal;
+	name: string;
 }
+
+const type = getType<WalkingAnimal>();
+
+console.log(type.getProperties()[1].type.getProperties());

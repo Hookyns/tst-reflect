@@ -6,14 +6,20 @@
 		"strict": true,
 		"stripInternal": true,
 		"declaration": true,
+		"outDir": "dist",
+		"rootDir": "./src",
+		"baseUrl": "./src",
+		"composite": true,
 		"typeRoots": [
 			"../node_modules/@types",
 			"node_modules/@types"
 		]
 	},
 	"include": [
-		"./src/**/*.ts",
-		"./src/*.ts",
-		"./reflect.ts"
+		"./src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules/**/*",
+		"dist/**/*"
 	]
 }

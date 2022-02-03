@@ -6,19 +6,25 @@
 		"sourceMap": true,
 		"experimentalDecorators": true,
 		"rootDir": "../..",
+		"outDir": "./dist",
 		"typeRoots": [
-			"../node_modules/@types"
+			"../../node_modules/@types"
 		],
 		"plugins": [
 			{
-				"transform": "../../transformer/index.js"
+				"transform": "tst-reflect-transformer"
 			}
 		]
 	},
 	"include": [
-		"index.ts"
+		"**/*.ts"
 	],
+	"exclude": [],
 	"reflection": {
+		"mode": "server",
+		"metadata": {
+			"type": "typelib"
+		},
 		"debugMode": true
 	}
 }

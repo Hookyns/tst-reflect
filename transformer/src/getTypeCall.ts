@@ -1,9 +1,8 @@
 import * as ts                    from "typescript";
-import { GET_TYPE_LAZY_FNC_NAME } from "tst-reflect";
 import {
 	GetTypeCall,
 	TypePropertiesSource
-} from "./declarations";
+}                                 from "./declarations";
 import { createValueExpression }  from "./createValueExpression";
 import { getTypeDescription }     from "./getTypeDescription";
 import { Context }                from "./contexts/Context";
@@ -40,26 +39,22 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 		typePropertiesObjectLiteral = createdTypes.get(id);
 	}
 
-	const getTypeIdentifier = context.getGetTypeIdentifier();
+	let props: any;
 
 	if (!typePropertiesObjectLiteral)
 	{
 		if (id)
 		{
+			// getType.lazy()
 			if (creatingTypes.includes(id))
 			{
-				// getType.lazy()
-				return ts.factory.createCallExpression(
-					ts.factory.createPropertyAccessExpression(getTypeIdentifier, GET_TYPE_LAZY_FNC_NAME),
-					[],
-					[ts.factory.createNumericLiteral(id)]
-				);
+				return context.metaWriter.factory.getTypeFromStoreLazily(id);
 			}
 
 			creatingTypes.push(id);
 		}
 
-		const props = getTypeDescription(type, symbol, context, typeCtor);
+		props = getTypeDescription(type, symbol, context, typeCtor);
 		typePropertiesObjectLiteral = createValueExpression(props) as ts.ObjectLiteralExpression;
 
 		if (id)
@@ -73,12 +68,16 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 		context.addTypeMetadata([id, typePropertiesObjectLiteral]);
 		createdTypes.set(id, typePropertiesObjectLiteral);
 
-		// Just call getType() with typeId; Type is gonna be take from storage
-		return ts.factory.createCallExpression(getTypeIdentifier, [], [ts.factory.createNumericLiteral(id)]);
+		/**
+		 * Just call `getType()` with typeId; Type is going to be loaded from storage
+		 */
+		return context.metaWriter.factory.getTypeFromStore(id);
 	}
 
-	// Type is not registered (no Id or no sourceFileContext) so direct type construction returned
-	return ts.factory.createCallExpression(getTypeIdentifier, [], [typePropertiesObjectLiteral]);
+	/**
+	 * Type is not registered (no id or no sourceFileContext) so direct type construction returned
+	 */
+	return context.metaWriter.factory.createDescriptionWithoutAddingToStore(props);
 }
 
 /**
@@ -88,6 +87,6 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
  */
 export function getTypeCallFromProperties(properties: TypePropertiesSource, context: Context): GetTypeCall
 {
-	const getTypeIdentifier = context.getGetTypeIdentifier();
-	return ts.factory.createCallExpression(getTypeIdentifier, [], [createValueExpression(properties)]);
+	return context.metaWriter.factory.createDescriptionWithoutAddingToStore(properties);
 }
+

@@ -1,4 +1,4 @@
-import { getType } from "../../runtime";
+import { getType } from "tst-reflect";
 
 module foobar
 {
@@ -41,6 +41,11 @@ interface SomeInterface
 
 type DefaultType = undefined;
 
+enum SomeEnum {
+	One,
+	Two
+}
+
 abstract class BaseGenericClass<TGenericType extends any = DefaultType, TGenericType2 = TGenericType extends undefined ? string : number> implements SomeInterface
 {
 	private readonly initValue: TGenericType;
@@ -50,6 +55,7 @@ abstract class BaseGenericClass<TGenericType extends any = DefaultType, TGeneric
 	public stringArrayProp: string[];
 	public stringProp: string;
 	public someUnionProp: SimpleUnionType;
+	public someEnum: SomeEnum = SomeEnum.One;
 
 	constructor(initValue: TGenericType)
 	constructor(initValue: TGenericType, anyProp: undefined)

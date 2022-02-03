@@ -7,11 +7,22 @@ import {
 	TypeKind
 }                                    from "tst-reflect";
 import * as ts                       from "typescript";
-import { ModifiersArray }            from "typescript";
+import {
+	Identifier,
+	ModifiersArray,
+	SyntaxKind
+}                                    from "typescript";
+import { MetadataTypeValues }        from "./config-options";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
-import { GetTypeCall }               from "./declarations";
+import {
+	ConstructorImportDescriptionSource,
+	GetTypeCall
+}                                    from "./declarations";
 import { getTypeCallFromProperties } from "./getTypeCall";
+import { log }                       from "./log";
+
+export const PATH_SEPARATOR_REGEX = /\\/g;
 
 /**
  * Name of parameter for method/function declarations containing generic getType() calls
@@ -118,7 +129,7 @@ export function getTypeFullName(typeSymbol?: ts.Symbol)
 	}
 	else if (rootDir)
 	{
-		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(/\\/g, "/");
+		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(PATH_SEPARATOR_REGEX, "/");
 	}
 
 	return filePath + ":" + typeSymbol.getName() + "#" + ((typeSymbol as any).id || "0");
@@ -195,18 +206,111 @@ export function hasTraceJsDoc(fncType: ts.Type): boolean
 	return symbol.getJsDocTags().some(tag => tag.name === TRACE_DECORATOR);
 }
 
-/**
- * Return getter (arrow function/lambda) for runtime type's Ctor.
- * @description Arrow function generated cuz of possible "Type is referenced before declaration".
- */
-export function createCtorGetter(typeCtor: ts.EntityName | ts.DeclarationName | undefined)
+export function getSourceFileImports(sourceFile: ts.SourceFile): ts.ImportDeclaration[]
 {
-	if (!typeCtor)
+	return sourceFile.statements.filter(st => ts.isImportDeclaration(st)) as ts.ImportDeclaration[];
+}
+
+export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, string[], number]
+{
+	const imports = getSourceFileImports(sourceFile);
+
+	if (!imports?.length)
 	{
-		return undefined;
+		return [false, [], -1];
 	}
 
-	return ts.factory.createArrowFunction(undefined, undefined, [], undefined, ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken), typeCtor as ts.Expression);
+	let getTypeNodePosition = -1;
+	let isImported = false;
+	const namedImports: string[] = [];
+
+	for (let fileImp of imports)
+	{
+		if ((<any>fileImp?.moduleSpecifier)?.text?.toString() !== "tst-reflect")
+		{
+			continue;
+		}
+
+		isImported = true;
+
+		const clause: any = fileImp.importClause;
+
+		if (!ts.isImportClause(clause) || clause?.namedBindings === undefined)
+		{
+			continue;
+		}
+
+		const bindings: ts.NamedImportBindings = clause?.namedBindings;
+		if (!ts.isNamedImports(bindings))
+		{
+			continue;
+		}
+
+		bindings.elements.forEach(e => {
+			if (!e?.name?.text?.toString() || namedImports.includes(e.name.text.toString()))
+			{
+				return;
+			}
+			if (e.name.text.toString() === "getType")
+			{
+				getTypeNodePosition = fileImp.pos;
+			}
+
+			namedImports.push(e.name.text.toString());
+		});
+	}
+
+
+	return [isImported, namedImports, getTypeNodePosition];
+}
+
+export function getProjectSrcRoot(program: ts.Program): string
+{
+	return path.resolve(program.getCompilerOptions()?.rootDir || program.getCurrentDirectory());
+}
+
+/**
+ * Return getter function for runtime type's Ctor.
+ * @description Function generated so that, the require call isn't made until we actually call the function
+ */
+export function createCtorGetter(
+	typeCtor: ts.EntityName | ts.DeclarationName,
+	constructorDescription: ConstructorImportDescriptionSource | undefined,
+	context: Context
+): [ts.FunctionExpression | undefined, ts.PropertyAccessExpression | undefined]
+{
+	if (!constructorDescription)
+	{
+		return [undefined, undefined];
+	}
+
+	let relative = context.metaWriter.getRequireRelativePath(context, constructorDescription.srcPath);
+
+	if (context.config.debugMode)
+	{
+		log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`);
+	}
+
+	const requireCall = ts.factory.createPropertyAccessExpression(
+		ts.factory.createCallExpression(
+			ts.factory.createIdentifier("require"),
+			undefined,
+			[ts.factory.createStringLiteral(relative)]
+		),
+		ts.factory.createIdentifier(constructorDescription.en)
+	);
+
+	const requireGetter = ts.factory.createFunctionExpression(
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		[],
+		undefined,
+		ts.factory.createBlock([ts.factory.createReturnStatement(requireCall)], true)
+	);
+
+	return [requireGetter, requireCall];
 }
 
 /**
@@ -283,4 +387,126 @@ export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChec
 	}
 
 	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)?.[0];
+}
+
+/**
+ * This is useful.... if we're using ts-node for ex, it doesn't use our outDir configured
+ * Instead it will use .ts-node
+ * @returns {boolean}
+ */
+export function isTsNode(): boolean
+{
+	// are we running via a ts-node/ts-node-dev shim?
+	const lastArg = process.execArgv[process.execArgv.length - 1];
+	if (lastArg && path.parse(lastArg).name.indexOf("ts-node") >= 0)
+	{
+		return true;
+	}
+
+	try
+	{
+		/**
+		 * Are we running in typescript at the moment?
+		 * see https://github.com/TypeStrong/ts-node/pull/858 for more details
+		 */
+			//@ts-ignore
+		const isTsNode = process[Symbol.for("ts-node.register.instance")];
+
+		return isTsNode?.ts !== undefined;
+	}
+	catch (error)
+	{
+		console.error(error);
+	}
+	return false;
+}
+
+export function getRequireRelativePath(sourceFileDefiningImport: string, sourceFileImporting: string)
+{
+	return replaceExtension(
+		"./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting),
+		""
+	);
+}
+
+export function getOutPathForSourceFile(sourceFileName: string, rootDir: string, outDir: string): string
+{
+	if (isTsNode())
+	{
+		return sourceFileName;
+	}
+
+	// Get the actual file location, regardless of dist/source dir
+	// This should leave us with:
+	// /ctor-reflection/SomeServiceClass.ts
+	let outPath = sourceFileName.replace(rootDir, "");
+
+	// If we have a slash at the start, it has to go
+	// Now we have:
+	// ctor-reflection/SomeServiceClass.ts
+	if (outPath.startsWith("/"))
+	{
+		outPath = outPath.slice(1);
+	}
+
+	// Now we can take the build path, from the tsconfig file and combine it
+	// This should give us:
+	// /Users/sam/Code/Packages/ts-reflection/dev/testing/dist/method-reflection/index.ts
+	outPath = path.join(outDir, outPath);
+
+	return replaceExtension(outPath, ".js");
+}
+
+export function replaceExtension(fileName: string, replaceWith: string): string
+{
+	const extName = path.extname(fileName);
+	// If we're running ts-node, the outDir is set to ".ts-node" and it can't be over-ridden
+	// If we just do .replace(extName, '.js'), it won't replace the actual file extension
+	// Now we just replace the extension:
+	if (fileName.endsWith(extName))
+	{
+		fileName = fileName.slice(0, fileName.length - extName.length) + replaceWith;
+	}
+
+	return fileName.replace(PATH_SEPARATOR_REGEX, "/");
+}
+
+/**
+ * Check if declaration has "type": TypeNode property.
+ * @param declaration
+ */
+export function isTypedDeclaration(declaration: ts.Declaration): declaration is (ts.Declaration & { type: ts.TypeNode })
+{
+	return !!(declaration as any)?.type;
+}
+
+// TODO: Find the proper way to do this... but this actually works perfectly
+// This allows us to get the ctor node which we resolve descriptor info and create the ctor require
+export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefined
+{
+	if (!symbol.valueDeclaration)
+	{
+		return undefined;
+	}
+
+	if (isTypedDeclaration(symbol.valueDeclaration))
+	{
+		let typeName: ts.Identifier | undefined = undefined;
+
+		if (ts.isIndexedAccessTypeNode(symbol.valueDeclaration.type))
+		{
+			typeName = (symbol.valueDeclaration.type.indexType as any).typeName;
+		}
+		else
+		{
+			typeName = (symbol.valueDeclaration.type as any).typeName;
+		}
+
+		if (typeName && typeName?.kind === SyntaxKind.Identifier)
+		{
+			return typeName;
+		}
+	}
+
+	return undefined;
 }

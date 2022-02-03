@@ -1,4 +1,4 @@
-import { getType } from "../../runtime";
+import { getType } from "tst-reflect";
 
 type ComponentConstructor<T = {}> = new (...args: any[]) => T;
 
@@ -7,8 +7,8 @@ type ComponentConstructor<T = {}> = new (...args: any[]) => T;
  */
 export function inject<TType>() {
 	const type = getType<TType>();
-	
-	console.log("injectable", type.getConstructors().map(ctor => ctor.parameters));
+
+	console.log("injectable", type.getConstructors().map(ctor => ctor.getParameters()));
 
 	return function<TType extends ComponentConstructor>(ComponentConstructor: TType) {
 		return class extends ComponentConstructor {

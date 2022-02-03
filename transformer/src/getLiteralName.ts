@@ -1,6 +1,7 @@
 import * as ts from "typescript";
 
-export default function getLiteralName(type: ts.Type) {
+export default function getLiteralName(type: ts.Type): string
+{
 	switch (type.flags)
 	{
 		case ts.TypeFlags.NumberLiteral:
@@ -13,6 +14,11 @@ export default function getLiteralName(type: ts.Type) {
 			return "enum";
 		case ts.TypeFlags.BigIntLiteral:
 			return "bigint";
+	}
+
+	if ((type.flags & ts.TypeFlags.EnumLiteral) == ts.TypeFlags.EnumLiteral)
+	{
+		return type.symbol.escapedName.toString();
 	}
 
 	return "";

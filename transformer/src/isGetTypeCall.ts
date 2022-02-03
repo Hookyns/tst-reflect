@@ -5,7 +5,6 @@ import {
 }                   from "tst-reflect";
 import { Context }  from "./contexts/Context";
 import { getError } from "./getError";
-import { log }      from "./log";
 
 /**
  * Function detecting right getType() call
@@ -21,12 +20,6 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 		if ((node.expression as any).escapedText != GET_TYPE_FNC_NAME)
 		{
 			return false;
-		}
-
-		// Add identifier into context; will be used for all calls
-		if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
-		{
-			log.info("Identifier of existing getType() call stored inside context.");
 		}
 
 		// Function/method type

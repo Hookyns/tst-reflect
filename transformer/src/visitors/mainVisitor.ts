@@ -28,6 +28,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 		return nodeToVisit;
 	}
 
+
 	// Is it call expression?
 	if (ts.isCallExpression(node))
 	{
@@ -55,7 +56,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 				}
 			}
 		}
-		// It is call of some other function. 
+		// It is call of some other function.
 		else
 		{
 			let identifier: ts.Identifier | ts.PrivateIdentifier | undefined = undefined;
@@ -98,6 +99,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 
 		if (hasReflectDecoratorJsDoc(type.getSymbol()))
 		{
+
 			const res = processDecorator(node, type, context);
 
 			if (res)

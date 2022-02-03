@@ -5,15 +5,12 @@ import { getTypeCall }    from "./getTypeCall";
 import { GENERIC_PARAMS } from "./helpers";
 import { log }            from "./log";
 
-export function processGetTypeCallExpression(node: ts.CallExpression, context: Context): ts.PropertyAccessExpression | ts.CallExpression | ts.ParenthesizedExpression | undefined
+export function processGetTypeCallExpression(
+	node: ts.CallExpression,
+	context: Context
+): ts.PropertyAccessExpression | ts.CallExpression | ts.ParenthesizedExpression | undefined
 {
 	// TODO: Use isGetTypeCall()
-
-	// Add identifier into context; will be used for all calls
-	if (context.trySetGetTypeIdentifier(node.expression as ts.Identifier) && context.config.debugMode)
-	{
-		log.info("Identifier of existing getType() call stored inside context.");
-	}
 
 	let genericTypeNode = node.typeArguments?.[0];
 
@@ -31,10 +28,14 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 		if (ts.isTypeReferenceNode(genericTypeNode) && ts.isIdentifier(genericTypeNode.typeName))
 		{
 			return ts.factory.createParenthesizedExpression(
-				ts.factory.createBinaryExpression(ts.factory.createIdentifier(GENERIC_PARAMS), ts.SyntaxKind.AmpersandAmpersandToken, ts.factory.createPropertyAccessExpression(
+				ts.factory.createBinaryExpression(
 					ts.factory.createIdentifier(GENERIC_PARAMS),
-					ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
-				))
+					ts.SyntaxKind.AmpersandAmpersandToken,
+					ts.factory.createPropertyAccessExpression(
+						ts.factory.createIdentifier(GENERIC_PARAMS),
+						ts.factory.createIdentifier(genericTypeNode.typeName.escapedText.toString())
+					)
+				)
 			);
 		}
 
@@ -51,11 +52,13 @@ export function processGetTypeCallExpression(node: ts.CallExpression, context: C
 			// throw getError(node, "Symbol of generic type argument not found.");
 		}
 
-		return getTypeCall(
-			genericType,
-			genericTypeSymbol,
-			context,
-			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
+		return context.metaWriter.factory.updateSourceFileGetTypeCall(
+			getTypeCall(
+				genericType,
+				genericTypeSymbol,
+				context,
+				ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
+			),
 		);
 	}
 }

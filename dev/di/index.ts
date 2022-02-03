@@ -1,7 +1,7 @@
 import {
 	getType,
 	Type
-}                                 from "../../runtime";
+}                                 from "tst-reflect";
 import { IServiceCollection }     from "./IServiceCollection";
 import { IServiceProvider }       from "./IServiceProvider";
 import { TypedServiceCollection } from "./TypedServiceCollection";

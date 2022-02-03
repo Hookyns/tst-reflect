@@ -1,0 +1,14 @@
+{
+	"files": [],
+	"references": [
+		{
+			"path": "./transformer/tsconfig.json"
+		},
+		{
+			"path": "./runtime/tsconfig.json"
+		}
+	],
+	"compilerOptions": {
+		"composite": true
+	}
+}

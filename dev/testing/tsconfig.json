@@ -1,0 +1,34 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2015",
+		"removeComments": true,
+		"sourceMap": true,
+		"experimentalDecorators": true,
+		"outDir": "dist",
+		"rootDir": "./src",
+		"typeRoots": [
+			"../../node_modules/@types"
+		],
+		"plugins": [
+			{
+				"transform": "tst-reflect-transformer"
+			}
+		]
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+	"ts-node": {
+		"compiler": "ttypescript"
+	},
+	"reflection": {
+		"mode": "server",
+		"metadata": {
+			"type": "inline"
+//			"type": "ts-lib-file"
+		},
+//		"metadataType": "js-lib-file",
+		"debugMode": true
+	}
+}

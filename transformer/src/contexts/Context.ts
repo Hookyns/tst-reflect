@@ -1,10 +1,8 @@
-import * as ts           from "typescript";
-import { VisitResult }   from "typescript";
-import type {
-	MetadataEntry,
-	TransformerVisitor
-}                        from "../declarations";
-import SourceFileContext from "./SourceFileContext";
+import * as ts                                    from "typescript";
+import { VisitResult }                            from "typescript";
+import type { MetadataEntry, TransformerVisitor } from "../declarations";
+import { IMetadataWriter }                        from "../meta-writer/IMetadataWriter";
+import SourceFileContext                          from "./SourceFileContext";
 
 /**
  * Context of visitors
@@ -57,9 +55,12 @@ export class Context
 		this._sourceFileContext.typesMetadata.push(metadataEntry);
 	}
 
-	addTypeCtor(typeCtor: ts.EntityName | ts.DeclarationName)
+	addTypeCtor(ctorDescription: ts.PropertyAccessExpression)
 	{
-		this._sourceFileContext.typesCtors.push(typeCtor);
+		if (this._sourceFileContext.typesCtors.indexOf(ctorDescription) === -1)
+		{
+			this._sourceFileContext.typesCtors.push(ctorDescription);
+		}
 	}
 
 	visitFunctionLikeDeclaration(node: ts.FunctionLikeDeclarationBase): void
@@ -73,21 +74,16 @@ export class Context
 		return contextAction(context);
 	}
 
-	/**
-	 * Get identifier of getType() function for current file.
-	 */
-	getGetTypeIdentifier(): ts.Identifier
+	get currentSourceFile(): ts.SourceFile
 	{
-		return this._sourceFileContext.getGetTypeIdentifier();
+		return this._sourceFileContext.currentSourceFile;
 	}
 
 	/**
-	 * Try set identifier of getType() function for current
-	 * @param identifier
-	 * @return boolean Returns true if set, false otherwise.
+	 * Get the metadata library writer handler
 	 */
-	trySetGetTypeIdentifier(identifier: ts.Identifier): boolean
+	get metaWriter(): IMetadataWriter
 	{
-		return this._sourceFileContext.trySetGetTypeIdentifier(identifier);
+		return this._sourceFileContext.metaWriter;
 	}
 }

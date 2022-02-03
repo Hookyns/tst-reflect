@@ -9,6 +9,14 @@ import type { Context } from "./contexts/Context";
 /**
  * @internal
  */
+export type PackageInfo = {
+	rootDir: string;
+	name: string;
+}
+
+/**
+ * @internal
+ */
 export type GetTypeCall = ts.CallExpression;
 
 /**
@@ -29,15 +37,19 @@ export type MetadataLibrary = Array<MetadataEntry>;
 /**
  * @internal
  */
-export type CtorsLibrary = Array<ts.EntityName | ts.DeclarationName>;
+export type CtorsLibrary = Array<ts.PropertyAccessExpression>;
 
 /**
  * @internal
  */
 export interface ParameterDescriptionSource
 {
+	// Name of the parameter
 	n: string;
-	t: GetTypeCall;
+	// Is optional parameter?
+	// method(param?:string)
+	o?: boolean;
+	t: GetTypeCall | undefined;
 }
 
 /**
@@ -103,7 +115,7 @@ export interface MethodDescriptionSource
 	/**
 	 * Parameters
 	 */
-	params: Array<ParameterDescriptionSource>;
+	params?: Array<ParameterDescriptionSource>;
 
 	/**
 	 * Return type
@@ -129,6 +141,35 @@ export interface MethodDescriptionSource
 	 * Access modifier
 	 */
 	am: AccessModifier;
+}
+
+/**
+ * This data is not set when the config mode is set to "universal"
+ *
+ * @internal
+ */
+export interface ConstructorImportDescriptionSource
+{
+	/**
+	 * This is the name of the actual declaration
+	 * In the example above, this would be "SomeClass"
+	 */
+	n: string;
+	/**
+	 * The exported name of this constructor from its source file.
+	 * For example;
+	 * "export class SomeClass {}" would be "SomeClass"
+	 * "export default class SomeClass {}" would be "default"
+	 */
+	en: string;
+	/**
+	 * The absolute path of the source file for this constructor
+	 */
+	srcPath: string;
+	/**
+	 * The absolute path for the javascript file of this constructor
+	 */
+	outPath: string;
 }
 
 /**
@@ -186,6 +227,7 @@ export interface TypePropertiesSource
 	 * @name name
 	 */
 	n?: string;
+	
 	/**
 	 * Full Name
 	 * @alias fullName
@@ -238,9 +280,15 @@ export interface TypePropertiesSource
 	types?: Array<GetTypeCall>;
 
 	/**
+	 * The information required to create the constructor return function at runtime
+	 * This data is not set when the config mode is set to "universal"
+	 */
+	ctorDesc?: ts.ObjectLiteralExpression;
+
+	/**
 	 * Constructor return function
 	 */
-	ctor?: ts.ArrowFunction;
+	ctor?: ts.FunctionExpression;
 
 	/**
 	 * Base type
