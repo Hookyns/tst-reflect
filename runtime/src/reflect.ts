@@ -1,6 +1,3 @@
-/* eslint-disable */
-
-
 import {
 	ConditionalType,
 	Constructor,
@@ -270,6 +267,15 @@ export class Type
 		}
 
 		return undefined;
+	}
+
+	/**
+	 * Returns all Types contained in metadata.
+	 * This method is quite useless with reflection.metadata.type = "inline"; Use "typelib" type.
+	 */
+	static getTypes(): Type[]
+	{
+		return Object.values(this._store.store);
 	}
 
 	static get store(): MetadataStore
