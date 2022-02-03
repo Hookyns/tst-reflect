@@ -15,11 +15,40 @@ import { PackageInfo } from "./declarations";
 import { PACKAGE_ID }  from "./helpers";
 
 type ConfigReflectionSection = {
+	/**
+	 * Modes "universal" or "server".
+	 * 
+	 * "universal" is general mode for general usage on the server or in the browser.
+	 * 
+	 * "server" is special mode for servers. Metadata contain more information which can be handy on server, eg. file paths.
+	 * @default "universal"
+	 */
 	mode: Mode,
+
+	/**
+	 * Optional section which tells transformer how to generate metadata.
+	 */
 	metadata: {
+		/**
+		 * Types "inline" or "typelib".
+		 * 
+		 * "inline" type means, that metadata will be generated per-file. If you use getType<>() inside your index.ts, the metadata will be generated into index.js for local usage.
+		 * Using getType<>() over same type but from different file (eg. service.ts) will generate redundant metadata, same as in index.js, into service.js.
+		 * 
+		 * "typelib" will generate one file with all of the metadata used across whole project. It is metadata library.
+		 * This library is auto-imported into transpiled JS source code.
+		 * 
+		 * @default "inline"
+		 */
 		type: MetadataType,
+
+		/**
+		 * Default name is "reflection.meta.js" generated into directory with tsconfig.json.
+		 * You can change the name and location if it matters.
+		 */
 		filePath: string
 	},
+	
 	debugMode: "true" | "false" | "0" | "1" | boolean
 }
 

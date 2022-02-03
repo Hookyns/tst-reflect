@@ -8,6 +8,7 @@ import {
 }                                    from "tst-reflect";
 import * as ts                       from "typescript";
 import {
+	Identifier,
 	ModifiersArray,
 	SyntaxKind
 }                                    from "typescript";
@@ -470,6 +471,15 @@ export function replaceExtension(fileName: string, replaceWith: string): string
 	return fileName.replace(PATH_SEPARATOR_REGEX, "/");
 }
 
+/**
+ * Check if declaration has "type": TypeNode property.
+ * @param declaration
+ */
+export function isTypedDeclaration(declaration: ts.Declaration): declaration is (ts.Declaration & { type: ts.TypeNode })
+{
+	return !!(declaration as any)?.type;
+}
+
 // TODO: Find the proper way to do this... but this actually works perfectly
 // This allows us to get the ctor node which we resolve descriptor info and create the ctor require
 export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefined
@@ -478,11 +488,24 @@ export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefin
 	{
 		return undefined;
 	}
-	const potentialTypeReference = ((symbol as any).valueDeclaration.type.typeName);
 
-	if (potentialTypeReference && potentialTypeReference?.kind === SyntaxKind.Identifier)
+	if (isTypedDeclaration(symbol.valueDeclaration))
 	{
-		return potentialTypeReference;
+		let typeName: ts.Identifier | undefined = undefined;
+
+		if (ts.isIndexedAccessTypeNode(symbol.valueDeclaration.type))
+		{
+			typeName = (symbol.valueDeclaration.type.indexType as any).typeName;
+		}
+		else
+		{
+			typeName = (symbol.valueDeclaration.type as any).typeName;
+		}
+
+		if (typeName && typeName?.kind === SyntaxKind.Identifier)
+		{
+			return typeName;
+		}
 	}
 
 	return undefined;
