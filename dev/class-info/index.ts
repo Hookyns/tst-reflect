@@ -1,5 +1,10 @@
-import { reflect }        from "tst-reflect";
-import { printClassInfo } from "./printClassInfo";
+import {
+	getType,
+	reflect
+}                           from "tst-reflect";
+import { BaseGenericClass } from "./BaseGenericClass";
+import { FinalClass }       from "./FinalClass";
+import { printClassInfo }   from "./printClassInfo";
 
 function methodDecorator()
 {
@@ -37,4 +42,7 @@ class Klass
 	}
 }
 
+getType<BaseGenericClass>();
+getType<FinalClass>();
 printClassInfo<Klass>();
+printClassInfo<FinalClass>();

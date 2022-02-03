@@ -2,6 +2,7 @@ import {
 	getType,
 	Type
 }                                 from "tst-reflect";
+import { FinalClass }             from "./FinalClass";
 import { IServiceCollection }     from "./IServiceCollection";
 import { IServiceProvider }       from "./IServiceProvider";
 import { TypedServiceCollection } from "./TypedServiceCollection";
