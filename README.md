@@ -8,7 +8,7 @@
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
 
-[Examples](#examples) | [Synopsis](#synopsis) | [How to start](#how-to-start) | [Configuration](#configuration) | [How does it work](#how-does-it-work)
+[Examples](#examples) | [Synopsis](#synopsis) | [How to start](#how-to-start) | [How does it work](#how-does-it-work) | [Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration)
 
 ## About
 
@@ -458,28 +458,6 @@ getType({
 }, 22976);
 ```
 
-## Configuration
-
-There is an optional configuration you can set in the `tsconfig.json` file.
-
-```json5
-{
-    "compilerOptions": {
-        // ...
-    },
-    "reflection": {
-        "metadata": false,
-        // false | string, default "./metadata.lib.js"
-        "debugMode": true
-        // boolean, default "false"
-    }
-}
-```
-
-Property `metadata: false | string` allows you to switch behavior. Default behavior generates metadata library file. You can change name and/or location of this file by setting own path. Or you can
-set `false` to disable generation of that file; metadata will be separated in files where they are used. Metadata can be redundant if same types are used in more files.
-
-
 ## Synopsis
 
 ```typescript
@@ -489,164 +467,174 @@ set `false` to disable generation of that file; metadata will be separated in fi
  */
 export declare class Type
 {
-    static readonly Object: Type;
-
+	static readonly Object: Type;
     /**
      * Returns information about generic conditional type.
      */
     get condition(): ConditionalType | undefined;
-
+    /**
+     * Returns information about indexed access type.
+     */
+    get indexedAccessType(): IndexedAccessType | undefined;
     /**
      * Returns a value indicating whether the Type is container for unified Types or not
      */
     get union(): boolean;
-
     /**
      * Returns a value indicating whether the Type is container for intersecting Types or not
      */
     get intersection(): boolean;
-
     /**
      * List of underlying types in case Type is union or intersection
      */
     get types(): ReadonlyArray<Type> | undefined;
-
     /**
      * Constructor function in case Type is class
      */
     get ctor(): Function | undefined;
-
+    /**
+     * Get meta for the module of the defined constructor
+     * This data is not set when the config mode is set to "universal"
+     */
+    get constructorDescription(): ConstructorImport | undefined;
     /**
      * Base type
      * @description Base type from which this type extends from or undefined if type is Object.
      */
     get baseType(): Type | undefined;
-
     /**
      * Interface which this type implements
      */
     get interface(): Type | undefined;
-
     /**
      * Get type full-name
      * @description Contains file path base to project root
      */
     get fullName(): string;
-
     /**
      * Get type name
      */
     get name(): string;
-
     /**
      * Get kind of type
      */
     get kind(): TypeKind;
-
     /**
      * Underlying value in case of literal type
      */
     get literalValue(): any;
-
+    /**
+     * Generic type constrains
+     */
+    get genericTypeConstraint(): Type | undefined;
+    /**
+     * Generic type default value
+     */
+    get genericTypeDefault(): any;
+    /**
+     * Search the type store for a specific type
+     *
+     * Runs the provided filter callback on each type. If your filter returns true, it returns this type.
+     *
+     * @param {(type: Type) => boolean} filter
+     * @returns {Type | undefined}
+     */
+    static find(filter: (type: Type) => boolean): Type | undefined;
+    static get store(): MetadataStore;
     /**
      * Returns true if types are equals
      * @param type
      */
     is(type: Type): boolean;
-
+    isInstantiable(): boolean;
     /**
      * Returns a value indicating whether the Type is a class or not
      */
     isClass(): boolean;
-
     /**
      * Returns a value indicating whether the Type is a interface or not
      */
     isInterface(): boolean;
-
     /**
      * Returns a value indicating whether the Type is an literal or not
      */
     isLiteral(): boolean;
-
     /**
      * Returns a value indicating whether the Type is an object literal or not
      */
     isObjectLiteral(): boolean;
-
     /**
      * Returns true if type is union or intersection of types
      */
     isUnionOrIntersection(): boolean;
-
+    /**
+     * Check if this is a native type("string", "number", "boolean" etc.)
+     */
+    isNative(): boolean;
     /**
      * Check if this type is a string
      */
     isString(): boolean;
-
     /**
      * Check if this type is a number
      */
     isNumber(): boolean;
-
     /**
      * Check if this type is a boolean
      */
     isBoolean(): boolean;
-
     /**
      * Check if this type is an array
      */
     isArray(): boolean;
-
     /**
      *
      * @return {boolean}
      */
     isObjectLike(): boolean;
-
+    /**
+     * Determines whether the object represented by the current Type is an Enum.
+     * @return {boolean}
+     */
+    isEnum(): boolean;
+    /**
+     * Returns information about the enumerable elements.
+     */
+    getEnum(): EnumInfo | undefined;
     /**
      * Returns array of type parameters.
      */
     getTypeParameters(): ReadonlyArray<Type>;
-
     /**
      * Returns type arguments in case of generic type
      */
     getTypeArguments(): ReadonlyArray<Type>;
-
     /**
      * Returns constructor description when Type is a class
      */
     getConstructors(): ReadonlyArray<Constructor> | undefined;
-
     /**
      * Returns array of properties
      */
     getProperties(): ReadonlyArray<Property>;
-
     /**
      * Returns array of methods
      */
     getMethods(): ReadonlyArray<Method>;
-
     /**
      * Returns array of decorators
      */
     getDecorators(): ReadonlyArray<Decorator>;
-
     /**
      * Determines whether the class represented by the current Type derives from the class represented by the specified Type
      * @param {Type} classType
      */
     isSubclassOf(classType: Type): boolean;
-
     /**
      * Determines whether the current Type derives from the specified Type
      * @param {Type} targetType
      */
     isDerivedFrom(targetType: Type): boolean;
-
     /**
      * Determines whether the Object represented by the current Type is structurally compatible and assignable to the Object represented by the specified Type
      * @param {Type} target
@@ -654,7 +642,6 @@ export declare class Type
      * @private
      */
     isStructurallyAssignableTo(target: Type): boolean;
-
     /**
      * Determines whether an instance of the current Type can be assigned to an instance of the specified Type.
      * @description This is fulfilled by derived types or compatible types.
@@ -716,7 +703,25 @@ export declare enum TypeKind
     /**
      * Conditional type
      */
-    ConditionalType = 9
+    ConditionalType = 9,
+    /**
+     * Indexed access type
+     * @description Eg. get<K extends keyof TypeKind>(key: K): ==>> TypeKind[K] <<==
+     */
+    IndexedAccess = 10,
+    /**
+     * Typescript "module"
+     * @description Value module or namespace module
+     */
+    Module = 11,
+    /**
+     * Specific method used as type
+     */
+    Method = 12,
+    /**
+     * Enum
+     */
+    Enum = 13
 }
 
 export declare enum Accessor
@@ -868,6 +873,21 @@ export declare class Method extends MethodBase
  */
 export declare class Constructor extends MethodBase
 {
+}
+
+export interface EnumInfo {
+    /**
+     * Get enum enumerators/items (keys).
+     */
+    getEnumerators(): string[];
+    /**
+     * Get values.
+     */
+    getValues(): any[];
+    /**
+     * Get enum entries (key:value pairs).
+     */
+    getEntries(): Array<readonly [enumeratorName: string, value: any]>;
 }
 ```
 

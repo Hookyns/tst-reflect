@@ -177,25 +177,7 @@ getType({
 ```
 
 ## Configuration
-
-There is an optional configuration you can set in the `tsconfig.json` file.
-
-```json5
-{
-    "compilerOptions": {
-        // ...
-    },
-    "reflection": {
-        "metadata": false,
-        // false | string, default "./metadata.lib.js"
-        "debugMode": true
-        // boolean, default "false"
-    }
-}
-```
-
-Property `metadata: false | string` allows you to switch behavior. Default behavior generates metadata library file. You can change name and/or location of this file by setting own path. Or you can
-set `false` to disable generation of that file; metadata will be separated in files where they are used. Metadata can be redundant if same types are used in more files.
+[Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration)
 
 
 ## More Information
