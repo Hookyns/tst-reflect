@@ -6,7 +6,7 @@
 		"transformer"
 	],
 	"scripts": {
-		"build": "tsc --build",
+		"tsc": "tsc --build",
 		"watch": "tsc --build --watch"
 	},
 	"engines": {
