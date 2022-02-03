@@ -4,8 +4,7 @@ import {
 }                                      from "../../config-options";
 import TransformerContext              from "../../contexts/TransformerContext";
 import {
-	getRequireRelativePath,
-	hasRuntimePackageImport
+	getRequireRelativePath
 }                                      from "../../helpers";
 import { MetadataTransformerFactory }  from "../factories/MetadataTransformerFactory";
 import { MetadataWriterBase }          from "../MetadataWriterBase";
@@ -27,7 +26,6 @@ export class InlineMetadataWriter extends MetadataWriterBase
 			new MetadataTransformerFactory(InlineMetadataTransformer),
 			ts.factory.createIdentifier("____tst_reflect_set"), // TODO: It differ from TypeLib identifier name; is there any reason?
 			ts.factory.createIdentifier("____tst_reflect_set"), // TODO: Should it be same instance of identifier? I suppose to.
-
 		);
 
 		this.createBaseMeta();
@@ -67,15 +65,17 @@ export class InlineMetadataWriter extends MetadataWriterBase
 			return sourceFile;
 		}
 
-		const [has, namedImports, getTypeImportNodePos] = hasRuntimePackageImport(sourceFile);
 
 		let newStatements = [...sourceFile.statements];
 
+		// TODO: This cause issues. Remove or solve.
+		// const [has, namedImports, getTypeImportNodePos] = hasRuntimePackageImport(sourceFile);
+		//
 		// If we have the import already and it's only "getType", lets just yeet it
-		if (has && getTypeImportNodePos !== -1)
-		{
-			newStatements = sourceFile.statements.filter(n => n.pos !== getTypeImportNodePos);
-		}
+		// if (has && getTypeImportNodePos !== -1)
+		// {
+		// 	newStatements = sourceFile.statements.filter(n => n.pos !== getTypeImportNodePos);
+		// }
 
 		this.logMessage(`Added lib import to source file: ${sourceFile.fileName}`);
 
