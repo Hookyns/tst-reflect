@@ -6,7 +6,7 @@
 		"sourceMap": true,
 		"experimentalDecorators": true,
 		"rootDir": "../..",
-		"outDir": "./",
+		"outDir": "./dist",
 		"typeRoots": [
 			"../../node_modules/@types"
 		],
@@ -21,6 +21,7 @@
 	],
 	"exclude": [],
 	"reflection": {
+		"mode": "server",
 		"metadata": {
 			"type": "typelib"
 		},
