@@ -1,4 +1,23 @@
-import { getType }  from "tst-reflect";
-import { SomeType } from "./SomeType";
+import { getType } from "tst-reflect";
 
-console.log(getType<SomeType>());
+enum SomeEnum
+{
+	One,
+	Two
+}
+
+interface Foo
+{
+	enum: SomeEnum;
+}
+
+const type = getType<Foo>();
+
+console.log(type);
+
+const enumProperty = type.getProperties().find(prop => prop.type.isEnum());
+
+if (enumProperty)
+{
+	console.log(enumProperty.type.name, enumProperty.type.getEnum().getEnumerators());
+}

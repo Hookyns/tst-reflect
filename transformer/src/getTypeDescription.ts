@@ -51,15 +51,6 @@ export function getTypeDescription(
 		return nativeTypeDescriptionResult.typeDescription;
 	}
 
-	if ((type.flags & ts.TypeFlags.Literal) != 0)
-	{
-		return {
-			k: TypeKind.LiteralType,
-			n: getLiteralName(type),
-			v: (type as any).value,
-		};
-	}
-
 	let typeSymbol = type.getSymbol();
 
 	if (type.aliasSymbol)
@@ -70,6 +61,24 @@ export function getTypeDescription(
 	if (!symbol && typeSymbol)
 	{
 		symbol = typeSymbol;
+	}
+	
+	if (type.isUnion() && (type.flags & ts.TypeFlags.EnumLiteral) == ts.TypeFlags.EnumLiteral) 
+	{
+		return {
+			k: TypeKind.Enum,
+			n: symbol?.escapedName.toString(),
+			types: type.types.map(type => getTypeCall(type, undefined, context)),
+		};
+	}
+
+	if ((type.flags & ts.TypeFlags.Literal) != 0)
+	{
+		return {
+			k: TypeKind.LiteralType,
+			n: getLiteralName(type),
+			v: (type as any).value,
+		};
 	}
 
 	const checker = context.typeChecker;
@@ -283,7 +292,7 @@ export function getTypeDescription(
 	const kind = getTypeKind(typeSymbol);
 	const symbolType = getType(typeSymbol, checker);
 	const symbolToUse = typeSymbol || symbol;
-	
+
 	const properties: TypePropertiesSource = {
 		k: kind,
 		n: typeSymbol.getName(),
@@ -302,12 +311,12 @@ export function getTypeDescription(
 		{
 			const constructorExport = getExportOfConstructor(typeSymbol, typeCtor, context);
 
-			if(context.config.isServerMode())
+			if (context.config.isServerMode())
 			{
 				properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
 			}
 
-			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport, context)
+			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport, context);
 			properties.ctor = ctorGetter;
 
 			if (constructorExport && properties.ctor && ctorRequireCall)

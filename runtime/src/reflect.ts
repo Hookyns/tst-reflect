@@ -12,12 +12,13 @@ import {
 	MethodParameter,
 	Property,
 }                              from "./descriptions";
+import { EnumInfo }            from "./descriptions/enum-info";
+import { TypeProperties }      from "./descriptions/type-properties";
+import { TypeKind }            from "./enums";
 import {
 	Mapper,
 	resolveLazyType
 }                              from "./mapper";
-import { TypeProperties }      from "./descriptions/type-properties";
-import { TypeKind }            from "./enums";
 import { InlineMetadataStore } from "./meta-stores/InlineMetadataStore";
 import { MetadataStore }       from "./meta-stores/MetadataStore";
 
@@ -383,6 +384,44 @@ export class Type
 	isObjectLike(): boolean
 	{
 		return this.isObjectLiteral() || this.isClass() || this.isInterface();
+	}
+
+	/**
+	 * Determines whether the object represented by the current Type is an Enum.
+	 * @return {boolean}
+	 */
+	isEnum(): boolean
+	{
+		return this.kind == TypeKind.Enum;
+	}
+
+	/**
+	 * Returns information about the enumerable elements.
+	 */
+	getEnum(): EnumInfo | undefined
+	{
+		if (!this.isEnum())
+		{
+			return undefined;
+		}
+
+		const entries: Array<readonly [enumeratorName: string, value: any]> = this.types
+			?.map(type => Object.freeze<readonly [enumeratorName: string, value: any]>([type.name, type.literalValue])) || [];
+		
+		return {
+			getValues(): any[]
+			{
+				return entries.map(entry => entry[1]);
+			},
+			getEntries(): Array<readonly [enumeratorName: string, value: any]>
+			{
+				return entries.slice();
+			},
+			getEnumerators(): string[]
+			{
+				return entries.map(entry => entry[0]);
+			}
+		};
 	}
 
 	/**

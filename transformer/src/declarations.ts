@@ -227,6 +227,7 @@ export interface TypePropertiesSource
 	 * @name name
 	 */
 	n?: string;
+	
 	/**
 	 * Full Name
 	 * @alias fullName

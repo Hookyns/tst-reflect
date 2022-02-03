@@ -78,6 +78,11 @@ export enum TypeKind
 	 * Specific method used as type
 	 */
 	Method = 12,
+
+	/**
+	 * Enum
+	 */
+	Enum = 13,
 }
 
 export enum Accessor
