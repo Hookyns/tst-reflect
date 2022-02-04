@@ -2,7 +2,7 @@ import type { Type } from "../reflect";
 
 export interface MetadataStore
 {
-	get store(): { [key: number]: Type };
+	readonly store: { [key: number]: Type };
 
 	/**
 	 * Get a type from the store by its number id
@@ -12,8 +12,6 @@ export interface MetadataStore
 	 */
 	get(id: number): Type | undefined;
 
-	//	__getDescription: (typeId: number) => any;
-
 	/**
 	 * Get a type, but it's wrapped in a function to prevent any circular dependencies.
 	 *
@@ -21,8 +19,6 @@ export interface MetadataStore
 	 * @returns {() => (Type | undefined)}
 	 */
 	getLazy(id: number): () => Type | undefined;
-
-	//	__lazyTypeGetter: (typeId: number) => () => Type | undefined;
 
 	/**
 	 * This is used when we return a basic type object from the transformer, but it's
@@ -33,8 +29,6 @@ export interface MetadataStore
 	 */
 	wrap(description: any): Type;
 
-	//__createType: (description?: any | number | string) => Type;
-
 	/**
 	 * Set a type on the store
 	 *
@@ -43,7 +37,4 @@ export interface MetadataStore
 	 * @returns {Type}
 	 */
 	set(id: number, description: any): Type;
-
-	//	__setDescription: (typeId: number, data: any) => void;
-
 }
