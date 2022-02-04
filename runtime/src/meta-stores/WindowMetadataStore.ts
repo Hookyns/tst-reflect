@@ -1,9 +1,11 @@
 import { REFLECT_STORE_SYMBOL } from "../consts";
-import {
-	Type,
-	TypeActivator
-}                               from "../reflect";
+import { Type }                 from "../reflect";
 import { MetadataStore }        from "./MetadataStore";
+
+/**
+ * @internal
+ */
+import { TypeActivator }        from "../reflect";
 
 /** @internal */
 declare global

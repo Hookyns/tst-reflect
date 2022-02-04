@@ -1,24 +1,27 @@
 import {
-	ConditionalType,
 	Constructor,
-	ConstructorImport,
-	ConstructorImportActivator,
-	Decorator,
-	IndexedAccessType,
 	Method,
-	MethodParameter,
-	Property,
-}                              from "./descriptions";
-import { EnumInfo }            from "./descriptions/enum-info";
-import { TypeProperties }      from "./descriptions/type-properties";
-import { TypeKind }            from "./enums";
+}                                     from "./descriptions/method";
+import { Decorator }                  from "./descriptions/decorator";
+import { IndexedAccessType }          from "./descriptions/indexed-access-type";
+import { ConditionalType }            from "./descriptions/conditional-type";
+import { ConstructorImport }          from "./descriptions/constructor-import";
+import { Property, }                  from "./descriptions/property";
+import { MethodParameter, }           from "./descriptions/parameter";
+import { EnumInfo }                   from "./descriptions/enum-info";
+import { TypeProperties }             from "./descriptions/type-properties";
+import { TypeKind }                   from "./enums";
 import {
 	Mapper,
 	resolveLazyType
-}                              from "./mapper";
-import { InlineMetadataStore } from "./meta-stores/InlineMetadataStore";
-import { MetadataStore }       from "./meta-stores/MetadataStore";
+}                                     from "./mapper";
+import { InlineMetadataStore }        from "./meta-stores/InlineMetadataStore";
+import type { MetadataStore }         from "./meta-stores/MetadataStore";
 
+/**
+ * @internal
+ */
+import { ConstructorImportActivator } from "./descriptions/constructor-import";
 
 /**
  * Object representing TypeScript type in memory
@@ -413,7 +416,7 @@ export class Type
 
 		const entries: Array<readonly [enumeratorName: string, value: any]> = this.types
 			?.map(type => Object.freeze<readonly [enumeratorName: string, value: any]>([type.name, type.literalValue])) || [];
-		
+
 		return {
 			getValues(): any[]
 			{

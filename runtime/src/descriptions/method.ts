@@ -3,7 +3,7 @@ import {
 	Mapper,
 	resolveLazyType
 }                         from "../mapper";
-import { Type }           from "../reflect";
+import type { Type }      from "../reflect";
 import {
 	Decorator,
 	DecoratorDescription

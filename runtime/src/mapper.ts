@@ -1,29 +1,34 @@
 import {
 	AccessModifier,
 	Accessor
-}               from "./enums";
+} from "./enums";
 import { Type } from "./reflect";
 import {
 	Decorator,
 	DecoratorDescription
-}               from "./descriptions/decorator";
+} from "./descriptions/decorator";
 import {
 	Constructor,
-	ConstructorActivator,
 	ConstructorDescription,
 	Method,
-	MethodActivator,
 	MethodDescription
-}               from "./descriptions/method";
+} from "./descriptions/method";
 import {
 	MethodParameter,
 	ParameterDescription
-}               from "./descriptions/parameter";
+} from "./descriptions/parameter";
 import {
 	Property,
 	PropertyDescription
-}               from "./descriptions/property";
+} from "./descriptions/property";
 
+/**
+ * @internal
+ */
+import {
+	ConstructorActivator,
+	MethodActivator
+} from "./descriptions/method";
 
 /**
  * @internal

@@ -1,8 +1,10 @@
-import {
-	Type,
-	TypeActivator
-}                        from "../reflect";
+import { Type }          from "../reflect";
 import { MetadataStore } from "./MetadataStore";
+
+/**
+ * @internal
+ */
+import { TypeActivator } from "../reflect";
 
 let store: InlineMetadataStore | null = null;
 

@@ -1,4 +1,4 @@
-import { Type } from "../reflect";
+import type { Type } from "../reflect";
 
 /**
  * @internal

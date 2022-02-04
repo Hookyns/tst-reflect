@@ -1,12 +1,12 @@
 import {
 	AccessModifier,
 	Accessor
-}               from "../enums";
-import { Type } from "../reflect";
+}                    from "../enums";
+import type { Type } from "../reflect";
 import {
 	Decorator,
 	DecoratorDescription
-}               from "./decorator";
+}                    from "./decorator";
 
 /**
  * @internal
