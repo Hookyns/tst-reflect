@@ -55,7 +55,6 @@ abstract class BaseGenericClass<TGenericType extends any = DefaultType, TGeneric
 	public stringArrayProp: string[];
 	public stringProp: string;
 	public someUnionProp: SimpleUnionType;
-	public someEnum: SomeEnum = SomeEnum.One;
 
 	constructor(initValue: TGenericType)
 	constructor(initValue: TGenericType, anyProp: undefined)
@@ -86,6 +85,11 @@ class FinalClass extends BaseGenericClass<{ genFoo: Array<{ genArrBar: string }>
 	objectProp: { objectPropFoo: string, objectPropBar: string; };
 
 	methodType: BaseGenericClass<any>["baseVoidMethod"];
+	someEnum: SomeEnum = SomeEnum.One;
+	NumberObject: Number = 0;
+	StringObject: String = "str";
+	ObjectObject: Object = {};
+	date: Date;
 
 	initializedStringProp = "initializedStringProp";
 	initializedAnyProp: any = true;

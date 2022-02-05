@@ -131,7 +131,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 					),
 					factory.createIdentifier("store")
 				),
-				factory.createIdentifier("lazy")
+				factory.createIdentifier("getLazy")
 			),
 			undefined,
 			[factory.createNumericLiteral(typeId)]

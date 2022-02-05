@@ -1,11 +1,7 @@
 import { REFLECT_STORE_SYMBOL } from "../consts";
 import { Type }                 from "../reflect";
 import { MetadataStore }        from "./MetadataStore";
-
-/**
- * @internal
- */
-import { TypeActivator }        from "../reflect";
+import { MetadataStoreBase }    from "./MetadataStoreBase";
 
 /** @internal */
 declare global
@@ -19,7 +15,7 @@ declare global
 
 }
 
-export class WindowMetadataStore implements MetadataStore
+export class WindowMetadataStore extends MetadataStoreBase
 {
 
 	private _store: { [p: number]: Type } = {};
@@ -71,13 +67,6 @@ export class WindowMetadataStore implements MetadataStore
 
 		this._store[id] = type;
 
-		return type;
-	}
-
-	wrap(description: any): Type
-	{
-		const type = Reflect.construct(Type, [], TypeActivator);
-		type.initialize(description);
 		return type;
 	}
 }

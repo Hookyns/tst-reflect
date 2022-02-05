@@ -1,22 +1,22 @@
+import type { MetadataStore }         from "./meta-stores/MetadataStore";
 import {
 	Constructor,
 	Method,
 }                                     from "./descriptions/method";
-import { Decorator }                  from "./descriptions/decorator";
-import { IndexedAccessType }          from "./descriptions/indexed-access-type";
-import { ConditionalType }            from "./descriptions/conditional-type";
+import type { Decorator }             from "./descriptions/decorator";
+import type { IndexedAccessType }     from "./descriptions/indexed-access-type";
+import type { ConditionalType }       from "./descriptions/conditional-type";
 import { ConstructorImport }          from "./descriptions/constructor-import";
-import { Property, }                  from "./descriptions/property";
-import { MethodParameter, }           from "./descriptions/parameter";
-import { EnumInfo }                   from "./descriptions/enum-info";
-import { TypeProperties }             from "./descriptions/type-properties";
+import type { Property, }             from "./descriptions/property";
+import type { MethodParameter, }      from "./descriptions/parameter";
+import type { EnumInfo }              from "./descriptions/enum-info";
+import type { TypeProperties }        from "./descriptions/type-properties";
 import { TypeKind }                   from "./enums";
 import {
 	Mapper,
 	resolveLazyType
 }                                     from "./mapper";
 import { InlineMetadataStore }        from "./meta-stores/InlineMetadataStore";
-import type { MetadataStore }         from "./meta-stores/MetadataStore";
 
 /**
  * @internal
@@ -29,6 +29,14 @@ import { ConstructorImportActivator } from "./descriptions/constructor-import";
 export class Type
 {
 	public static readonly Object: Type;
+	public static readonly Unknown: Type;
+	public static readonly Any: Type;
+	public static readonly Void: Type;
+	public static readonly String: Type;
+	public static readonly Number: Type;
+	public static readonly Boolean: Type;
+	public static readonly Date: Type;
+
 	/** @internal */
 	private _ctor?: () => Function;
 	/** @internal */
@@ -489,10 +497,8 @@ export class Type
 	/**
 	 * Returns object with all methods and properties from current Type and all methods and properties inherited from base types and interfaces to this Type.
 	 * @return {{properties: {[p: string]: Property}, methods: {[p: string]: Method}}}
-	 * @private
-	 * @internal
 	 */
-	private flattenInheritedMembers(): {
+	flattenInheritedMembers(): {
 		properties: { [propertyName: string]: Property },
 		methods: { [methodName: string]: Method }
 	}
@@ -647,49 +653,49 @@ export class TypeActivator extends Type
 {
 }
 
-(Type as any).Object = Reflect.construct(Type, [
-	{
-		n: "Object",
-		fn: "Object",
-		ctor: Object,
-		k: TypeKind.Native
-	}
-], TypeActivator);
 
-/**
- * Returns Type of generic parameter
- */
-export function getType<T>(): Type | undefined
-// TODO: Uncomment and use this line. Waiting for TypeScript issue to be resolved. https://github.com/microsoft/TypeScript/issues/46155
-// export function getType<T = void>(..._: (T extends void ? ["You must provide a type parameter"] : [])): Type | undefined
-
-export function getType<T>(): Type | undefined
+function createNativeType(typeName: string, ctor?: Function): Type
 {
-	return undefined;
+	const type =  Reflect.construct(Type, [], TypeActivator);
+	
+	type.initialize({
+		n: typeName,
+		fn: typeName,
+		ctor: () => ctor,
+		k: TypeKind.Native
+	});
+	
+	return type;
 }
 
-/** @internal */
-getType.__tst_reflect__ = true;
-
 /**
- * getType for circular dependencies
- * @internal
+ * List of native types
+ * @description It should save some memory and all native Types will be the same instances.
  */
-getType.lazy = function (typeId: number) {
-	return function lazyType() {
-		return (getType as any)(typeId);
-	};
+const nativeTypes: { [typeName: string]: Type } = {
+	"Object": createNativeType("Object", Object),
+	"Unknown": createNativeType("unknown"),
+	"Any": createNativeType("any"),
+	"Void": createNativeType("void"),
+	"String": createNativeType("String", String),
+	"Number": createNativeType("Number", Number),
+	"Boolean": createNativeType("Boolean", Boolean),
+	"Date": createNativeType("Date", Date),
 };
 
-
 /**
- * Class decorator which marks classes to be processed and included in metadata lib file.
- * @reflectDecorator
+ * @internal
  */
-export function reflect<TType>()
-{
-	getType<TType>();
-	return function <T>(Constructor: { new(...args: any[]): T }) {
-	};
+export const NativeTypes = new Map<string, Type>();
+
+for (let entry of Object.entries(nativeTypes)) {
+	NativeTypes.set(entry[0].toLowerCase(), entry[1]);
 }
 
+for (const typeName in nativeTypes)
+{
+	if (nativeTypes.hasOwnProperty(typeName))
+	{
+		(Type as any)[typeName] = nativeTypes[typeName];
+	}
+}

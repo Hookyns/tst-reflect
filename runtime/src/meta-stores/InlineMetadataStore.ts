@@ -1,14 +1,10 @@
-import { Type }          from "../reflect";
-import { MetadataStore } from "./MetadataStore";
-
-/**
- * @internal
- */
-import { TypeActivator } from "../reflect";
+import { Type }              from "../reflect";
+import { MetadataStore }     from "./MetadataStore";
+import { MetadataStoreBase } from "./MetadataStoreBase";
 
 let store: InlineMetadataStore | null = null;
 
-export class InlineMetadataStore implements MetadataStore
+export class InlineMetadataStore extends MetadataStoreBase
 {
 	private _store: { [p: number]: Type } = {};
 
@@ -54,13 +50,6 @@ export class InlineMetadataStore implements MetadataStore
 
 		this._store[id] = type;
 
-		return type;
-	}
-
-	wrap(description: any): Type
-	{
-		const type = Reflect.construct(Type, [], TypeActivator);
-		type.initialize(description);
 		return type;
 	}
 }

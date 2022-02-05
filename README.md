@@ -16,14 +16,39 @@ Yeap! How the title says, this project is about runtime **reflection** with work
 achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) 
 and runtime stuff (package `tst-reflect`).
 
-## Show Me Some Code!
+## How to Get the Type
+Use function `getType<TType>(): Type` imported from module `tst-reflect`.
 
-### Simple Example
+### Base Usage
+```typescript
+import { getType, Type } from "tst-reflect";
+
+interface IAnimal
+{
+    name: string;
+}
+
+class Animal implements IAnimal
+{
+    constructor(public name: string)
+    {
+    }
+}
+
+const typeOfIAnimal: Type = getType<IAnimal>();
+const typeOfAnimal: Type = getType<Animal>();
+
+console.log(typeOfAnimal.isAssignableTo(typeOfIAnimal)); // true
+```
+
+### Get Type of Generic Type Parameter (runtime)
 ```typescript
 import { getType } from "tst-reflect";
 
-function printTypeProperties<TType>() {
-    const type = getType<TType>();
+function printTypeProperties<TType>() 
+{
+    const type = getType<TType>(); // <<== get type of generic TType
+    
     console.log(type.getProperties().map(prop => prop.name + ": " + prop.type.name).join("\n"));
 }
 
@@ -42,6 +67,143 @@ foo: string
 bar: number
 baz: Date
 ```
+
+### Decorator With Reflected Generic Type
+
+`tst-reflect-transformer` is able to process class decorators marked by @reflectDecorator JSDoc tag.
+You will be able to get `Type` of each decorated class.
+
+```typescript
+/**
+ * @reflectDecorator
+ */
+export function inject<TType>()
+{
+    const typeofClass = getType<TType>();
+
+    return function <TType extends { new(...args: any[]): {} }>(Constructor: TType) {
+        return class extends Constructor
+        {
+            constructor(...args: any[])
+            {
+                super(...type.getConstructors()[0].parameters.map(param => serviceProvider.getService(param.type)));
+            }
+        }
+    };
+}
+
+@inject()
+class A {}
+
+@inject()
+class B {}
+```
+
+## How to Start
+
+1. Install packages.
+```
+npm i tst-reflect && npm i tst-reflect-transformer -D
+```
+
+
+2. In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
+```
+npm i ttypescript -D
+```
+
+
+3. Add transformer to `tsconfig.json`
+```json5
+{
+    "compilerOptions": {
+        // your options...
+
+        // ADD THIS!
+        "plugins": [
+            {
+                "transform": "tst-reflect-transformer"
+            }
+        ]
+    }
+}
+```
+4. Now just transpile your code by `ttsc` instead of `tsc`
+```
+npx ttsc
+```
+
+### Using Webpack
+Modify your webpack config. Use `options.compiler` of `ts-loader` to set `ttypescript` compiler.
+```javascript
+({
+    test: /\.(ts|tsx)$/,
+    loader: require.resolve("ts-loader"),
+    options: {
+        compiler: "ttypescript"
+    }
+})
+```
+
+### Using Parcel
+Install Parcel plugin.
+```
+npm i parcel-plugin-ttypescript
+```
+
+### Using Rollup
+Install Rollup plugin
+```
+npm i rollup-plugin-typescript2
+```
+and modify your rollup config.
+```javascript
+import ttypescript from "ttypescript";
+import tsPlugin from "rollup-plugin-typescript2";
+
+export default {
+    // your options...
+    
+    plugins: [
+        // ADD THIS!
+        tsPlugin({
+            typescript: ttypescript
+        })
+    ]
+}
+```
+
+### Using ts-node
+Modify your `tsconfig.json`.
+```json5
+{
+    "compilerOptions": {
+        // your options...
+
+        "plugins": [
+            {
+                "transform": "tst-reflect-transformer"
+            }
+        ]
+    },
+    
+    // ADD THIS!
+    "ts-node": {
+        // This can be omitted when using ts-patch
+        "compiler": "ttypescript"
+    },
+}
+```
+_ts-node can be a little bugged if you use `reflection.metadata.type = "typelib"` option!_
+
+
+## Examples
+- [Example 01 - Dependency Injection](https://github.com/Hookyns/tst-reflect-example-01) [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
+
+Feel free to add Your interesting examples. Just add a link to this README and make a PR.
+
+
+## Some Complex Code!
 
 ### Dependency Injection from scratch.
 [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
@@ -283,140 +445,6 @@ its return type is `Type` which is class imported from runtime package too.
 Second part is somewhere in the middle in method `getService<T>()` of `ServiceProvider` class where you can see some operations with `Type`.
 Type details in [Synopsis](#synopsis).
 
-## Examples
-- [Example 01 - Dependency Injection](https://github.com/Hookyns/tst-reflect-example-01) [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
-
-Feel free to add Your interesting examples. Just add a link to this README and make a PR.
-
-### Decorator with Generic Reflection
-`tst-reflect-transformer` is able to process class decorators marked by @reflectDecorator JSDoc tag.
-You will be able to get `Type` of each decorated class.
-
-```typescript
-/**
- * @reflectDecorator
- */
-export function inject<TType>()
-{
-    const typeofClass = getType<TType>();
-
-    return function <TType extends { new(...args: any[]): {} }>(Constructor: TType) {
-        return class extends Constructor
-        {
-            constructor(...args: any[])
-            {
-                super(...type.getConstructors()[0].parameters.map(param => serviceProvider.getService(param.type)));
-            }
-        }
-    };
-}
-
-@inject()
-class A {}
-
-@inject()
-class B {}
-```
-
-## How to Start
-
-1. Install packages.
-```
-npm i tst-reflect && npm i tst-reflect-transformer -D
-```
-
-
-2. In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
-```
-npm i ttypescript -D
-```
-
-
-3. Add transformer to `tsconfig.json`
-```json5
-{
-    "compilerOptions": {
-        // your options...
-
-        // ADD THIS!
-        "plugins": [
-            {
-                "transform": "tst-reflect-transformer"
-            }
-        ]
-    }
-}
-```
-4. Now just transpile your code by `ttsc` instead of `tsc`
-```
-npx ttsc
-```
-
-### Using Webpack
-Modify your webpack config. Use `options.compiler` of `ts-loader` to set `ttypescript` compiler.
-```javascript
-({
-    test: /\.(ts|tsx)$/,
-    loader: require.resolve("ts-loader"),
-    options: {
-        compiler: "ttypescript"
-    }
-})
-```
-
-### Using Parcel
-Install Parcel plugin.
-```
-npm i parcel-plugin-ttypescript
-```
-
-### Using Rollup
-Install Rollup plugin
-```
-npm i rollup-plugin-typescript2
-```
-and modify your rollup config.
-```javascript
-import ttypescript from "ttypescript";
-import tsPlugin from "rollup-plugin-typescript2";
-
-export default {
-    // your options...
-    
-    plugins: [
-        // ADD THIS!
-        tsPlugin({
-            typescript: ttypescript
-        })
-    ]
-}
-```
-
-### Using ts-node
-Modify your `tsconfig.json`.
-```json5
-{
-    "compilerOptions": {
-        // your options...
-
-        "plugins": [
-            {
-                "transform": "tst-reflect-transformer"
-            }
-        ]
-    },
-    
-    // ADD THIS!
-    "ts-node": {
-        // This can be omitted when using ts-patch
-        "compiler": "ttypescript"
-    },
-}
-```
-
-## Obtaining Type
-
-Runtime package (`tst-reflect`) contains two main exports, `getType<T>()` function and `Type` class. To get `Type` instance, you have to call `getType<InterfaceOrClassOrSomeType>()`.
 
 ## How does it work
 
@@ -902,10 +930,6 @@ serviceProvider.Resolve<ILog>();
 ```
 
 Where resolve() take care about constructors parameters, based on their types, and resolve everything.
-
-## Known Issues
-
-* Order of generated meta can be wrong in case of circular modules.
 
 ## License
 This project is licensed under the [MIT license](./LICENSE).

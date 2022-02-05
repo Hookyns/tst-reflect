@@ -2,7 +2,7 @@ import {
 	AccessModifier,
 	Accessor
 } from "./enums";
-import { Type } from "./reflect";
+import type { Type } from "./reflect";
 import {
 	Decorator,
 	DecoratorDescription
