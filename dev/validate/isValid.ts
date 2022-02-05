@@ -5,6 +5,18 @@ import {
 
 function isAssignable(propertyType: Type, value: any): boolean
 {
+	if (propertyType.isUnionOrIntersection())
+	{
+		if (propertyType.intersection)
+		{
+			return propertyType.types.every(type => isAssignable(type, value));
+		}
+		else
+		{
+			return propertyType.types.some(type => isAssignable(type, value));
+		}
+	}
+
 	if (!propertyType.isNative())
 	{
 		return value.constructor == propertyType.ctor;
@@ -25,18 +37,6 @@ function isAssignable(propertyType: Type, value: any): boolean
 			return value === undefined;
 	}
 
-	if (propertyType.isUnionOrIntersection())
-	{
-		if (propertyType.intersection)
-		{
-			return propertyType.types.some(type => isAssignable(type, value));
-		}
-		else
-		{
-			return propertyType.types.every(type => isAssignable(type, value));
-		}
-	}
-
 	if (propertyType.isArray())
 	{
 		if (value?.constructor == Array)
@@ -50,17 +50,21 @@ function isAssignable(propertyType: Type, value: any): boolean
 
 	console.log("assignable check probably not implemented for value", value, "and property type", propertyType.name, "kind", propertyType.kind);
 
-	return isValid(value, propertyType);
+	return false;
 }
 
 /**
  * @reflectGeneric
  * @param value
- * @param target
  */
-export function isValid<TType>(value: any, target?: Type): value is TType
+export function isValid<TType>(value: any): value is TType
 {
-	target = target || getType<TType>();
+	const target = getType<TType>();
+
+	if (target.isClass())
+	{
+		return value instanceof target.ctor;
+	}
 
 	const currentMembers = Object.keys(value);
 	const currentPropertyNames = currentMembers.filter(member => typeof value[member] != "function");
