@@ -19,7 +19,7 @@ export * from "./descriptions/type-properties";
  */
 export function getType<T>(): Type
 {
-	if (!((window || global || globalThis) as any)["tst-reflect-disable"])
+	if (!(((typeof window === "object" && window) || (typeof global === "object" && global) || globalThis) as any)["tst-reflect-disable"])
 	{
 		console.debug("[ERR] tst-reflect: You call getType() method directly. " +
 			"You have probably wrong configuration, because tst-reflect-transformer package should replace this call by the Type instance.\n" +

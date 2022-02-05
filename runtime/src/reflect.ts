@@ -306,6 +306,11 @@ export class Type
 	 */
 	is(type: Type)
 	{
+		if (this == Type.Unknown)
+		{
+			return false;
+		}
+		
 		return type != undefined && this._fullName == type._fullName && !!this._fullName;
 	}
 
@@ -503,6 +508,8 @@ export class Type
 		methods: { [methodName: string]: Method }
 	}
 	{
+		// TODO: Important to handle Unions and Intersections
+		
 		const interfaceMembers = this.interface?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
 		const baseTypeMembers = this.baseType?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
 
