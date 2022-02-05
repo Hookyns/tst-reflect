@@ -16,6 +16,25 @@ Yeap! How the title says, this project is about runtime **reflection** with work
 achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) 
 and runtime stuff (package `tst-reflect`).
 
+### Features
+- clear Reflection system, generating JS metadata library - can be de facto standard for TS reflection,
+- you can use regular TypeScript,
+- no decorators nor any other kind of hints needed,
+- no problem with the types from 3rd party packages,
+- no pre-implemented features like validators or type-guards, just clear type information. All these features can be built on top of this package in runtime,
+- you can get the runtime type of the generic type, really!
+- you can access the type of the class in your own decorators,
+- you can get the type of a classes, interfaces, type literals, unions, intersections just all of that,
+- object oriented usage - you will get instance of the `Type` class, which contains everything,
+- inspired by the C# reflection - usage is very similar,
+- overloads of a constructors and methods supported,
+- static API to lookup types,
+- access to constructors of all the types - you can instantiate every type,
+- configuration with multiple options,
+- browser usage,
+- you can check if one type is assignable to another without instances of those type - eg. check if some class is assignable to some interface,
+- and there are probably more... and a lot of things are on TODO list.
+
 ## How to Get the Type
 Use function `getType<TType>(): Type` imported from module `tst-reflect`.
 
@@ -446,7 +465,7 @@ Second part is somewhere in the middle in method `getService<T>()` of `ServicePr
 Type details in [Synopsis](#synopsis).
 
 
-## How does it work
+## How Does it Work
 
 Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic. It generates object literals describing referred types and instances of `Type`
 are created from those objects.
