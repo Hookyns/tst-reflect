@@ -1,5 +1,5 @@
 import { TypeKind }                     from "../enums";
-import type { Type }                    from "../reflect";
+import type { Type }                    from "../Type";
 import { ConditionalTypeDescription }   from "./conditional-type";
 import { ConstructorImportDescription } from "./constructor-import";
 import { DecoratorDescription }         from "./decorator";

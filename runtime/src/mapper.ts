@@ -2,15 +2,17 @@ import {
 	AccessModifier,
 	Accessor
 } from "./enums";
-import type { Type } from "./reflect";
+import type { Type } from "./Type";
 import {
 	Decorator,
 	DecoratorDescription
 } from "./descriptions/decorator";
 import {
 	Constructor,
+	ConstructorActivator,
 	ConstructorDescription,
 	Method,
+	MethodActivator,
 	MethodDescription
 } from "./descriptions/method";
 import {
@@ -21,14 +23,6 @@ import {
 	Property,
 	PropertyDescription
 } from "./descriptions/property";
-
-/**
- * @internal
- */
-import {
-	ConstructorActivator,
-	MethodActivator
-} from "./descriptions/method";
 
 /**
  * @internal

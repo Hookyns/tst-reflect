@@ -1,4 +1,4 @@
-import { Type }              from "../reflect";
+import { Type }              from "../Type";
 import { MetadataStore }     from "./MetadataStore";
 import { MetadataStoreBase } from "./MetadataStoreBase";
 

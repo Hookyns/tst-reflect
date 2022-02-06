@@ -1,9 +1,9 @@
 import { TypeKind }           from "../enums";
+import { NativeTypes }        from "../reflect";
 import {
-	NativeTypes,
 	Type,
 	TypeActivator
-}                             from "../reflect";
+}                             from "../Type";
 import type { MetadataStore } from "./MetadataStore";
 
 export abstract class MetadataStoreBase implements MetadataStore

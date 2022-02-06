@@ -6,6 +6,7 @@
 		"transformer"
 	],
 	"scripts": {
+		"inst": "npm install --foreground-scripts",
 		"tsc": "tsc --build",
 		"watch": "tsc --build --watch"
 	},
