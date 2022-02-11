@@ -55,3 +55,12 @@ console.log(typeOfArray.isArray()); // > true
 const arrayTypeArg = typeOfArray.getTypeArguments()[0];
 console.log(arrayTypeArg.union); // > true
 console.log(arrayTypeArg.types.map(arg => arg.name).join(", ")); // > "A, B"
+
+
+const array2: any = [new A(), new B(), "string", true, false, { foo: "bar"}];
+const typeOfArray2 = getType(array2);
+console.log(typeOfArray2.isArray()); // > true
+const arrayTypeArg2 = typeOfArray2.getTypeArguments()[0];
+console.log(arrayTypeArg2.union); // > true
+console.log(arrayTypeArg2.types.map(arg => arg.name).join(", ")); // > "A, B"
+console.log(arrayTypeArg2.types[4].getProperties().map(p => p.name + ":" + p.type.name));

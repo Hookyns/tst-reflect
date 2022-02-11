@@ -1,22 +1,27 @@
-import { TypeBuilder }    from "./type-builder/TypeBuilder";
-import { REFLECTED_TYPE } from "./consts";
-import { TypeKind }       from "./enums";
+import { ObjectLiteralTypeBuilder } from "./type-builder/ObjectLiteralTypeBuilder";
+import { TypeBuilder }              from "./type-builder/TypeBuilder";
+import { REFLECTED_TYPE }           from "./consts";
+import { TypeKind }                 from "./enums";
 import {
 	Type,
 	TypeActivator
-}                         from "./Type";
+}                                   from "./Type";
 
 const ArrayItemsCountToCheckItsType = 10;
 
 /**
- * @param args
+ * @param value
+ * @internal
  */
-function getTypeFromRuntimeValue(args: any[])
+export function getTypeOfRuntimeValue(value: any)
 {
-	const value = args[0];
-
 	if (value === undefined) return Type.Undefined;
 	if (value === null) return Type.Null;
+	if (typeof value === "string") return Type.String;
+	if (typeof value === "number") return Type.Number;
+	if (typeof value === "boolean") return Type.Boolean;
+	if (value instanceof Date) return Type.Date;
+	if (value.constructor === Object) return ObjectLiteralTypeBuilder.fromObject(value);
 
 	if (!value.constructor)
 	{
@@ -30,7 +35,7 @@ function getTypeFromRuntimeValue(args: any[])
 		// If it is an array, there can be anything; we'll check first X cuz of performance.
 		for (let item of value.slice(0, ArrayItemsCountToCheckItsType))
 		{
-			set.add(item?.constructor?.[REFLECTED_TYPE] ?? Type.Undefined);
+			set.add(getTypeOfRuntimeValue(item));
 		}
 
 		const valuesTypes = Array.from(set);
@@ -71,7 +76,7 @@ export function getType<T>(...args: any[]): Type
 {
 	if (args.length)
 	{
-		return getTypeFromRuntimeValue(args);
+		return getTypeOfRuntimeValue(args[0]);
 	}
 
 	if (!(((typeof window === "object" && window) || (typeof global === "object" && global) || globalThis) as any)["tst-reflect-disable"])
@@ -97,7 +102,7 @@ getType.__tst_reflect__ = true;
 export function reflect<TType>()
 {
 	const typeOfTType = arguments[0]?.TType;
-	
+
 	return function <T>(Constructor: { new(...args: any[]): T }) {
 		(Constructor as any)[REFLECTED_TYPE] = typeOfTType;
 		return Constructor;
