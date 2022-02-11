@@ -94,9 +94,14 @@ getType.__tst_reflect__ = true;
  * Class decorator which marks classes to be processed and included in metadata lib file.
  * @reflectDecorator
  */
-export function reflect<TType>(Constructor: { new(...args: any[]): TType })
+export function reflect<TType>()
 {
-	getType<TType>();
+	const typeOfTType = arguments[0]?.TType;
+	
+	return function <T>(Constructor: { new(...args: any[]): T }) {
+		(Constructor as any)[REFLECTED_TYPE] = typeOfTType;
+		return Constructor;
+	};
 }
 
 reflect.__tst_reflect__ = true;

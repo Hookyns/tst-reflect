@@ -16,8 +16,9 @@ export function processGetTypeCallExpression(
 
 	if (!genericTypeNode)
 	{
-		// TODO: Allow calls like "getType(variable)"
-		throw getError(node, "Type argument 'TType' of function getType<TType>() is missing.");
+		// Calls like "getType(variable)" allowed. It returns runtime value.
+		return undefined;
+		// throw getError(node, "Type argument 'TType' of function getType<TType>() is missing.");
 	}
 
 	let genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);

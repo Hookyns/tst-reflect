@@ -24,7 +24,8 @@ and runtime stuff (package `tst-reflect`).
 - no pre-implemented features like validators or type-guards, just clear type information. All these features can be built on top of this package in runtime,
 - you can get the runtime type of the generic type, really!
 - you can access the type of the class in your own decorators,
-- you can get the type of a classes, interfaces, type literals, unions, intersections just all of that,
+- you can get the type of a classes, interfaces, type literals, unions, intersections just all of that `getType<SomeType>()`,
+- you can get the type of runtime value stored in variable `getType(myVar)`,
 - object oriented usage - you will get instance of the `Type` class, which contains everything,
 - inspired by the C# reflection - usage is very similar,
 - overloads of a constructors and methods supported,
