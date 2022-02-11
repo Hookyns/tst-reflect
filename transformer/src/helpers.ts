@@ -57,17 +57,33 @@ let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
  */
 export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 {
-	if (symbol.flags == ts.SymbolFlags.Interface || symbol.flags == ts.SymbolFlags.Alias)
+	if (symbol.flags == ts.SymbolFlags.Interface/* || symbol.flags == ts.SymbolFlags.Alias*/)
 	{
 		return checker.getDeclaredTypeOfSymbol(symbol);
 	}
 
-	if (!symbol.valueDeclaration)
+	const declaration = getDeclaration(symbol);
+
+	if (!declaration)
 	{
 		throw new Error("Unable to resolve declarations of symbol.");
 	}
 
-	return checker.getTypeOfSymbolAtLocation(symbol, symbol.valueDeclaration);
+	return checker.getTypeOfSymbolAtLocation(symbol, declaration);
+}
+
+/**
+ * Returns declaration of symbol. ValueDeclaration is preferred.
+ * @param symbol
+ */
+export function getDeclaration(symbol?: ts.Symbol): ts.Declaration | undefined
+{
+	if (!symbol)
+	{
+		return undefined;
+	}
+
+	return symbol.valueDeclaration || symbol.declarations?.[0];
 }
 
 /**
@@ -141,7 +157,7 @@ export function getTypeFullName(typeSymbol?: ts.Symbol)
  */
 export function isExpression(value: any)
 {
-	return value.hasOwnProperty("kind") && (value.constructor.name == "NodeObject" || value.constructor.name == "IdentifierObject");
+	return value.hasOwnProperty("kind") && (value.constructor.name == "NodeObject" || value.constructor.name == "IdentifierObject" || value.constructor.name == "TokenObject");
 }
 
 /**
@@ -381,9 +397,11 @@ export function getUnknownTypeCall(context: Context): GetTypeCall
  */
 export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Signature | undefined
 {
-	if (symbol.valueDeclaration && ts.isMethodSignature(symbol.valueDeclaration))
+	const declaration = getDeclaration(symbol);
+	
+	if (declaration && ts.isMethodSignature(declaration))
 	{
-		return checker.getSignatureFromDeclaration(symbol.valueDeclaration);
+		return checker.getSignatureFromDeclaration(declaration);
 	}
 
 	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)?.[0];
@@ -484,22 +502,24 @@ export function isTypedDeclaration(declaration: ts.Declaration): declaration is 
 // This allows us to get the ctor node which we resolve descriptor info and create the ctor require
 export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefined
 {
-	if (!symbol.valueDeclaration)
+	const declaration = getDeclaration(symbol);
+	
+	if (!declaration)
 	{
 		return undefined;
 	}
 
-	if (isTypedDeclaration(symbol.valueDeclaration))
+	if (isTypedDeclaration(declaration))
 	{
 		let typeName: ts.Identifier | undefined = undefined;
 
-		if (ts.isIndexedAccessTypeNode(symbol.valueDeclaration.type))
+		if (ts.isIndexedAccessTypeNode(declaration.type))
 		{
-			typeName = (symbol.valueDeclaration.type.indexType as any).typeName;
+			typeName = (declaration.type.indexType as any).typeName;
 		}
 		else
 		{
-			typeName = (symbol.valueDeclaration.type as any).typeName;
+			typeName = (declaration.type as any).typeName;
 		}
 
 		if (typeName && typeName?.kind === SyntaxKind.Identifier)

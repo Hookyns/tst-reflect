@@ -22,3 +22,8 @@ export const GET_TYPE_FNC_NAME = "getType";
  * Symbol used as key in objects, holding metadata
  */
 export const REFLECT_STORE_SYMBOL = Symbol("tst_reflect_store");
+
+/**
+ * Name of the property used to store Type instance on constructors
+ */
+export const REFLECTED_TYPE = "__reflectedType__";

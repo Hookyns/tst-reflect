@@ -5,8 +5,9 @@ import {
 import * as ts                          from "typescript";
 import { Context }                      from "../contexts/Context";
 import {
+	getType,
 	hasReflectDecoratorJsDoc
-}                                       from "../helpers";
+} from "../helpers";
 import { log }                          from "../log";
 import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";
@@ -27,7 +28,6 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 	{
 		return nodeToVisit;
 	}
-
 
 	// Is it call expression?
 	if (ts.isCallExpression(node))
@@ -92,12 +92,28 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 			}
 		}
 	}
-	else if (ts.isDecorator(node) && ts.isClassDeclaration(node.parent) && ts.isCallExpression(node.expression))
+	else if (ts.isDecorator(node) && ts.isClassDeclaration(node.parent))
 	{
 		// type of decorator
-		const type = context.typeChecker.getTypeAtLocation(node.expression.expression);
+		let type: ts.Type | undefined = undefined;
 
-		if (hasReflectDecoratorJsDoc(type.getSymbol()))
+		if (ts.isCallExpression(node.expression))
+		{
+			type = context.typeChecker.getTypeAtLocation(node.expression.expression);
+		}
+		else if (ts.isIdentifier(node.expression))
+		{
+			const symbol = context.typeChecker.getSymbolAtLocation(node.expression);
+
+			if (symbol)
+			{
+				type = getType(symbol, context.typeChecker);
+			}
+		}
+
+		// TODO: support property decorators 
+		
+		if (type && hasReflectDecoratorJsDoc(type.getSymbol()))
 		{
 
 			const res = processDecorator(node, type, context);

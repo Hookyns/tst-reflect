@@ -1,12 +1,13 @@
 import {
 	AccessModifier,
 	Accessor
-} from "./enums";
+}                    from "./enums";
 import type { Type } from "./Type";
 import {
 	Decorator,
+	DecoratorActivator,
 	DecoratorDescription
-} from "./descriptions/decorator";
+}                    from "./descriptions/decorator";
 import {
 	Constructor,
 	ConstructorActivator,
@@ -14,15 +15,15 @@ import {
 	Method,
 	MethodActivator,
 	MethodDescription
-} from "./descriptions/method";
+}                    from "./descriptions/method";
 import {
 	MethodParameter,
 	ParameterDescription
-} from "./descriptions/parameter";
+}                    from "./descriptions/parameter";
 import {
 	Property,
 	PropertyDescription
-} from "./descriptions/property";
+}                    from "./descriptions/property";
 
 /**
  * @internal
@@ -44,7 +45,7 @@ export const Mapper = {
 	 */
 	mapDecorators(d: DecoratorDescription): Decorator
 	{
-		return ({ name: d.n, fullName: d.fn });
+		return Reflect.construct(Decorator, [d], DecoratorActivator);
 	},
 
 	/**

@@ -839,8 +839,7 @@ export interface Property
 /**
  * Decoration description
  */
-export interface Decorator
-{
+export class Decorator {
     /**
      * Decorator name
      */
@@ -849,6 +848,10 @@ export interface Decorator
      * Decorator full name
      */
     fullName?: string;
+    /**
+     * List of literal arguments
+     */
+    getArguments(): Array<any>;
 }
 
 /**

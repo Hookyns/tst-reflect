@@ -3,6 +3,7 @@ import { Context }                                        from "./contexts/Conte
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
 import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
 import { getTypeCall }                                    from "./getTypeCall";
+import { log }                                            from "./log";
 import {
 	TypeArgumentValueDescription,
 	updateCallExpression
@@ -17,8 +18,17 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 
 	// Method/function declaration; take the only one or find right declaration by signature.
 	const declaration = (fncType.symbol.declarations.length > 1
-		? context.typeChecker.getResolvedSignature(node)?.declaration
-		: fncType.symbol.declarations[0]) as ts.FunctionLikeDeclarationBase;
+		? (
+			context.typeChecker.getResolvedSignature(node)?.declaration
+			|| context.typeChecker.getSignaturesOfType(fncType, ts.SignatureKind.Call)
+		)
+		: fncType.symbol.declarations[0]) as ts.FunctionLikeDeclarationBase | undefined;
+
+	if (!declaration)
+	{
+		log.error("Unable to resolve declaration of symbol signature.");
+		return undefined;
+	}
 
 	// Try to get State
 	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(

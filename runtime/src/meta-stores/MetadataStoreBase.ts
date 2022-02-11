@@ -43,7 +43,7 @@ export abstract class MetadataStoreBase implements MetadataStore
 			}
 		}
 
-		const type = Reflect.construct(Type, [], TypeActivator);
+		const type: Type = Reflect.construct(Type, [], TypeActivator);
 		type.initialize(description);
 		return type;
 	}

@@ -7,11 +7,6 @@ import { updateCallExpression }                           from "./updateCallExpr
 
 export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, context: Context): ts.Decorator | undefined
 {
-	if (!ts.isCallExpression(node.expression))
-	{
-		return undefined;
-	}
-
 	// Method/function declaration
 	const declaration = decoratorType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
 
@@ -36,7 +31,8 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	const genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
 	const genericTypeSymbol = genericType.getSymbol();
 
-	return ts.factory.updateDecorator(node, updateCallExpression(node.expression, state, [{
+	let callExpression: ts.CallExpression;
+	const typeArgumentDescription = {
 		genericTypeName: genericParamName,
 		reflectedType: getTypeCall(
 			genericType,
@@ -44,5 +40,25 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 			context,
 			genericTypeNode.name
 		)
-	}]));
+	};
+
+	if (ts.isCallExpression(node.expression))
+	{
+		callExpression = updateCallExpression(node.expression, state, [typeArgumentDescription]);
+	}
+	else if (ts.isIdentifier(node.expression))
+	{
+		callExpression = ts.factory.createCallExpression(node.expression, undefined, [
+			ts.factory.createObjectLiteralExpression([ts.factory.createPropertyAssignment(
+				typeArgumentDescription.genericTypeName,
+				typeArgumentDescription.reflectedType
+			)])
+		]);
+	}
+	else
+	{
+		return undefined;
+	}
+
+	return ts.factory.updateDecorator(node, callExpression);
 }

@@ -1,3 +1,4 @@
+import { InlineMetadataStore }      from "./InlineMetadataStore";
 import { MetadataStore }            from "./MetadataStore";
 import { NodeProcessMetadataStore } from "./NodeProcessMetadataStore";
 import { WindowMetadataStore }      from "./WindowMetadataStore";
@@ -6,6 +7,9 @@ export * from "./MetadataStore";
 export * from "./InlineMetadataStore";
 export * from "./WindowMetadataStore";
 export * from "./NodeProcessMetadataStore";
+
+// Default store
+InlineMetadataStore.initiate();
 
 /**
  * Function used in transformer templates for metadata files.

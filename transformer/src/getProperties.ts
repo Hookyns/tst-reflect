@@ -7,6 +7,7 @@ import {
 	getAccessModifier,
 	getAccessor,
 	getCtorTypeReference,
+	getDeclaration,
 	getType,
 	isReadonly
 } from "./helpers";
@@ -27,14 +28,16 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor || (m.flags & ts.SymbolFlags.SetAccessor) == ts.SymbolFlags.SetAccessor)
 			.map((memberSymbol: ts.Symbol) =>
 			{
+				const declaration = getDeclaration(memberSymbol);
+				
 				return {
 					n: memberSymbol.escapedName.toString(),
 					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context, getCtorTypeReference(memberSymbol)),
 					d: getDecorators(memberSymbol, context.typeChecker),
-					am: getAccessModifier(memberSymbol.valueDeclaration?.modifiers),
-					acs: getAccessor(memberSymbol.valueDeclaration),
-					ro: isReadonly(memberSymbol.valueDeclaration?.modifiers),
-					o: memberSymbol.valueDeclaration && ts.isPropertyDeclaration(memberSymbol.valueDeclaration) && !!memberSymbol.valueDeclaration.questionToken
+					am: getAccessModifier(declaration?.modifiers),
+					acs: getAccessor(declaration),
+					ro: isReadonly(declaration?.modifiers),
+					o: declaration && ts.isPropertyDeclaration(declaration) && !!declaration.questionToken
 				};
 			});
 

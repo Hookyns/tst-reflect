@@ -2,6 +2,7 @@ import * as ts                          from "typescript";
 import { ConstructorDescriptionSource } from "./declarations";
 import {
 	getCtorTypeReference,
+	getDeclaration,
 	getType
 } from "./helpers";
 import { getTypeCall }                  from "./getTypeCall";
@@ -20,7 +21,7 @@ export function getConstructors(type: ts.Type, context: Context)
 		for (paramSymbol of ctor.parameters)
 		{
 			paramType = getType(paramSymbol, context.typeChecker);
-			const declaration = paramSymbol.valueDeclaration as ts.ParameterDeclaration;
+			const declaration = getDeclaration(paramSymbol) as ts.ParameterDeclaration;
 
 			params.push({
 				n: paramSymbol.getName(),

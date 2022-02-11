@@ -1,25 +1,24 @@
-import type { MetadataStore }         from "./meta-stores/MetadataStore";
+import type { MetadataStore }     from "./meta-stores";
 import {
 	Constructor,
 	Method,
-}                                     from "./descriptions/method";
-import type { Decorator }             from "./descriptions/decorator";
-import type { IndexedAccessType }     from "./descriptions/indexed-access-type";
-import type { ConditionalType }       from "./descriptions/conditional-type";
+}                                 from "./descriptions/method";
+import type { Decorator }         from "./descriptions/decorator";
+import type { IndexedAccessType } from "./descriptions/indexed-access-type";
+import type { ConditionalType }   from "./descriptions/conditional-type";
 import {
 	ConstructorImport,
 	ConstructorImportActivator
-} from "./descriptions/constructor-import";
-import type { Property, }             from "./descriptions/property";
-import type { MethodParameter, }      from "./descriptions/parameter";
-import type { EnumInfo }              from "./descriptions/enum-info";
-import type { TypeProperties }        from "./descriptions/type-properties";
-import { TypeKind }                   from "./enums";
+}                                 from "./descriptions/constructor-import";
+import type { Property, }         from "./descriptions/property";
+import type { MethodParameter, }  from "./descriptions/parameter";
+import type { EnumInfo }          from "./descriptions/enum-info";
+import type { TypeProperties }    from "./descriptions/type-properties";
+import { TypeKind }               from "./enums";
 import {
 	Mapper,
 	resolveLazyType
-}                                     from "./mapper";
-import { InlineMetadataStore }        from "./meta-stores/InlineMetadataStore";
+}                                 from "./mapper";
 
 /**
  * Object representing TypeScript type in memory
@@ -34,6 +33,8 @@ export class Type
 	public static readonly Number: Type;
 	public static readonly Boolean: Type;
 	public static readonly Date: Type;
+	public static readonly Null: Type;
+	public static readonly Undefined: Type;
 
 	/** @internal */
 	private _ctor?: () => Function;
@@ -79,7 +80,25 @@ export class Type
 	private _genericTypeDefault?: Type;
 
 	/** @internal */
-	private static _store: MetadataStore = InlineMetadataStore.initiate();
+	private static _store: MetadataStore = {
+		store: {},
+		get(id: number)
+		{
+			return undefined;
+		},
+		set(id: number, description: any)
+		{
+			return Type.Unknown;
+		},
+		getLazy(id: number)
+		{
+			return () => undefined;
+		},
+		wrap(description: any)
+		{
+			return Type.Unknown;
+		}
+	};
 
 	/**
 	 * Internal Type constructor
@@ -308,7 +327,7 @@ export class Type
 		{
 			return false;
 		}
-		
+
 		return type != undefined && this._fullName == type._fullName && !!this._fullName;
 	}
 
@@ -507,7 +526,7 @@ export class Type
 	}
 	{
 		// TODO: Important to handle Unions and Intersections
-		
+
 		const interfaceMembers = this.interface?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
 		const baseTypeMembers = this.baseType?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
 

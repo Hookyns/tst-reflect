@@ -98,8 +98,20 @@ export interface PropertyDescriptionSource
  */
 export interface DecoratorDescriptionSource
 {
+	/**
+	 * Name of the decorator
+	 */
 	n: string;
+
+	/**
+	 * Full name of the decorator
+	 */
 	fn?: string;
+
+	/**
+	 * List of constant arguments
+	 */
+	args?: Array<any>;
 }
 
 /**
