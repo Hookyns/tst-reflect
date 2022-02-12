@@ -6,7 +6,7 @@ import {
 	STATE_PROP
 }                        from "./FunctionLikeDeclarationGenericParametersDetail";
 import {
-	hasAnyReflectJsDoc
+	hasReflectJsDoc
 }                        from "./helpers";
 import { isGetTypeCall } from "./isGetTypeCall";
 
@@ -40,8 +40,8 @@ export function getGenericParametersDetails(
 
 	if (symbol !== undefined)
 	{
-		// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
-		if (hasAnyReflectJsDoc(symbol))
+		// If declaration contains @reflect in JSDoc comment, pass all generic arguments
+		if (hasReflectJsDoc(symbol))
 		{
 			const genericParams = node.typeParameters.map(p => p.name.escapedText.toString());
 			const state: FunctionLikeDeclarationGenericParametersDetail = {

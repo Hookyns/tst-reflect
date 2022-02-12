@@ -4,14 +4,9 @@
 export const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
 
 /**
- * Name of JSDoc comment marking method as it use type of generic parameter.
+ * Name of JSDoc comment forcing generic type reflection.
  */
-export const REFLECT_GENERIC_DECORATOR = "reflectGeneric";
-
-/**
- * Name of JSDoc comment marking function as decorator.
- */
-export const REFLECT_DECORATOR_DECORATOR = "reflectDecorator";
+export const REFLECT_DECORATOR = "reflect";
 
 /**
  * Name of the getType() function

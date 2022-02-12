@@ -2,17 +2,14 @@ import * as path                     from "path";
 import {
 	AccessModifier,
 	Accessor,
-	REFLECT_DECORATOR_DECORATOR,
-	REFLECT_GENERIC_DECORATOR,
+	REFLECT_DECORATOR,
 	TypeKind
 }                                    from "tst-reflect";
 import * as ts                       from "typescript";
 import {
-	Identifier,
 	ModifiersArray,
 	SyntaxKind
 }                                    from "typescript";
-import { MetadataTypeValues }        from "./config-options";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
 import {
@@ -164,45 +161,15 @@ export function isExpression(value: any)
  * Check that function-like declaration has JSDoc with @reflectGeneric tag.
  * @param symbol
  */
-export function hasReflectGenericJsDoc(symbol: ts.Symbol | undefined): boolean
+export function hasReflectJsDoc(symbol: ts.Symbol | undefined): boolean
 {
 	if (!symbol)
 	{
 		return false;
 	}
 
-	// If declaration contains @reflectGeneric in JSDoc comment, pass all generic arguments
-	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_GENERIC_DECORATOR);
-}
-
-/**
- * Check that function-like declaration has JSDoc with @reflectDecorator tag.
- * @param symbol
- */
-export function hasReflectDecoratorJsDoc(symbol: ts.Symbol | undefined): boolean
-{
-	if (!symbol)
-	{
-		return false;
-	}
-
-	// If declaration contains @reflectDecorator in JSDoc comment, pass all generic arguments
-	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_DECORATOR_DECORATOR);
-}
-
-/**
- * Check that function-like declaration has JSDoc with @reflectGeneric tag.
- * @param symbol
- */
-export function hasAnyReflectJsDoc(symbol: ts.Symbol | undefined): boolean
-{
-	if (!symbol)
-	{
-		return false;
-	}
-
-	// If declaration contains any @reflectXxx in JSDoc comment, pass all generic arguments
-	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_GENERIC_DECORATOR || tag.name === REFLECT_DECORATOR_DECORATOR);
+	// If declaration contains @reflect in JSDoc comment, pass all generic arguments
+	return symbol.getJsDocTags().some(tag => tag.name === REFLECT_DECORATOR);
 }
 
 /**
