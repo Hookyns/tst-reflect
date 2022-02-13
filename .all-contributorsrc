@@ -19,7 +19,8 @@
         "code",
         "maintenance",
         "doc",
-        "review"
+        "review",
+        "example"
       ]
     }
   ],
