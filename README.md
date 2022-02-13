@@ -224,249 +224,6 @@ _ts-node can be a little bugged if you use `reflection.metadata.type = "typelib"
 Feel free to add Your interesting examples. Just add a link to this README and make a PR.
 
 
-## Some Complex Code!
-
-### Dependency Injection from scratch.
-[![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
-
-<details><summary>Click to expand!</summary>
-<p>
-
-```typescript
-import {
-    getType,
-    Type
-} from "tst-reflect";
-
-class ServiceCollection
-{
-    public readonly services: Array<[Type, any]> = [];
-
-    addTransient<TDep, TImp>(dependencyType?: Type, dependencyImplementation?: Type | any)
-    {
-        this.services.push([dependencyType ?? getType<TDep>(), dependencyImplementation ?? getType<TImp>()]);
-    }
-}
-
-class ServiceProvider
-{
-    private readonly serviceCollection: ServiceCollection;
-
-    constructor(serviceCollection: ServiceCollection)
-    {
-        this.serviceCollection = serviceCollection;
-    }
-
-    getService<TDependency>(type?: Type): TDependency
-    {
-        if (type === undefined) 
-        {
-            type = getType<TDependency>();
-        }
-    
-        // Find implementation of type
-        const [, impl] = this.serviceCollection.services.find(([dep]) => dep.is(type));
-
-        if (!impl)
-        {
-            throw new Error(`No implementation registered for '${type.name}'`);
-        }
-
-        if (!(impl instanceof Type))
-        {
-            return impl;
-        }
-
-        if (!impl.isClass())
-        {
-            throw new Error("Registered implementation is not class.");
-        }
-
-        // Parameter-less
-        if (!impl.getConstructors()?.length)
-        {
-            return Reflect.construct(impl.ctor, []);
-        }
-
-        // Ctor with less parameters preferred
-        const ctor = impl.getConstructors().sort((a, b) => a.parameters.length > b.parameters.length ? 1 : 0)[0];
-
-        // Resolve parameters
-        const args = ctor.parameters.map(param => this.getService(param.type))
-
-        return Reflect.construct(impl.ctor, args);
-    }
-}
-
-interface IPrinter
-{
-    printHelloWorld();
-
-    printText(text: string);
-}
-
-abstract class BasePrinter implements IPrinter
-{
-    abstract printHelloWorld();
-
-    abstract printText(text: string);
-}
-
-class ConsolePrinter extends BasePrinter implements IPrinter
-{
-    private readonly console: Console;
-
-    constructor(console: Console)
-    {
-        super();
-        this.console = console;
-    }
-
-    printHelloWorld()
-    {
-        this.console.log("Hello World!")
-    }
-
-    printText(text: string)
-    {
-        this.console.log(text)
-    }
-}
-
-//-----------------------------------------
-
-const collection = new ServiceCollection();
-
-collection.addTransient(getType<Console>(), console);
-collection.addTransient<IPrinter, ConsolePrinter>(); // Working runtime generic!!
-
-const provider = new ServiceProvider(collection);
-
-//-----------------------------------------
-
-const printer = provider.getService<IPrinter>();
-console.log("printer is instanceof ConsolePrinter:", printer instanceof ConsolePrinter);
-
-printer.printHelloWorld();
-printer.printText("Try it on repl.it");
-printer.printText("And good bye!");
-```
-
-</p>
-</details>
-
-<details><summary>Generated JavaScript code</summary>
-<p>
-
-```javascript
-"use strict";
-Object.defineProperty(exports, "__esModule", {value: true});
-const tst_reflect_1 = require("tst-reflect");
-tst_reflect_1.getType({
-    n: "Console",
-    fn: "W:/tst-reflect/dev/node_modules/typescript/lib/lib.dom.d.ts:Console",
-    props: [{n: "memory", t: tst_reflect_1.getType({n: "any", fn: "any", k: 2})}],
-    k: 0
-}, 20580);
-tst_reflect_1.getType({n: "IPrinter", fn: "W:/tst-reflect/dev/example1.ts:IPrinter", k: 0}, 23131);
-tst_reflect_1.getType({
-    n: "BasePrinter",
-    fn: "W:/tst-reflect/dev/example1.ts:BasePrinter",
-    ctors: [{params: []}],
-    k: 1,
-    iface: tst_reflect_1.getType(23131)
-}, 23133);
-tst_reflect_1.getType({
-    n: "ConsolePrinter",
-    fn: "W:/tst-reflect/dev/example1.ts:ConsolePrinter",
-    props: [{n: "console", t: tst_reflect_1.getType(20580)}],
-    ctors: [{params: [{n: "console", t: tst_reflect_1.getType(20580)}]}],
-    k: 1,
-    ctor: () => ConsolePrinter,
-    bt: tst_reflect_1.getType(23133)
-}, 23139);
-
-class ServiceCollection {
-    constructor() {
-        this.services = [];
-    }
-
-    foo(foo, __genericParams__) {
-        return __genericParams__.A;
-    }
-
-    addTransient(dependencyType, dependencyImplementation, __genericParams__) {
-        this.services.push([dependencyType ?? __genericParams__.TDep, dependencyImplementation ?? __genericParams__.TImp]);
-    }
-}
-
-class ServiceProvider {
-    constructor(serviceCollection) {
-        this.serviceCollection = serviceCollection;
-    }
-
-    getService(type) {
-        const [, impl] = this.serviceCollection.services.find(([dep]) => dep.is(type));
-        if (!impl) {
-            throw new Error(`No implementation registered for '${type.name}'`);
-        }
-        if (!(impl instanceof tst_reflect_1.Type)) {
-            return impl;
-        }
-        if (!impl.isClass()) {
-            throw new Error("Registered implementation is not class.");
-        }
-        if (!impl.getConstructors()?.length) {
-            return Reflect.construct(impl.ctor, []);
-        }
-        const ctor = impl.getConstructors().sort((a, b) => a.parameters.length > b.parameters.length ? 1 : 0)[0];
-        const args = ctor.parameters.map(param => this.getService(param.type));
-        return Reflect.construct(impl.ctor, args);
-    }
-}
-
-class BasePrinter {
-}
-
-class ConsolePrinter extends BasePrinter {
-    constructor(console) {
-        super();
-        this.console = console;
-    }
-
-    printHelloWorld() {
-        this.console.log("Hello World!");
-    }
-
-    printText(text) {
-        this.console.log(text);
-    }
-}
-
-const collection = new ServiceCollection();
-collection.addTransient(undefined, undefined, {TDep: tst_reflect_1.getType(23131), TImp: tst_reflect_1.getType(23139)});
-collection.addTransient(tst_reflect_1.getType(20580), console);
-const provider = new ServiceProvider(collection);
-const printer = provider.getService(tst_reflect_1.getType(23131));
-console.log("printer is instanceof ConsolePrinter:", printer instanceof ConsolePrinter);
-printer.printHelloWorld();
-printer.printText("Try it on repl.it");
-printer.printText("And good bye!");
-```
-
-</p>
-</details>
-
-### Short Explanation
-
-There are two interesting parts in the example. First part is at the bottom, where `getType<T>()` call is. This function is imported from runtime package and
-its return type is `Type` which is class imported from runtime package too.
-`getType<T>()` is Alpha of the package. That's how you get your `Type`, the Omega of the package.
-
-Second part is somewhere in the middle in method `getService<T>()` of `ServiceProvider` class where you can see some operations with `Type`.
-Type details in [Synopsis](#synopsis).
-
-
 ## How Does it Work
 
 Transformer looks for all calls of `getType<T>()` and replace those calls by `Type` retrieving logic. It generates object literals describing referred types and instances of `Type`
@@ -975,17 +732,37 @@ export interface EnumInfo {
 }
 ```
 
+## Contributors ✨
+
+Thanks go to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://allcontributors.org) specification.
+Contributions of any kind are welcome!
+
 ## Motivation
 
-I'm developing this Reflection system for own Dependency Injection system, to allow registering and resolving based on types. Something like:
+I'm developing this Reflection system for [own Dependency Injection system](https://github.com/Hookyns/NetLeaf/tree/main/libraries/extensions-dependency-injection-typed), to allow registering and resolving based on types. Something like:
 
 ```
-serviceCollection.AddScoped<ILog, Log>();
+serviceCollection.addTransient<ILog, Log>();
 ...
-serviceProvider.Resolve<ILog>();
+serviceProvider.getService<ILog>();
 ```
 
-Where resolve() take care about constructors parameters, based on their types, and resolve everything.
+Where `getService()` takes care about constructor's parameters, based on their types, and resolve everything.
 
 ## License
 This project is licensed under the [MIT license](./LICENSE).
