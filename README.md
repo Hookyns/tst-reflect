@@ -1,4 +1,7 @@
 # JavaScript(/TypeScript) Runtime Types & Reflection (tst-reflect)
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 > **The mono repository of TypeScript runtime reflection packages.**
 
@@ -735,6 +738,19 @@ export interface EnumInfo {
 ## Contributors ✨
 
 Thanks go to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tr>
+    <td align="center"><a href="https://bitbucket.org/HookCZ/"><img src="https://avatars.githubusercontent.com/u/2551259?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Roman Jámbor</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Code">💻</a></td>
+  </tr>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
