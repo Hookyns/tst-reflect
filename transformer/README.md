@@ -9,6 +9,9 @@ and their types and so on.
 
 **With working runtime generic types!**
 
+
+[Visit Github repository for more information](https://github.com/Hookyns/ts-reflection)
+
 ## Simple Example
 
 ```typescript
@@ -16,7 +19,7 @@ import { getType, Type } from "tst-reflect";
 
 function printClassInfo<TType>()
 {
-    const type: Type = getType<TType>();
+    const type: Type = getType<TType>(); // <<== get type of generic TType
 
     console.log(type.name); // > Animal
     console.log(type.fullName); // > @@this/index.ts:Animal#21869
