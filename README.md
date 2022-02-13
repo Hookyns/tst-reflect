@@ -8,7 +8,7 @@
 ![Code coverage](./coverage/badge.svg)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-4-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
@@ -753,6 +753,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     <td align="center"><a href="https://bitbucket.org/HookCZ/"><img src="https://avatars.githubusercontent.com/u/2551259?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Roman Jámbor</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Code">💻</a> <a href="#maintenance-Hookyns" title="Maintenance">🚧</a> <a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Documentation">📖</a> <a href="https://github.com/hookyns/ts-reflection/pulls?q=is%3Apr+reviewed-by%3AHookyns" title="Reviewed Pull Requests">👀</a> <a href="#example-Hookyns" title="Examples">💡</a> <a href="#ideas-Hookyns" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-Hookyns" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#question-Hookyns" title="Answering Questions">💬</a> <a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Tests">⚠️</a></td>
     <td align="center"><a href="https://github.com/iDevelopThings"><img src="https://avatars.githubusercontent.com/u/4105581?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sam Parton</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=iDevelopThings" title="Code">💻</a> <a href="https://github.com/hookyns/ts-reflection/issues?q=author%3AiDevelopThings" title="Bug reports">🐛</a> <a href="#ideas-iDevelopThings" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="http://filmos.net/"><img src="https://avatars.githubusercontent.com/u/78136833?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Filmos</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3AFilmos" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://dunglas.fr/"><img src="https://avatars.githubusercontent.com/u/57224?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kévin Dunglas</b></sub></a><br /><a href="#ideas-dunglas" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>
 
