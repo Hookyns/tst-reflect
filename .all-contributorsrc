@@ -55,6 +55,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "usaccounts",
+      "name": "usaccounts",
+      "avatar_url": "https://avatars.githubusercontent.com/u/12177064?v=4",
+      "profile": "https://github.com/usaccounts",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7
