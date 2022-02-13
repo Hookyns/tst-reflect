@@ -2,14 +2,10 @@ import * as path                     from "path";
 import {
 	AccessModifier,
 	Accessor,
-	REFLECT_DECORATOR,
-	TypeKind
+	TypeKind,
+	REFLECT_DECORATOR
 }                                    from "tst-reflect";
 import * as ts                       from "typescript";
-import {
-	ModifiersArray,
-	SyntaxKind
-}                                    from "typescript";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
 import {
@@ -300,7 +296,7 @@ export function createCtorGetter(
  * Return AccessModifier
  * @param modifiers
  */
-export function getAccessModifier(modifiers?: ModifiersArray): AccessModifier
+export function getAccessModifier(modifiers?: ts.ModifiersArray): AccessModifier
 {
 	const kinds = modifiers?.map(m => m.kind) ?? [];
 
@@ -343,7 +339,7 @@ export function getAccessor(node?: ts.Declaration): Accessor
  * Return true if there is readonly modifier
  * @param modifiers
  */
-export function isReadonly(modifiers?: ModifiersArray): boolean
+export function isReadonly(modifiers?: ts.ModifiersArray): boolean
 {
 	return modifiers?.some(m => m.kind == ts.SyntaxKind.ReadonlyKeyword) ?? false;
 }
@@ -494,7 +490,7 @@ export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefin
 			typeName = (declaration.type as any).typeName;
 		}
 
-		if (typeName && typeName?.kind === SyntaxKind.Identifier)
+		if (typeName && typeName?.kind === ts.SyntaxKind.Identifier)
 		{
 			return typeName;
 		}
@@ -503,7 +499,7 @@ export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefin
 	return undefined;
 }
 
-const IGNORE_PROPERTY_NAME = "__ignore-node-reflection"
+const IGNORE_PROPERTY_NAME = "__ignore-node-reflection";
 
 /**
  * Check if node should be ignored for processing
