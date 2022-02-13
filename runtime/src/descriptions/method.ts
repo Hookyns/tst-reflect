@@ -64,7 +64,7 @@ export abstract class MethodBase
 	 */
 	protected constructor(params: Array<ParameterDescription>)
 	{
-		this._parameters = params.map(Mapper.mapMethodParameters);
+		this._parameters = params?.map(Mapper.mapMethodParameters) || [];
 	}
 
 	/**

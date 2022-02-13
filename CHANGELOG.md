@@ -9,7 +9,40 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
-## [0.6.0-beta.5] - 2022-02-20
+## [0.7.0-alpha.0] - 2022-02-13
 ### Added
+- `getType(val: any)` it is possible to get type of runtime value,
+
+<dl>
+<dd>
+
+```typescript
+const someValue: unknown = new Animal();
+getType(someValue); // > Type<Animal>
+```
+This works mainly with classes.
+Before #29 is implemented, `@reflect()` decorator, `@reflect` JSDoc tag or `getType<OfThatType>()` is required or there will be no Type metadata.
+
+Native types such as Object `{ foo: "", bar: 5 }`, Array `[ {}, true, 5 ]` and primitive types are supported too; those types are recognized and their properties are parsed at runtime.
+
+*Getters and setter of Objects are recognized.*
+\
+*Classes without metadata will be parsed as Objects.*
+
+</dd>
+</dl>
+
+- `Decorator.getArguments(): Array<any>` - constant literal arguments of decorators are captured,
+- `Type.isPrimitive()`,
+- partial test coverage (~75%) - issue #28,
+- `TypeBuilder`,
+- decorator can be CallExpression`@decorator()` or (new) just Identifier `@decorator`
+- implementation of #7 - custom Property and Method decorators supporting `getType<T>()` of generic parameters, like already supported class decorators.
+
 ### Changed
-- JSDoc tags @reflectGeneric and @reflectDecorator removed in favor of single @reflect
+- JSDoc tags @reflectGeneric and @reflectDecorator removed in favor of single @reflect,
+- `Property.decorators` changed to `Property.getDecorators()` - to keep it same as `Type.getDecorators()` and `Method.getDecorators()`,
+- `Type.flattenInheritedMembers()` support base union and intersection types,
+- fixed issue #27,
+- fix of some circular dependencies in runtime package,
+- few other small bug fixes.

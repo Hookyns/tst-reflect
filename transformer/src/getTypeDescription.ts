@@ -94,6 +94,7 @@ export function getTypeDescription(
 			);
 
 		return {
+			n: symbol?.escapedName.toString(),
 			k: TypeKind.Container,
 			types: types,
 			union: type.isUnion(),
@@ -152,6 +153,7 @@ export function getTypeDescription(
 					};
 				}
 
+				// TODO: Review this union & intersection. There is Union & Intersection handled on line ~86
 				let isUnion, isIntersection = false;
 
 				if (
@@ -168,6 +170,7 @@ export function getTypeDescription(
 						);
 
 					return {
+						n: symbol.escapedName.toString(),
 						k: TypeKind.Container,
 						types: types,
 						union: isUnion,

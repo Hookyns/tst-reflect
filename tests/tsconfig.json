@@ -1,0 +1,35 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES6",
+		"sourceMap": true,
+		"strict": true,
+		"stripInternal": true,
+		"declaration": false,
+		"outDir": "dist",
+		"rootDir": "./src",
+		"baseUrl": "./src",
+		"experimentalDecorators": true,
+		"typeRoots": [
+			"../node_modules/@types",
+			"node_modules/@types"
+		],
+		"plugins": [
+			{
+				"transform": "tst-reflect-transformer"
+			}
+		]
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+	"exclude": [
+		"node_modules/**/*",
+		"dist/**/*"
+	],
+	"reflection": {
+		"mode": "server",
+		"metadata": false,
+		"debugMode": false
+	}
+}

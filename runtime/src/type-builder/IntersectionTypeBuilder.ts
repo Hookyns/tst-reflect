@@ -25,12 +25,20 @@ export class IntersectionTypeBuilder extends TypeBuilderBase
 	 */
 	build(): Type
 	{
+		const types = Array.from(this.types);
+
+		// Intersection of primitive types is not possible
+		if (types.some(t => t.isPrimitive()))
+		{
+			return Type.Never;
+		}
+
 		return Type.store.wrap({
 			k: TypeKind.Container,
 			n: this.typeName,
 			fn: this.fullName,
 			inter: true,
-			types: Array.from(this.types)
+			types: types
 		});
 	}
 }

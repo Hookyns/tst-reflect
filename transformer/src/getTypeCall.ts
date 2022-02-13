@@ -24,14 +24,14 @@ const creatingTypes: Array<number> = [];
 
 /**
  * Return call expression of runtime getType() with description and/or type id
- * @param symbol
  * @param type
+ * @param symbol
  * @param context
  * @param typeCtor
  */
-export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall
+export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall // TODO: Remove symbol parameter
 {
-	const id: number | undefined = (type.symbol as any)?.["id"];
+	const id: number | undefined = (type.aliasSymbol || type.symbol as any)?.["id"];
 	let typePropertiesObjectLiteral: ts.ObjectLiteralExpression | undefined = undefined;
 
 	if (id)

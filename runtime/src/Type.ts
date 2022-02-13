@@ -19,6 +19,7 @@ import {
 	Mapper,
 	resolveLazyType
 }                                 from "./mapper";
+import { flatten }                from "./flatten";
 
 /**
  * Object representing TypeScript type in memory
@@ -31,10 +32,12 @@ export class Type
 	public static readonly Void: Type;
 	public static readonly String: Type;
 	public static readonly Number: Type;
+	public static readonly BigInt: Type;
 	public static readonly Boolean: Type;
 	public static readonly Date: Type;
 	public static readonly Null: Type;
 	public static readonly Undefined: Type;
+	public static readonly Never: Type;
 
 	/** @internal */
 	private _ctor?: () => Function;
@@ -51,7 +54,7 @@ export class Type
 	/** @internal */
 	private _isIntersection!: boolean;
 	/** @internal */
-	private _types?: Array<Type>;
+	private _types!: Array<Type>;
 	/** @internal */
 	private _properties!: Array<Property>;
 	/** @internal */
@@ -132,7 +135,7 @@ export class Type
 		this._interface = resolveLazyType(description.iface);
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
-		this._types = description.types?.map(t => resolveLazyType(t));
+		this._types = description.types?.map(t => resolveLazyType(t)) || [];
 		this._literalValue = description.v;
 		this._typeArgs = description.args?.map(t => resolveLazyType(t)) || [];
 		this._conditionalType = description.ct ? {
@@ -188,9 +191,9 @@ export class Type
 	/**
 	 * List of underlying types in case Type is union or intersection
 	 */
-	get types(): ReadonlyArray<Type> | undefined
+	get types(): ReadonlyArray<Type>
 	{
-		return this._types?.slice();
+		return this._types.slice();
 	}
 
 	/**
@@ -377,11 +380,28 @@ export class Type
 	}
 
 	/**
-	 * Check if this is a native type("string", "number", "boolean" etc.)
+	 * Check if this is a native type ("string", "number", "boolean", "Array" etc.)
 	 */
 	isNative(): boolean
 	{
 		return this.kind === TypeKind.Native;
+	}
+
+	/**
+	 * Check if this is a primitive type ("string", "number", "boolean" etc.)
+	 */
+	isPrimitive(): boolean
+	{
+		return this.kind === TypeKind.Native && (
+			this == Type.String
+			|| this == Type.Number
+			|| this == Type.BigInt
+			|| this == Type.Undefined
+			|| this == Type.Null
+			|| this == Type.Void
+			|| this == Type.Boolean
+			|| this == Type.Never
+		);
 	}
 
 	/**
@@ -525,28 +545,7 @@ export class Type
 		methods: { [methodName: string]: Method }
 	}
 	{
-		// TODO: Important to handle Unions and Intersections
-
-		const interfaceMembers = this.interface?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
-		const baseTypeMembers = this.baseType?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
-
-		const properties = Object.assign(interfaceMembers.properties, baseTypeMembers.properties);
-		const methods = Object.assign(interfaceMembers.methods, baseTypeMembers.methods);
-
-		for (let property of this.getProperties())
-		{
-			properties[property.name] = property;
-		}
-
-		for (let method of this.getMethods())
-		{
-			methods[method.name] = method;
-		}
-
-		return {
-			properties,
-			methods
-		};
+		return flatten(this);
 	}
 
 	/**

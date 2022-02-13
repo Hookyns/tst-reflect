@@ -104,6 +104,12 @@ export interface ConfigObject
 	 */
 	mode: Mode;
 
+	/**
+	 * TypeScript's ParsedCommandLine.
+	 * @description Either a parsed command line or a parsed tsconfig.json.
+	 */
+	parsedCommandLine?: ts.ParsedCommandLine;
+
 	isUniversalMode(): boolean;
 
 	isServerMode(): boolean;
@@ -190,6 +196,7 @@ export function createConfig(options: ts.CompilerOptions, rootDir: string, packa
 		useMetadataType: config.useMetadataType,
 		metadataFilePath: config.metadataFilePath,
 		debugMode: config.debugMode,
+		parsedCommandLine: ts.getParsedCommandLineOfConfigFile(configPath, undefined, ts.sys as any),
 		isUniversalMode(): boolean
 		{
 			return config.mode === ModeValues.universal;

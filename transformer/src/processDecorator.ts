@@ -3,6 +3,10 @@ import { Context }                                        from "./contexts/Conte
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
 import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
 import { getTypeCall }                                    from "./getTypeCall";
+import {
+	getDeclaration,
+	ignoreNode
+}                                                         from "./helpers";
 import { updateCallExpression }                           from "./updateCallExpression";
 
 export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, context: Context): ts.Decorator | undefined
@@ -26,9 +30,20 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	// Decorator has no generic parameters in nature; we just abusing it so only one generic parameter makes sense
 	const genericParamName = state.usedGenericParameters[0];
 
-	const genericTypeNode = node.parent; // TODO: mělo by asi být node.parent.type
+	// Type of Class
+	let genericTypeNode: ts.NamedDeclaration, genericType: ts.Type;
 
-	const genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
+	if (ts.isPropertyDeclaration(node.parent) || ts.isMethodDeclaration(node.parent))
+	{
+		genericTypeNode = node.parent.parent;
+		genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
+	}
+	else
+	{
+		genericTypeNode = node.parent;
+		genericType = context.typeChecker.getTypeAtLocation(genericTypeNode);
+	}
+
 	const genericTypeSymbol = genericType.getSymbol();
 
 	let callExpression: ts.CallExpression;
@@ -48,17 +63,37 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	}
 	else if (ts.isIdentifier(node.expression))
 	{
-		callExpression = ts.factory.createCallExpression(node.expression, undefined, [
-			ts.factory.createObjectLiteralExpression([ts.factory.createPropertyAssignment(
-				typeArgumentDescription.genericTypeName,
-				typeArgumentDescription.reflectedType
-			)])
-		]);
+		callExpression = createCallExpressionFromIdentifier(context, node, typeArgumentDescription);
 	}
 	else
 	{
 		return undefined;
 	}
 
+	// Mark expression as ignored for further processing
+	ignoreNode(callExpression);
+
 	return ts.factory.updateDecorator(node, callExpression);
+}
+
+function createCallExpressionFromIdentifier(context: Context, node: ts.Decorator, typeArgumentDescription: { reflectedType: ts.CallExpression; genericTypeName: string })
+{
+	const args = [];
+	const declaration = getDeclaration(context.typeChecker.getSymbolAtLocation(node.expression));
+
+	if (declaration && (ts.isFunctionDeclaration(declaration)))
+	{
+		for (let param of declaration.parameters)
+		{
+			args.push(ts.factory.createIdentifier("undefined"));
+		}
+	}
+
+	return ts.factory.createCallExpression(node.expression, undefined, [
+		...args,
+		ts.factory.createObjectLiteralExpression([ts.factory.createPropertyAssignment(
+			typeArgumentDescription.genericTypeName,
+			typeArgumentDescription.reflectedType
+		)])
+	]);
 }

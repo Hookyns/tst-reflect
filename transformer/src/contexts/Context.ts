@@ -1,8 +1,11 @@
-import * as ts                                    from "typescript";
-import { VisitResult }                            from "typescript";
-import type { MetadataEntry, TransformerVisitor } from "../declarations";
-import { IMetadataWriter }                        from "../meta-writer/IMetadataWriter";
-import SourceFileContext                          from "./SourceFileContext";
+import * as ts             from "typescript";
+import { VisitResult }     from "typescript";
+import type {
+	MetadataEntry,
+	TransformerVisitor
+}                          from "../declarations";
+import { IMetadataWriter } from "../meta-writer/IMetadataWriter";
+import SourceFileContext   from "./SourceFileContext";
 
 /**
  * Context of visitors
@@ -11,7 +14,6 @@ export class Context
 {
 	private readonly _sourceFileContext: SourceFileContext;
 	private readonly _visitor: ts.Visitor;
-	private readonly _transformerVisitor: TransformerVisitor;
 
 	/**
 	 * When visiting declaration bodies, names of generic types used in getType() are inserted into this array.
@@ -22,7 +24,7 @@ export class Context
 	{
 		return this._sourceFileContext.log;
 	}
-	
+
 	get config()
 	{
 		return this._sourceFileContext.transformerContext.config;
@@ -46,7 +48,6 @@ export class Context
 	constructor(sourceFileContext: SourceFileContext, visitor: TransformerVisitor)
 	{
 		this._sourceFileContext = sourceFileContext;
-		this._transformerVisitor = visitor;
 		this._visitor = (node: ts.Node) => visitor(node, this);
 	}
 

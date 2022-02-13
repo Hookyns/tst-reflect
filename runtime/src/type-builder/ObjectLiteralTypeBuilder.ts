@@ -33,6 +33,7 @@ export class ObjectLiteralTypeBuilder extends TypeBuilderBase
 		}
 
 		const builder = new ObjectLiteralTypeBuilder();
+		builder.setName(object.constructor.name || "Object");
 		const descriptors = Object.getOwnPropertyDescriptors(object);
 
 		for (let prop in descriptors)

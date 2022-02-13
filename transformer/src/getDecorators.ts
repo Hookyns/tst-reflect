@@ -54,10 +54,12 @@ export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array
 				{
 					args.push(type.value);
 				}
+				else if (type.flags & ts.TypeFlags.BooleanLiteral)
+				{
+					args.push((type as any).intrinsicName === "true");
+				}
 				else
 				{
-
-
 					log.warn("Unexpected decorator argument. Only constant values are allowed.\n\tAt " + getNodeLocationText(arg));
 					args.push(ts.factory.createNull());
 				}

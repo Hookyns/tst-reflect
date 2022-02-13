@@ -158,7 +158,7 @@ export function isExpression(value: any)
 }
 
 /**
- * Check that function-like declaration has JSDoc with @reflectGeneric tag.
+ * Check that function-like declaration has JSDoc with @reflect tag.
  * @param symbol
  */
 export function hasReflectJsDoc(symbol: ts.Symbol | undefined): boolean
@@ -365,8 +365,8 @@ export function getUnknownTypeCall(context: Context): GetTypeCall
 export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Signature | undefined
 {
 	const declaration = getDeclaration(symbol);
-	
-	if (declaration && ts.isMethodSignature(declaration))
+
+	if (declaration && (ts.isMethodSignature(declaration) || ts.isMethodDeclaration(declaration)))
 	{
 		return checker.getSignatureFromDeclaration(declaration);
 	}
@@ -414,17 +414,22 @@ export function getRequireRelativePath(sourceFileDefiningImport: string, sourceF
 	);
 }
 
-export function getOutPathForSourceFile(sourceFileName: string, rootDir: string, outDir: string): string
+export function getOutPathForSourceFile(sourceFileName: string, context: Context): string
 {
 	if (isTsNode())
 	{
 		return sourceFileName;
 	}
 
+	if (context.config.parsedCommandLine)
+	{
+		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx")[0];
+	}
+
 	// Get the actual file location, regardless of dist/source dir
 	// This should leave us with:
 	// /ctor-reflection/SomeServiceClass.ts
-	let outPath = sourceFileName.replace(rootDir, "");
+	let outPath = sourceFileName.replace(context.config.rootDir, "");
 
 	// If we have a slash at the start, it has to go
 	// Now we have:
@@ -437,7 +442,7 @@ export function getOutPathForSourceFile(sourceFileName: string, rootDir: string,
 	// Now we can take the build path, from the tsconfig file and combine it
 	// This should give us:
 	// /Users/sam/Code/Packages/ts-reflection/dev/testing/dist/method-reflection/index.ts
-	outPath = path.join(outDir, outPath);
+	outPath = path.join(context.config.outDir, outPath);
 
 	return replaceExtension(outPath, ".js");
 }
@@ -470,7 +475,7 @@ export function isTypedDeclaration(declaration: ts.Declaration): declaration is 
 export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefined
 {
 	const declaration = getDeclaration(symbol);
-	
+
 	if (!declaration)
 	{
 		return undefined;
@@ -496,4 +501,24 @@ export function getCtorTypeReference(symbol: ts.Symbol): ts.Identifier | undefin
 	}
 
 	return undefined;
+}
+
+const IGNORE_PROPERTY_NAME = "__ignore-node-reflection"
+
+/**
+ * Check if node should be ignored for processing
+ * @param node
+ */
+export function isNodeIgnored(node: ts.Node)
+{
+	return node.pos == -1 || (node as any)[IGNORE_PROPERTY_NAME];
+}
+
+/**
+ * Set flag on node it should be ignored in future processing by tst-reflect-transformer
+ * @param node
+ */
+export function ignoreNode(node: ts.Node)
+{
+	(node as any)[IGNORE_PROPERTY_NAME] = true;
 }

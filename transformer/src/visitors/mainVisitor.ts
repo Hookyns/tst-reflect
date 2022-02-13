@@ -6,7 +6,8 @@ import * as ts                          from "typescript";
 import { Context }                      from "../contexts/Context";
 import {
 	getType,
-	hasReflectDecoratorJsDoc
+	hasReflectJsDoc,
+	isNodeIgnored
 } from "../helpers";
 import { log }                          from "../log";
 import { processDecorator }             from "../processDecorator";
@@ -19,7 +20,7 @@ import DeclarationVisitor               from "./declarationVisitor";
  * @param nodeToVisit
  * @param context
  */
-export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | undefined
+export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitResult<ts.Node>
 {
 	const node = DeclarationVisitor.instance.visitDeclaration(nodeToVisit, context);
 	const config = context.config;
@@ -29,19 +30,19 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 		return nodeToVisit;
 	}
 
-	// Is it call expression?
-	if (ts.isCallExpression(node))
+	// Is it call expression? But not decorator! Decorators are handled in separated block.
+	if (ts.isCallExpression(node) && (!node.parent || !ts.isDecorator(node.parent)))
 	{
+		// If it's already processed and re-generated call node, do not visit it.
+		// If it is generated, it has no position -> -1.
+		if (isNodeIgnored(node))
+		{
+			return node;
+		}
+		
 		// Is it call of some function named "getType"?
 		if (ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
 		{
-			// If it's already processed and re-generated getType() call node, do not visit it.
-			// If it is generated, it has no position -> -1.
-			if (node.pos == -1)
-			{
-				return node;
-			}
-
 			// Function/method type
 			const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
@@ -56,7 +57,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 				}
 			}
 		}
-		// It is call of some other function.
+		// It is call of some other function
 		else
 		{
 			let identifier: ts.Identifier | ts.PrivateIdentifier | undefined = undefined;
@@ -75,7 +76,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 				const type = context.typeChecker.getTypeAtLocation(identifier);
 
 				// If call expression has typeArguments OR declaration of called function/method has type parameters.
-				// Later there is check if the declaration has the @reflectGeneric JSDoc comment.
+				// Later there is check if the declaration has the @reflect JSDoc comment.
 				if (node.typeArguments?.length || (type.getSymbol()?.valueDeclaration as ts.FunctionLikeDeclaration | undefined)?.typeParameters?.length)
 				{
 					const res = processGenericCallExpression(node, type, context);
@@ -92,7 +93,13 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 			}
 		}
 	}
-	else if (ts.isDecorator(node) && ts.isClassDeclaration(node.parent))
+	else if (ts.isDecorator(node) && (
+		ts.isClassDeclaration(node.parent)
+		|| ts.isPropertyDeclaration(node.parent)
+		|| ts.isMethodDeclaration(node.parent)
+		|| ts.isGetAccessorDeclaration(node.parent)
+		|| ts.isSetAccessorDeclaration(node.parent))
+	)
 	{
 		// type of decorator
 		let type: ts.Type | undefined = undefined;
@@ -111,9 +118,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.Node | u
 			}
 		}
 
-		// TODO: support property decorators 
-		
-		if (type && hasReflectDecoratorJsDoc(type.getSymbol()))
+		if (type && hasReflectJsDoc(type.getSymbol()))
 		{
 
 			const res = processDecorator(node, type, context);

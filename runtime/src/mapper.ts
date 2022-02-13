@@ -1,9 +1,4 @@
 import {
-	AccessModifier,
-	Accessor
-}                    from "./enums";
-import type { Type } from "./Type";
-import {
 	Decorator,
 	DecoratorActivator,
 	DecoratorDescription
@@ -22,8 +17,10 @@ import {
 }                    from "./descriptions/parameter";
 import {
 	Property,
+	PropertyActivator,
 	PropertyDescription
 }                    from "./descriptions/property";
+import type { Type } from "./Type";
 
 /**
  * @internal
@@ -54,15 +51,7 @@ export const Mapper = {
 	 */
 	mapProperties(p: PropertyDescription): Property
 	{
-		return ({
-			name: p.n,
-			type: resolveLazyType(p.t),
-			decorators: p.d?.map(Mapper.mapDecorators) || [],
-			optional: p.o,
-			accessModifier: p.am ?? AccessModifier.Public,
-			accessor: p.acs ?? Accessor.None,
-			readonly: p.ro ?? false
-		});
+		return Reflect.construct(Property, [p], PropertyActivator);
 	},
 
 	/**

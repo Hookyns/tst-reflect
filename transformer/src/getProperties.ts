@@ -1,3 +1,4 @@
+import { Accessor }                  from "tst-reflect";
 import * as ts                       from "typescript";
 import { Context }                   from "./contexts/Context";
 import { PropertyDescriptionSource } from "./declarations";
@@ -10,7 +11,7 @@ import {
 	getDeclaration,
 	getType,
 	isReadonly
-} from "./helpers";
+}                                    from "./helpers";
 
 /**
  * Return properties of type
@@ -29,15 +30,16 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 			.map((memberSymbol: ts.Symbol) =>
 			{
 				const declaration = getDeclaration(memberSymbol);
+				const accessor = getAccessor(declaration);
 				
 				return {
 					n: memberSymbol.escapedName.toString(),
 					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context, getCtorTypeReference(memberSymbol)),
 					d: getDecorators(memberSymbol, context.typeChecker),
 					am: getAccessModifier(declaration?.modifiers),
-					acs: getAccessor(declaration),
-					ro: isReadonly(declaration?.modifiers),
-					o: declaration && ts.isPropertyDeclaration(declaration) && !!declaration.questionToken
+					acs: accessor,
+					ro: isReadonly(declaration?.modifiers) || accessor == Accessor.Getter,
+					o: declaration && (ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)) && !!declaration.questionToken
 				};
 			});
 

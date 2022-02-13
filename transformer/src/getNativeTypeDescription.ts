@@ -53,9 +53,9 @@ function getNativeTypeCtor(name: string): ts.FunctionExpression | undefined
 		undefined,
 		ts.factory.createBlock([
 			ts.factory.createReturnStatement(
-				ts.factory.createCallExpression(ts.factory.createIdentifier(nativeCtorType), undefined, [])
+				ts.factory.createIdentifier(nativeCtorType)
 			)
-		], true)
+		], false)
 	);
 }
 

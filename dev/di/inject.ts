@@ -3,7 +3,7 @@ import { getType } from "tst-reflect";
 type ComponentConstructor<T = {}> = new (...args: any[]) => T;
 
 /**
- * @reflectDecorator
+ * @reflect
  */
 export function inject<TType>() {
 	const type = getType<TType>();

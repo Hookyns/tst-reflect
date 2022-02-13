@@ -22,7 +22,7 @@ export type GetTypeCall = ts.CallExpression;
 /**
  * @internal
  */
-export type TransformerVisitor = (node: ts.Node, context: Context) => ts.Node | undefined;
+export type TransformerVisitor = (node: ts.Node, context: Context) => ts.VisitResult<ts.Node>;
 
 /**
  * @internal

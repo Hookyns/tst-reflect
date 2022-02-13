@@ -212,7 +212,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 			return;
 		}
 
-		const parsedCommandLine = ts.getParsedCommandLineOfConfigFile(this.context.config.tsConfigPath, undefined, ts.sys as any);
+		const parsedCommandLine = this.context.config.parsedCommandLine;
 		let outFileName: string | undefined = undefined;
 
 		if (parsedCommandLine)

@@ -97,7 +97,7 @@ getType.__tst_reflect__ = true;
 
 /**
  * Class decorator which marks classes to be processed and included in metadata lib file.
- * @reflectDecorator
+ * @reflect
  */
 export function reflect<TType>()
 {
@@ -141,6 +141,8 @@ const nativeTypes = {
 	"Date": createNativeType("Date", Date),
 	"Null": createNativeType("null"),
 	"Undefined": createNativeType("undefined"),
+	"Never": createNativeType("never"),
+	"BigInt": createNativeType("BigInt"),
 };
 
 (Object as any)[REFLECTED_TYPE] = nativeTypes.Object;

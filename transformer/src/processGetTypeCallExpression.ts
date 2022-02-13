@@ -45,7 +45,7 @@ export function processGetTypeCallExpression(
 	// Parameter is specific type
 	else
 	{
-		const genericTypeSymbol = genericType.getSymbol();
+		const genericTypeSymbol = genericType.aliasSymbol || genericType.getSymbol();
 
 		if (!genericTypeSymbol)
 		{

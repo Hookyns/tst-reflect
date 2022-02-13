@@ -5,10 +5,11 @@
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect)
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
+![License MIT](./coverage/badge.svg)
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
 
-[Examples](#examples) | [Synopsis](#synopsis) | [How to start](#how-to-start) | [How does it work](#how-does-it-work) | [Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration)
+[Examples](#examples) | [Synopsis](#synopsis) | [How to start](#how-to-start) | [How does it work](#how-does-it-work) | [Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration) | [Changelog](https://github.com/Hookyns/ts-reflection/blob/main/CHANGELOG.md)
 
 ## About
 
@@ -90,12 +91,12 @@ baz: Date
 
 ### Decorator With Reflected Generic Type
 
-`tst-reflect-transformer` is able to process class decorators marked by @reflectDecorator JSDoc tag.
+`tst-reflect-transformer` is able to process class decorators marked by @reflect JSDoc tag.
 You will be able to get `Type` of each decorated class.
 
 ```typescript
 /**
- * @reflectDecorator
+ * @reflect
  */
 export function inject<TType>()
 {
@@ -515,7 +516,18 @@ getType({
  */
 export declare class Type
 {
-	static readonly Object: Type;
+    static readonly Object: Type;
+    static readonly Unknown: Type;
+    static readonly Any: Type;
+    static readonly Void: Type;
+    static readonly String: Type;
+    static readonly Number: Type;
+    static readonly BigInt: Type;
+    static readonly Boolean: Type;
+    static readonly Date: Type;
+    static readonly Null: Type;
+    static readonly Undefined: Type;
+    static readonly Never: Type;
     /**
      * Returns information about generic conditional type.
      */
@@ -535,7 +547,7 @@ export declare class Type
     /**
      * List of underlying types in case Type is union or intersection
      */
-    get types(): ReadonlyArray<Type> | undefined;
+    get types(): ReadonlyArray<Type>;
     /**
      * Constructor function in case Type is class
      */
@@ -588,6 +600,11 @@ export declare class Type
      * @returns {Type | undefined}
      */
     static find(filter: (type: Type) => boolean): Type | undefined;
+    /**
+     * Returns all Types contained in metadata.
+     * This method is quite useless with reflection.metadata.type = "inline"; Use "typelib" type.
+     */
+    static getTypes(): Type[];
     static get store(): MetadataStore;
     /**
      * Returns true if types are equals
@@ -616,9 +633,13 @@ export declare class Type
      */
     isUnionOrIntersection(): boolean;
     /**
-     * Check if this is a native type("string", "number", "boolean" etc.)
+     * Check if this is a native type ("string", "number", "boolean", "Array" etc.)
      */
     isNative(): boolean;
+    /**
+     * Check if this is a primitive type ("string", "number", "boolean" etc.)
+     */
+    isPrimitive(): boolean;
     /**
      * Check if this type is a string
      */
@@ -673,6 +694,18 @@ export declare class Type
      * Returns array of decorators
      */
     getDecorators(): ReadonlyArray<Decorator>;
+    /**
+     * Returns object with all methods and properties from current Type and all methods and properties inherited from base types and interfaces to this Type.
+     * @return {{properties: {[p: string]: Property}, methods: {[p: string]: Method}}}
+     */
+    flattenInheritedMembers(): {
+        properties: {
+            [propertyName: string]: Property;
+        };
+        methods: {
+            [methodName: string]: Method;
+        };
+    };
     /**
      * Determines whether the class represented by the current Type derives from the class represented by the specified Type
      * @param {Type} classType
@@ -944,7 +977,7 @@ export interface EnumInfo {
 
 ## Motivation
 
-I'm developing this for own Dependency Injection system, to allow registering and resolving based on types. Something like:
+I'm developing this Reflection system for own Dependency Injection system, to allow registering and resolving based on types. Something like:
 
 ```
 serviceCollection.AddScoped<ILog, Log>();

@@ -12,3 +12,8 @@ export * from "./descriptions/enum-info";
 export * from "./descriptions/type-properties";
 export * from "./Type";
 export * from "./reflect";
+
+import { setTypeBuilder } from "./flatten";
+import { TypeBuilder }    from "./type-builder/TypeBuilder";
+
+setTypeBuilder(TypeBuilder);
