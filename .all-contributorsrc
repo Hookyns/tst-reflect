@@ -37,6 +37,15 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "Filmos",
+      "name": "Filmos",
+      "avatar_url": "https://avatars.githubusercontent.com/u/78136833?v=4",
+      "profile": "http://filmos.net/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7

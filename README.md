@@ -1,18 +1,25 @@
 # JavaScript(/TypeScript) Runtime Types & Reflection (tst-reflect)
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 > **The mono repository of TypeScript runtime reflection packages.**
 
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect)
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
-![License MIT](./coverage/badge.svg)
+![Code coverage](./coverage/badge.svg)
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
 
-[Examples](#examples) | [Synopsis](#synopsis) | [How to start](#how-to-start) | [How does it work](#how-does-it-work) | [Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration) | [Changelog](https://github.com/Hookyns/ts-reflection/blob/main/CHANGELOG.md)
+[Examples](#examples) 
+| [Synopsis](#synopsis) 
+| [How to start](#how-to-start) 
+| [How does it work](#how-does-it-work) 
+| [Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration) 
+| [Changelog](https://github.com/Hookyns/ts-reflection/blob/main/CHANGELOG.md)
+| [Contributors](#contributors-)
 
 ## About
 
@@ -745,6 +752,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
   <tr>
     <td align="center"><a href="https://bitbucket.org/HookCZ/"><img src="https://avatars.githubusercontent.com/u/2551259?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Roman Jámbor</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Code">💻</a> <a href="#maintenance-Hookyns" title="Maintenance">🚧</a> <a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Documentation">📖</a> <a href="https://github.com/hookyns/ts-reflection/pulls?q=is%3Apr+reviewed-by%3AHookyns" title="Reviewed Pull Requests">👀</a> <a href="#example-Hookyns" title="Examples">💡</a> <a href="#ideas-Hookyns" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-Hookyns" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#question-Hookyns" title="Answering Questions">💬</a> <a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Tests">⚠️</a></td>
     <td align="center"><a href="https://github.com/iDevelopThings"><img src="https://avatars.githubusercontent.com/u/4105581?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sam Parton</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=iDevelopThings" title="Code">💻</a> <a href="https://github.com/hookyns/ts-reflection/issues?q=author%3AiDevelopThings" title="Bug reports">🐛</a> <a href="#ideas-iDevelopThings" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="http://filmos.net/"><img src="https://avatars.githubusercontent.com/u/78136833?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Filmos</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3AFilmos" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
