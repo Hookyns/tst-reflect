@@ -73,6 +73,15 @@
       "contributions": [
         "ideas"
       ]
+    },
+    {
+      "login": "hugebdu",
+      "name": "Daniel Shmuglin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/1109601?v=4",
+      "profile": "https://github.com/hugebdu",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7

@@ -8,7 +8,7 @@
 ![Code coverage](./coverage/badge.svg)
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-6-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
@@ -756,6 +756,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     <td align="center"><a href="https://dunglas.fr/"><img src="https://avatars.githubusercontent.com/u/57224?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kévin Dunglas</b></sub></a><br /><a href="#ideas-dunglas" title="Ideas, Planning, & Feedback">🤔</a></td>
     <td align="center"><a href="https://github.com/usaccounts"><img src="https://avatars.githubusercontent.com/u/12177064?v=4?s=100" width="100px;" alt=""/><br /><sub><b>usaccounts</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3Ausaccounts" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/caiodallecio"><img src="https://avatars.githubusercontent.com/u/20131875?v=4?s=100" width="100px;" alt=""/><br /><sub><b>caiodallecio</b></sub></a><br /><a href="#ideas-caiodallecio" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/hugebdu"><img src="https://avatars.githubusercontent.com/u/1109601?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel Shmuglin</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3Ahugebdu" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
