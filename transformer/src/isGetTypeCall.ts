@@ -22,6 +22,13 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 			return false;
 		}
 
+		let genericTypeNode: ts.TypeNode | undefined = node.typeArguments?.[0];
+
+		if (!genericTypeNode)
+		{
+			return false;
+		}
+
 		// Function/method type
 		const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
@@ -29,13 +36,6 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 		if (!fncType.getProperty(TYPE_ID_PROPERTY_NAME))
 		{
 			return false;
-		}
-
-		let genericTypeNode: ts.TypeNode | undefined = node.typeArguments?.[0];
-
-		if (!genericTypeNode)
-		{
-			throw getError(node, "Type argument of function getType<T>() is missing.");
 		}
 
 		return genericTypeNode;

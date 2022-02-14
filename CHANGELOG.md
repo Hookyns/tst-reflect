@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
+
+## [0.7.3] - 2022-02-14
+### Added
+### Changed
+- Fixed issue throwing Error about calling `getType()` without generic argument from transpilation.
+
+
 ## [0.7.2] - 2022-02-14
 ### Added
 - New tests (#28) - coverage ~88 %.
