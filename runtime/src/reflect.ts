@@ -1,6 +1,6 @@
 import { ObjectLiteralTypeBuilder } from "./type-builder/ObjectLiteralTypeBuilder";
 import { TypeBuilder }              from "./type-builder/TypeBuilder";
-import { REFLECTED_TYPE }           from "./consts";
+import { REFLECTED_TYPE_ID }        from "./consts";
 import { TypeKind }                 from "./enums";
 import {
 	Type,
@@ -13,7 +13,7 @@ const ArrayItemsCountToCheckItsType = 10;
  * @param value
  * @internal
  */
-export function getTypeOfRuntimeValue(value: any)
+export function getTypeOfRuntimeValue(value: any): Type
 {
 	if (value === undefined) return Type.Undefined;
 	if (value === null) return Type.Null;
@@ -59,7 +59,7 @@ export function getTypeOfRuntimeValue(value: any)
 		return arrayBuilder.setGenericType(unionBuilder.build()).build();
 	}
 
-	return value.constructor[REFLECTED_TYPE] || Type.Unknown;
+	return Type.store.get(value.constructor.prototype[REFLECTED_TYPE_ID]) || Type.Unknown;
 }
 
 /**
@@ -101,10 +101,7 @@ getType.__tst_reflect__ = true;
  */
 export function reflect<TType>()
 {
-	const typeOfTType = arguments[0]?.TType;
-
 	return function <T>(Constructor: { new(...args: any[]): T }) {
-		(Constructor as any)[REFLECTED_TYPE] = typeOfTType;
 		return Constructor;
 	};
 }
@@ -144,12 +141,6 @@ const nativeTypes = {
 	"Never": createNativeType("never"),
 	"BigInt": createNativeType("BigInt"),
 };
-
-(Object as any)[REFLECTED_TYPE] = nativeTypes.Object;
-(String as any)[REFLECTED_TYPE] = nativeTypes.String;
-(Number as any)[REFLECTED_TYPE] = nativeTypes.Number;
-(Boolean as any)[REFLECTED_TYPE] = nativeTypes.Boolean;
-(Date as any)[REFLECTED_TYPE] = nativeTypes.Date;
 
 /**
  * @internal

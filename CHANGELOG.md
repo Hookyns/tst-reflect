@@ -9,12 +9,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
+## [0.7.2] - 2022-02-14
+### Added
+- New tests (#28) - coverage ~88 %.
+
+### Changed
+- Changed way of handling types of runtime value.
+\
+Now there is `SomeClass.prototype[REFLECTED_TYPE_ID] = ID of SomeClass's type;` generated for each class in the project (not just those decorated via `@reflect`).
+It does not mean that metadata of those classes will be generated.
+Logic of generating type's metadata is still the same, 
+use `getType<SomeClass>()` somewhere, apply `@reflect` decorator 
+or apply any other decorator tagged by `@reflect` JSDoc tag.
+\
+This is preparation for include/exclude configuration (issue #29).
+- custom decorators tagged by `@reflect` JSDoc tag does not have to have generic parameter
+
 ## [0.7.1] - 2022-02-14
 ### Added
 - `Type.isAny()`
 
 ### Changed
 - `Type.isAssignableTo()` - added support of Arrays; fixed issue with optional members
+
 
 ## [0.7.0] - 2022-02-14
 ### Added
@@ -32,6 +49,7 @@ Native types (String, Number, Object, etc..) are always generated as eg.: `Promi
 - \[BREAKING] `Type.union` changed to `Type.isUnion()`
 - \[BREAKING] `Type.intersection` changed to `Type.isIntersection()`
 - Fixed of issue #23 - access to ctor of not exported class
+
 
 ## [0.7.0-alpha.0] - 2022-02-13
 ### Added

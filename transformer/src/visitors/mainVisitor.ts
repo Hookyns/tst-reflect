@@ -1,5 +1,6 @@
 import {
 	GET_TYPE_FNC_NAME,
+	REFLECTED_TYPE_ID,
 	TYPE_ID_PROPERTY_NAME
 }                                       from "tst-reflect";
 import * as ts                          from "typescript";
@@ -8,7 +9,7 @@ import {
 	getType,
 	hasReflectJsDoc,
 	isNodeIgnored
-} from "../helpers";
+}                                       from "../helpers";
 import { log }                          from "../log";
 import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";
@@ -39,7 +40,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 		{
 			return node;
 		}
-		
+
 		// Is it call of some function named "getType"?
 		if (ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
 		{
@@ -127,6 +128,33 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			{
 				return ts.visitEachChild(res, context.visitor, context.transformationContext);
 			}
+		}
+	}
+	else if (ts.isClassDeclaration(node))
+	{
+		const typeId = (context.typeChecker.getTypeAtLocation(node).symbol as any).id;
+
+		if (typeId)
+		{
+			// Generate assignment of class's type ID to its prototype
+			return [
+				ts.visitEachChild(node, context.visitor, context.transformationContext),
+
+				// ClassIdentifier.prototype[REFLECTED_TYPE_ID] = typeId;
+				ts.factory.createExpressionStatement(
+					ts.factory.createBinaryExpression(
+						ts.factory.createElementAccessExpression(
+							ts.factory.createPropertyAccessExpression(
+								node.name as ts.Expression,
+								"prototype"
+							),
+							ts.factory.createStringLiteral(REFLECTED_TYPE_ID)
+						),
+						ts.factory.createToken(ts.SyntaxKind.EqualsToken),
+						ts.factory.createNumericLiteral(typeId)
+					)
+				)
+			];
 		}
 	}
 

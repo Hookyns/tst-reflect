@@ -21,4 +21,4 @@ export const REFLECT_STORE_SYMBOL = Symbol("tst_reflect_store");
 /**
  * Name of the property used to store Type instance on constructors
  */
-export const REFLECTED_TYPE = "__reflectedType__";
+export const REFLECTED_TYPE_ID = "__reflectedTypeId__";

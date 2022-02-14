@@ -12,7 +12,7 @@ import { updateCallExpression }                           from "./updateCallExpr
 export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, context: Context): ts.Decorator | undefined
 {
 	// Method/function declaration
-	const declaration = decoratorType.symbol.declarations?.[0] as ts.FunctionLikeDeclarationBase;
+	const declaration = getDeclaration(decoratorType.symbol) as ts.FunctionLikeDeclarationBase;
 
 	if (!declaration)
 	{
@@ -21,14 +21,6 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 
 	// Try to get State
 	const state: FunctionLikeDeclarationGenericParametersDetail = getGenericParametersDetails(declaration, context, []);
-
-	if (!state || !state.usedGenericParameters || !state.indexesOfGenericParameters || !state.requestedGenericsReflection)
-	{
-		return undefined;
-	}
-
-	// Decorator has no generic parameters in nature; we just abusing it so only one generic parameter makes sense
-	const genericParamName = state.usedGenericParameters[0];
 
 	// Type of Class
 	let genericTypeNode: ts.NamedDeclaration, genericType: ts.Type;
@@ -45,6 +37,23 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	}
 
 	const genericTypeSymbol = genericType.getSymbol();
+
+	if (!state || !state.usedGenericParameters || !state.indexesOfGenericParameters || !state.requestedGenericsReflection)
+	{
+		// Decorator does not accept generic type argument but processDecorator was 
+		// forced by @reflect, so we'll generate metadata and keep decorator as is.
+		getTypeCall(
+			genericType,
+			genericTypeSymbol,
+			context,
+			genericTypeNode.name
+		);
+		
+		return undefined;
+	}
+
+	// Decorator has no generic parameters in nature; we just abusing it so only one generic parameter makes sense
+	const genericParamName = state.usedGenericParameters[0];
 
 	let callExpression: ts.CallExpression;
 	const typeArgumentDescription = {
