@@ -1,66 +1,40 @@
 import {
 	getType,
-	reflect
-}                     from "tst-reflect";
-import { property }   from "./property";
-import { SomeEnum }   from "./SomeEnum";
-import { SomeString } from "./SomeType";
+	Type
+} from "tst-reflect";
+//
+// class A
+// {
+// 	constructor(public foo: string)
+// 	{
+// 	}
+// }
+//
+// const someValue: unknown = new A("Lorem ipsum");
+// console.log(getType(someValue).is(getType<A>())); // > true
+//
+// const someValue2: unknown = { foo: "dolor sit amet" };
+// console.log(getType(someValue2).is(getType<A>())); // > false
+// console.log(getType(someValue2).isAssignableTo(getType<A>())); // > true
 
-const MyString = "SomeType";
-
-/**
- * @reflectDecorator
- */
-function klass<TType>(str: string, num: number, enu: SomeEnum)
+interface IExpectedTypeOfTheResponse
 {
-	console.log("klass", str, num, enu);
-	const t = getType<TType>();
-
-	console.log(t.getDecorators().map(d => "\tdecorator: " + d.name + " args:" + d.getArguments().join(", ")));
-	return function <T>(Constructor: { new(...args: any[]): T }) {
-	};
+	foo: string[];
+	bar: number;
+	baz: boolean;
 }
 
-@klass(MyString, 5, SomeEnum.One)
-@reflect()
-class A
-{
-	@property("Foo property", 5, SomeEnum.One, { foo: "f", bar: 5, baz: SomeEnum.Two })
-	foo: string;
+const response: unknown = { foo: ["a", "b"], bar: 99, baz: false, lorem: "ipsum" }; // await api.get("/something");
 
-	@property(SomeString, 5, SomeEnum.Two, true)
-	get bar(): number
-	{
-		return 0;
-	}
+if (isResponseOfType<IExpectedTypeOfTheResponse>(response))
+{
+	console.log("Je to očekávaný typ");
 }
 
-@reflect()
-class B
+function isResponseOfType<TType>(response: unknown): response is TType
 {
+	const type: Type = getType<TType>(); // <= fungující runtime genericita
+	const receivedType: Type = getType(response);
+
+	return receivedType.isAssignableTo(type);
 }
-
-const a: any = new A();
-const typeOfVarA = getType(a);
-console.log(typeOfVarA.name); // > "A"
-
-const typeOfA = getType<A>();
-console.log(typeOfA.name, typeOfVarA.is(typeOfA), typeOfVarA == typeOfA); // > "A", true, true
-
-
-const array: any = [new A(), new B()];
-
-const typeOfArray = getType(array);
-console.log(typeOfArray.isArray()); // > true
-const arrayTypeArg = typeOfArray.getTypeArguments()[0];
-console.log(arrayTypeArg.union); // > true
-console.log(arrayTypeArg.types.map(arg => arg.name).join(", ")); // > "A, B"
-
-
-const array2: any = [new A(), new B(), "string", true, false, { foo: "bar"}];
-const typeOfArray2 = getType(array2);
-console.log(typeOfArray2.isArray()); // > true
-const arrayTypeArg2 = typeOfArray2.getTypeArguments()[0];
-console.log(arrayTypeArg2.union); // > true
-console.log(arrayTypeArg2.types.map(arg => arg.name).join(", ")); // > "A, B"
-console.log(arrayTypeArg2.types[4].getProperties().map(p => p.name + ":" + p.type.name));
