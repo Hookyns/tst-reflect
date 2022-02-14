@@ -9,6 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
+## [0.7.1] - 2022-02-14
+### Added
+- `Type.isAny()`
+
+### Changed
+- `Type.isAssignableTo()` - added support of Arrays; fixed issue with optional members
+
 ## [0.7.0] - 2022-02-14
 ### Added
 - `Type.toString()`

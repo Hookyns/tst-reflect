@@ -438,6 +438,14 @@ export class Type
 	}
 
 	/**
+	 * Check if this type is an any
+	 */
+	isAny(): boolean
+	{
+		return this.isNative() && this.name == "any";
+	}
+
+	/**
 	 *
 	 * @return {boolean}
 	 */
@@ -607,32 +615,28 @@ export class Type
 
 		// All the target properties are required (may be optional), so all of them must be present in current Type.. to be assignable
 		return targetProperties.every(targetProperty =>
-				currentProperties.some(currentProperty =>
-						targetProperty.optional || (
-							currentProperty.name == targetProperty.name
-							&& currentProperty.type.isAssignableTo(targetProperty.type)
-						)
-				)
+					targetProperty.optional || currentProperties.some(currentProperty =>
+						currentProperty.name == targetProperty.name
+						&& currentProperty.type.isAssignableTo(targetProperty.type)
+					)
 			)
 			// same for methods. All targets methods must be present in current Type (methods are matched by name and parameters' types)
 			&& targetMethods.every(targetMethod =>
-				currentMethods.some(currentMethod => {
-					const currentMethodParameters = currentMethod.getParameters();
+					targetMethod.optional || currentMethods.some(currentMethod => {
+						const currentMethodParameters = currentMethod.getParameters();
 
-					return targetMethod.optional || (
-						currentMethod.name == targetMethod.name
-						&& targetMethod.getParameters().every((targetMethodParam, i) => {
-							const currentMethodParam: MethodParameter | undefined = currentMethodParameters[i];
+						return currentMethod.name == targetMethod.name
+							&& targetMethod.getParameters().every((targetMethodParam, i) => {
+								const currentMethodParam: MethodParameter | undefined = currentMethodParameters[i];
 
-							if (currentMethodParam == undefined)
-							{
-								return targetMethodParam.optional;
-							}
+								if (currentMethodParam == undefined)
+								{
+									return targetMethodParam.optional;
+								}
 
-							return currentMethodParam.type.isAssignableTo(targetMethodParam.type);
-						})
-					);
-				})
+								return currentMethodParam.type.isAssignableTo(targetMethodParam.type);
+							});
+					})
 			);
 	}
 
@@ -643,7 +647,7 @@ export class Type
 	 */
 	isAssignableTo(target: Type): boolean
 	{
-		if (target.kind == TypeKind.Native && target.name == "any")
+		if (this.isAny() || target.isAny())
 		{
 			return true;
 		}
@@ -672,6 +676,21 @@ export class Type
 			}
 
 			return this.types?.every(thisType => target.types?.some(targetType => thisType.isAssignableTo(targetType))) || false;
+		}
+
+		// Both must be array or not
+		if (this.isArray() != target.isArray())
+		{
+			return false;
+		}
+
+		// It is array. Type of array must match.
+		if (this.isArray())
+		{
+			return this.getTypeArguments()[0].isDerivedFrom(target.getTypeArguments()[0])
+				// anonymous type check
+				|| this.isStructurallyAssignableTo(target.getTypeArguments()[0])
+				|| false;
 		}
 
 		return this.isDerivedFrom(target)
