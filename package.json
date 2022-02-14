@@ -26,5 +26,6 @@
 		"ts-node": "^10.4.0",
 		"ttypescript": "1.x",
 		"typescript": "4.x"
-	}
+	},
+	"version": "0.0.1"
 }
