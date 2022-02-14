@@ -3,8 +3,12 @@ import * as ts                      from "typescript";
 import {
 	ConditionalType
 }                                   from "typescript";
+import { MetadataTypeValues }       from "./config-options";
 import { Context }                  from "./contexts/Context";
-import { TypePropertiesSource }     from "./declarations";
+import {
+	TypeDescription,
+	TypePropertiesSource
+}                                   from "./declarations";
 import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
 import { getExportOfConstructor }   from "./getExports";
@@ -15,7 +19,7 @@ import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
 import { getTypeCall }              from "./getTypeCall";
 import {
-	createCtorGetter,
+	createCtorPromise,
 	getType,
 	getTypeFullName,
 	getTypeKind,
@@ -37,7 +41,7 @@ export function getTypeDescription(
 	context: Context,
 	typeCtor?: ts.EntityName | ts.DeclarationName
 )
-	: TypePropertiesSource
+	: TypeDescription
 {
 	if (context.config.debugMode && symbol?.declarations)
 	{
@@ -48,7 +52,10 @@ export function getTypeDescription(
 
 	if (nativeTypeDescriptionResult.ok)
 	{
-		return nativeTypeDescriptionResult.typeDescription;
+		return {
+			properties: nativeTypeDescriptionResult.typeDescription,
+			localType: false
+		};
 	}
 
 	let typeSymbol = type.getSymbol();
@@ -62,22 +69,28 @@ export function getTypeDescription(
 	{
 		symbol = typeSymbol;
 	}
-	
-	if (type.isUnion() && (type.flags & ts.TypeFlags.EnumLiteral) == ts.TypeFlags.EnumLiteral) 
+
+	if (type.isUnion() && (type.flags & ts.TypeFlags.EnumLiteral) == ts.TypeFlags.EnumLiteral)
 	{
 		return {
-			k: TypeKind.Enum,
-			n: symbol?.escapedName.toString(),
-			types: type.types.map(type => getTypeCall(type, undefined, context)),
+			properties: {
+				k: TypeKind.Enum,
+				n: symbol?.escapedName.toString(),
+				types: type.types.map(type => getTypeCall(type, undefined, context)),
+			},
+			localType: false
 		};
 	}
 
 	if ((type.flags & ts.TypeFlags.Literal) != 0)
 	{
 		return {
-			k: TypeKind.LiteralType,
-			n: getLiteralName(type),
-			v: (type as any).value,
+			properties: {
+				k: TypeKind.LiteralType,
+				n: getLiteralName(type),
+				v: (type as any).value,
+			},
+			localType: false
 		};
 	}
 
@@ -94,11 +107,14 @@ export function getTypeDescription(
 			);
 
 		return {
-			n: symbol?.escapedName.toString(),
-			k: TypeKind.Container,
-			types: types,
-			union: type.isUnion(),
-			inter: type.isIntersection()
+			properties: {
+				n: symbol?.escapedName.toString(),
+				k: TypeKind.Container,
+				types: types,
+				union: type.isUnion(),
+				inter: type.isIntersection()
+			},
+			localType: false
 		};
 	}
 
@@ -116,16 +132,22 @@ export function getTypeDescription(
 			if (declaration && ts.isTypeLiteralNode(declaration) && type.aliasSymbol)
 			{
 				return {
-					k: TypeKind.Object,
-					n: type.aliasSymbol.name,
-					fn: getTypeFullName(type.aliasSymbol),
-					props: getProperties(symbol, type, context)
+					properties: {
+						k: TypeKind.Object,
+						n: type.aliasSymbol.name,
+						fn: getTypeFullName(type.aliasSymbol),
+						props: getProperties(symbol, type, context)
+					},
+					localType: false
 				};
 			}
 
 			return {
-				k: TypeKind.Object,
-				props: getProperties(symbol, type, context)
+				properties: {
+					k: TypeKind.Object,
+					props: getProperties(symbol, type, context)
+				},
+				localType: false
 			};
 		}
 
@@ -142,14 +164,17 @@ export function getTypeDescription(
 					&& typeSymbol && (typeSymbol.flags & ts.SymbolFlags.Transient) == ts.SymbolFlags.Transient)
 				{
 					return {
-						k: TypeKind.TransientTypeReference,
-						n: (symbol.valueDeclaration.type.typeName as any).escapedText,
-						args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
-								checker.getTypeAtLocation(typeNode),
-								checker.getSymbolAtLocation(typeNode),
-								context
-							)
-						) || [],
+						properties: {
+							k: TypeKind.TransientTypeReference,
+							n: (symbol.valueDeclaration.type.typeName as any).escapedText,
+							args: symbol.valueDeclaration.type.typeArguments?.map(typeNode => getTypeCall(
+									checker.getTypeAtLocation(typeNode),
+									checker.getSymbolAtLocation(typeNode),
+									context
+								)
+							) || [],
+						},
+						localType: false
 					};
 				}
 
@@ -170,11 +195,14 @@ export function getTypeDescription(
 						);
 
 					return {
-						n: symbol.escapedName.toString(),
-						k: TypeKind.Container,
-						types: types,
-						union: isUnion,
-						inter: isIntersection
+						properties: {
+							n: symbol.escapedName.toString(),
+							k: TypeKind.Container,
+							types: types,
+							union: isUnion,
+							inter: isIntersection
+						},
+						localType: false
 					};
 				}
 			}
@@ -196,8 +224,11 @@ export function getTypeDescription(
 			}
 
 			return {
-				k: TypeKind.Object,
-				props: getProperties(symbol, type, context)
+				properties: {
+					k: TypeKind.Object,
+					props: getProperties(symbol, type, context)
+				},
+				localType: false
 			};
 		}
 		else if ((type.flags & ts.TypeFlags.Conditional) == ts.TypeFlags.Conditional)
@@ -207,12 +238,15 @@ export function getTypeDescription(
 			const trueType = checker.getTypeAtLocation(ct.trueType);
 
 			return {
-				k: TypeKind.ConditionalType,
-				ct: {
-					e: getTypeCall(extendsType, extendsType.symbol, context),
-					tt: getTypeCall(trueType, trueType.symbol, context),
-					ft: getTypeCall(checker.getTypeAtLocation(ct.falseType), checker.getSymbolAtLocation(ct.falseType), context)
-				}
+				properties: {
+					k: TypeKind.ConditionalType,
+					ct: {
+						e: getTypeCall(extendsType, extendsType.symbol, context),
+						tt: getTypeCall(trueType, trueType.symbol, context),
+						ft: getTypeCall(checker.getTypeAtLocation(ct.falseType), checker.getSymbolAtLocation(ct.falseType), context)
+					}
+				},
+				localType: false
 			};
 		}
 		else if ((type.flags & ts.TypeFlags.IndexedAccess) == ts.TypeFlags.IndexedAccess)
@@ -220,17 +254,20 @@ export function getTypeDescription(
 			const indexedAccess = type as ts.IndexedAccessType;
 
 			return {
-				k: TypeKind.IndexedAccess,
-				iat: {
-					ot: getTypeCall(indexedAccess.objectType, indexedAccess.objectType.symbol, context),
-					it: getTypeCall(indexedAccess.indexType, indexedAccess.indexType.symbol, context)
-				}
+				properties: {
+					k: TypeKind.IndexedAccess,
+					iat: {
+						ot: getTypeCall(indexedAccess.objectType, indexedAccess.objectType.symbol, context),
+						it: getTypeCall(indexedAccess.indexType, indexedAccess.indexType.symbol, context)
+					}
+				},
+				localType: false
 			};
 		}
 
 		// throw new Error("Unable to resolve type's symbol.");
 		log.error("Unable to resolve type's symbol. Returning type Unknown.");
-		return UNKNOWN_TYPE_PROPERTIES;
+		return { properties: UNKNOWN_TYPE_PROPERTIES, localType: false };
 	}
 	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.TypeLiteral) == ts.SymbolFlags.TypeLiteral)
 	{
@@ -240,9 +277,12 @@ export function getTypeDescription(
 		}
 
 		return {
-			n: type.aliasSymbol?.name.toString(),
-			k: TypeKind.Object,
-			props: getProperties(typeSymbol, type, context)
+			properties: {
+				n: type.aliasSymbol?.name.toString(),
+				k: TypeKind.Object,
+				props: getProperties(typeSymbol, type, context)
+			},
+			localType: false
 		};
 	}
 	// Some object literal type, eg. `private foo: { a: string, b: number };`
@@ -254,8 +294,11 @@ export function getTypeDescription(
 		}
 
 		return {
-			k: TypeKind.Object,
-			props: getProperties(typeSymbol, type, context)
+			properties: {
+				k: TypeKind.Object,
+				props: getProperties(typeSymbol, type, context)
+			},
+			localType: false
 		};
 	}
 	else if ((type.flags & ts.TypeFlags.TypeParameter) == ts.TypeFlags.TypeParameter && (typeSymbol.flags & ts.SymbolFlags.TypeParameter) == ts.SymbolFlags.TypeParameter)
@@ -272,18 +315,21 @@ export function getTypeDescription(
 			if (ts.isTypeParameterDeclaration(typeParameter))
 			{
 				return {
-					k: TypeKind.TypeParameter,
-					n: typeParameter.name.escapedText as string,
-					con: typeParameter.constraint && getTypeCall(
-						checker.getTypeAtLocation(typeParameter.constraint),
-						checker.getSymbolAtLocation(typeParameter.constraint),
-						context
-					) || undefined,
-					def: typeParameter.default && getTypeCall(
-						checker.getTypeAtLocation(typeParameter.default),
-						checker.getSymbolAtLocation(typeParameter.default),
-						context
-					) || undefined
+					properties: {
+						k: TypeKind.TypeParameter,
+						n: typeParameter.name.escapedText as string,
+						con: typeParameter.constraint && getTypeCall(
+							checker.getTypeAtLocation(typeParameter.constraint),
+							checker.getSymbolAtLocation(typeParameter.constraint),
+							context
+						) || undefined,
+						def: typeParameter.default && getTypeCall(
+							checker.getTypeAtLocation(typeParameter.default),
+							checker.getSymbolAtLocation(typeParameter.default),
+							context
+						) || undefined
+					},
+					localType: false
 				};
 			}
 		}
@@ -296,6 +342,7 @@ export function getTypeDescription(
 	const symbolType = getType(typeSymbol, checker);
 	const symbolToUse = typeSymbol || symbol;
 
+	let localType = false;
 	const properties: TypePropertiesSource = {
 		k: kind,
 		n: typeSymbol.getName(),
@@ -307,24 +354,79 @@ export function getTypeDescription(
 
 	if (kind === TypeKind.Class)
 	{
-
 		properties.ctors = getConstructors(symbolType, context);
 
 		if (typeCtor)
 		{
 			const constructorExport = getExportOfConstructor(typeSymbol, typeCtor, context);
 
-			if (context.config.isServerMode())
+			if (constructorExport)
 			{
-				properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
+				if (context.config.isServerMode())
+				{
+					properties.ctorDesc = nodeGenerator.createObjectLiteralExpressionNode(constructorExport);
+				}
+
+				const [ctorGetter, ctorRequireCall] = createCtorPromise(typeCtor, constructorExport, context);
+
+				if (ctorGetter)
+				{
+					properties.ctor = ctorGetter;
+
+					// TODO: Review. TypeCtors seems unused.
+					if (ctorRequireCall)
+					{
+						context.addTypeCtor(ctorRequireCall);
+					}
+				}
 			}
-
-			const [ctorGetter, ctorRequireCall] = createCtorGetter(typeCtor, constructorExport, context);
-			properties.ctor = ctorGetter;
-
-			if (constructorExport && properties.ctor && ctorRequireCall)
+			// If it is not exported, it must be getType<> of local class; in that case, we have direct access to class. But this type info must be generated in file.
+			else
 			{
-				context.addTypeCtor(ctorRequireCall);
+				localType = true;
+
+				let expression = typeCtor as ts.Expression;
+
+				// In "typelib" mode we have to use typeof() to ensure there will be no error after getting ctor, 
+				// because Identifier will be undefined in typelib file
+				if (context.config.useMetadataType == MetadataTypeValues.typeLib)
+				{
+					expression = ts.factory.createConditionalExpression(
+						ts.factory.createBinaryExpression(
+							ts.factory.createTypeOfExpression(expression),
+							ts.factory.createToken(ts.SyntaxKind.EqualsEqualsToken),
+							ts.factory.createStringLiteral("function")
+						),
+						ts.factory.createToken(ts.SyntaxKind.QuestionToken),
+						expression,
+						ts.factory.createToken(ts.SyntaxKind.ColonToken),
+						ts.factory.createIdentifier("undefined")
+					);
+				}
+
+				// function() { return Promise.resolve(TypeCtor) }
+				properties.ctor = ts.factory.createFunctionExpression(
+					undefined,
+					undefined,
+					undefined,
+					undefined,
+					[],
+					undefined,
+					ts.factory.createBlock([
+						ts.factory.createReturnStatement(
+							ts.factory.createCallExpression(
+								ts.factory.createPropertyAccessExpression(
+									ts.factory.createIdentifier("Promise"),
+									ts.factory.createIdentifier("resolve")
+								),
+								undefined,
+								[
+									expression
+								]
+							)
+						)
+					], true)
+				);
 			}
 
 		}
@@ -373,5 +475,8 @@ export function getTypeDescription(
 		}
 	}
 
-	return properties;
+	return {
+		properties: properties,
+		localType: localType
+	};
 }

@@ -27,7 +27,7 @@ export type TransformerVisitor = (node: ts.Node, context: Context) => ts.VisitRe
 /**
  * @internal
  */
-export type MetadataEntry = [number, ts.ObjectLiteralExpression];
+export type MetadataEntry = [typeId: number, properties: ts.ObjectLiteralExpression, localType: boolean];
 
 /**
  * @internal
@@ -38,6 +38,21 @@ export type MetadataLibrary = Array<MetadataEntry>;
  * @internal
  */
 export type CtorsLibrary = Array<ts.PropertyAccessExpression>;
+
+/**
+ * @internal
+ */
+export type TypeDescription = {
+	/**
+	 * Properties of the type
+	 */
+	properties: TypePropertiesSource,
+
+	/**
+	 * Type is not exported
+	 */
+	localType: boolean
+};
 
 /**
  * @internal
@@ -239,7 +254,7 @@ export interface TypePropertiesSource
 	 * @name name
 	 */
 	n?: string;
-	
+
 	/**
 	 * Full Name
 	 * @alias fullName
@@ -298,7 +313,9 @@ export interface TypePropertiesSource
 	ctorDesc?: ts.ObjectLiteralExpression;
 
 	/**
-	 * Constructor return function
+	 * Function returning Promise to resolve constructor.
+	 * @description It reflect tsconfig module.
+	 * In case of ESM dynamic import() is generated, otherwise Promise.resolve().
 	 */
 	ctor?: ts.FunctionExpression;
 

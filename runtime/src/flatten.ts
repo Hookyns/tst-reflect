@@ -54,7 +54,7 @@ export function flatten(typeToFlatten: Type): {
 			}
 		}
 
-		if (typeToFlatten.union)
+		if (typeToFlatten.isUnion())
 		{
 			const typesCount = typeToFlatten.types.length;
 
@@ -77,7 +77,7 @@ export function flatten(typeToFlatten: Type): {
 
 			// TODO: Process Methods
 		}
-		else if (typeToFlatten.intersection)
+		else if (typeToFlatten.isIntersection())
 		{
 			// Process Properties
 			for (let [propertyName, intersectionedProperties] of propertyUnitedMap)

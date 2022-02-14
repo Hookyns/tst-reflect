@@ -304,21 +304,9 @@ export declare class Type
      */
     get indexedAccessType(): IndexedAccessType | undefined;
     /**
-     * Returns a value indicating whether the Type is container for unified Types or not
-     */
-    get union(): boolean;
-    /**
-     * Returns a value indicating whether the Type is container for intersecting Types or not
-     */
-    get intersection(): boolean;
-    /**
      * List of underlying types in case Type is union or intersection
      */
     get types(): ReadonlyArray<Type>;
-    /**
-     * Constructor function in case Type is class
-     */
-    get ctor(): Function | undefined;
     /**
      * Get meta for the module of the defined constructor
      * This data is not set when the config mode is set to "universal"
@@ -378,6 +366,17 @@ export declare class Type
      * @param type
      */
     is(type: Type): boolean;
+    /**
+     * Returns a value indicating whether the Type is container for unified Types or not
+     */
+    isUnion(): boolean;
+    /**
+     * Returns a value indicating whether the Type is container for intersecting Types or not
+     */
+    isIntersection(): boolean;
+    /**
+     * Returns true whether current Type is a class with any constructor.
+     */
     isInstantiable(): boolean;
     /**
      * Returns a value indicating whether the Type is a class or not
@@ -438,6 +437,10 @@ export declare class Type
      */
     getEnum(): EnumInfo | undefined;
     /**
+     * Constructor function in case Type is class
+     */
+    getCtor(): Promise<Function | undefined>;
+    /**
      * Returns array of type parameters.
      */
     getTypeParameters(): ReadonlyArray<Type>;
@@ -496,6 +499,10 @@ export declare class Type
      * @param target
      */
     isAssignableTo(target: Type): boolean;
+    /**
+     * Returns string representation of the type.
+     */
+    toString(): string;
 }
 
 /**
@@ -605,36 +612,36 @@ export interface ConditionalType
 /**
  * Property description
  */
-export interface Property
+export class Property
 {
     /**
      * Property name
      */
-    name: string;
+    readonly name: string;
     /**
      * Property type
      */
-    type: Type;
+    readonly type: Type;
     /**
      * Optional property
      */
-    optional: boolean;
-    /**
-     * Property decorators
-     */
-    decorators: ReadonlyArray<Decorator>;
+    readonly optional: boolean;
     /**
      * Access modifier
      */
-    accessModifier: AccessModifier;
+    readonly accessModifier: AccessModifier;
     /**
      * Accessor
      */
-    accessor: Accessor;
+    readonly accessor: Accessor;
     /**
      * Readonly
      */
-    readonly: boolean;
+    readonly readonly: boolean;
+    /**
+     * Returns array of decorators
+     */
+    getDecorators(): ReadonlyArray<Decorator>;
 }
 
 /**

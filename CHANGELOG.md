@@ -9,6 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
+## [0.7.0] - 2022-02-14
+### Added
+- `Type.toString()`
+
+### Changed
+- \[BREAKING] `Type.ctor: Function | undefined` changed to `Type.getCtor(): Promise<Function | undefined>`
+\
+Generated Promise is based on target module from tsconfig.
+\
+Generated code in case of ESM: `import("...path...").ExportedMember` otherwise: `Promise.resolve(require("...path...").ExportedMember)`.
+\
+Native types (String, Number, Object, etc..) are always generated as eg.: `Promise.resolve(Object)`
+- Fixed `Method.optional`
+- \[BREAKING] `Type.union` changed to `Type.isUnion()`
+- \[BREAKING] `Type.intersection` changed to `Type.isIntersection()`
+- Fixed of issue #23 - access to ctor of not exported class
+
 ## [0.7.0-alpha.0] - 2022-02-13
 ### Added
 - `getType(val: any)` it is possible to get type of runtime value,

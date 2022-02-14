@@ -40,7 +40,7 @@ export class Type
 	public static readonly Never: Type;
 
 	/** @internal */
-	private _ctor?: () => Function;
+	private _ctor?: () => Promise<{ new(...args: any[]): any }>;
 	/** @internal */
 	private _ctorDesc?: ConstructorImport;
 	/** @internal */
@@ -131,7 +131,6 @@ export class Type
 		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
 		this._ctor = description.ctor;
 		this._ctorDesc = Reflect.construct(ConstructorImport, [description.ctorDesc], ConstructorImportActivator);
-		this._baseType = resolveLazyType(description.bt) ?? (description.ctor == Object ? undefined : Type.Object);
 		this._interface = resolveLazyType(description.iface);
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
@@ -154,6 +153,13 @@ export class Type
 		} : undefined;
 		this._genericTypeConstraint = resolveLazyType(description.con);
 		this._genericTypeDefault = resolveLazyType(description.def);
+
+		// BaseType of Type.Object must be undefined
+		this._baseType = resolveLazyType(description.bt)
+			?? (this.isNative() && this.name == "Object" && (!description.props || !description.props.length)
+					? undefined
+					: Type.Object
+			);
 	}
 
 	/**
@@ -173,35 +179,11 @@ export class Type
 	}
 
 	/**
-	 * Returns a value indicating whether the Type is container for unified Types or not
-	 */
-	get union(): boolean
-	{
-		return this._isUnion;
-	}
-
-	/**
-	 * Returns a value indicating whether the Type is container for intersecting Types or not
-	 */
-	get intersection(): boolean
-	{
-		return this._isIntersection;
-	}
-
-	/**
 	 * List of underlying types in case Type is union or intersection
 	 */
 	get types(): ReadonlyArray<Type>
 	{
 		return this._types.slice();
-	}
-
-	/**
-	 * Constructor function in case Type is class
-	 */
-	get ctor(): Function | undefined
-	{
-		return this._ctor?.();
 	}
 
 	/**
@@ -334,6 +316,25 @@ export class Type
 		return type != undefined && this._fullName == type._fullName && !!this._fullName;
 	}
 
+	/**
+	 * Returns a value indicating whether the Type is container for unified Types or not
+	 */
+	isUnion(): boolean
+	{
+		return this._isUnion;
+	}
+
+	/**
+	 * Returns a value indicating whether the Type is container for intersecting Types or not
+	 */
+	isIntersection(): boolean
+	{
+		return this._isIntersection;
+	}
+
+	/**
+	 * Returns true whether current Type is a class with any constructor.
+	 */
 	isInstantiable(): boolean
 	{
 		return !!this.getConstructors()?.length;
@@ -376,7 +377,7 @@ export class Type
 	 */
 	isUnionOrIntersection(): boolean
 	{
-		return this.union || this.intersection;
+		return this.isUnion() || this.isIntersection();
 	}
 
 	/**
@@ -481,6 +482,14 @@ export class Type
 				return entries.map(entry => entry[0]);
 			}
 		};
+	}
+
+	/**
+	 * Constructor function in case Type is class
+	 */
+	getCtor(): Promise<{ new(...args: any[]): any } | undefined>
+	{
+		return this._ctor?.() ?? Promise.resolve(undefined);
 	}
 
 	/**
@@ -657,7 +666,7 @@ export class Type
 			// -- both types are container
 
 			// containers' types do not match (union vs intersection)
-			if (!(this.union == target.union && this.intersection == target.intersection))
+			if (!(this.isUnion() == target.isUnion() && this.isIntersection() == target.isIntersection()))
 			{
 				return false;
 			}
@@ -669,6 +678,14 @@ export class Type
 			// anonymous type check
 			|| this.isStructurallyAssignableTo(target)
 			|| false;
+	}
+
+	/**
+	 * Returns string representation of the type.
+	 */
+	toString(): string
+	{
+		return `{${TypeKind[this.kind]} ${this.name} (${this.fullName})}`;
 	}
 }
 

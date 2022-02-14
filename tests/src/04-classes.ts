@@ -95,7 +95,7 @@ test("Optional class property", () => {
 	const prop = properties.find(prop => prop.name == "optionalProperty")!;
 
 	expect(prop).not.toBeUndefined();
-	expect(prop.type.union).toBe(true);
+	expect(prop.type.isUnion()).toBe(true);
 	expect(prop.type.types).toBeDefined();
 	expect(prop.type.types).toContain(Type.String);
 	expect(prop.readonly).toBe(false);

@@ -79,7 +79,7 @@ export interface TypeProperties
 	/**
 	 * Ctor getter
 	 */
-	ctor?: () => Function;
+	ctor?: () => Promise<{ new(...args: any[]): any }>;
 
 	/**
 	 * Extended base type

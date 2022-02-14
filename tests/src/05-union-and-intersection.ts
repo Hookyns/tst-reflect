@@ -16,8 +16,8 @@ test("Union", () => {
 	expect(typeOfC instanceof Type).toBe(true);
 	expect(typeOfC).not.toBe(Type.Unknown);
 	expect(typeOfC.name).toBe("C");
-	expect(typeOfC.union).toBe(true);
-	expect(typeOfC.intersection).toBe(false);
+	expect(typeOfC.isUnion()).toBe(true);
+	expect(typeOfC.isIntersection()).toBe(false);
 	expect(typeOfC.isUnionOrIntersection()).toBe(true);
 	expect(typeOfC.types).toBeDefined();
 	expect(typeOfC.types).toHaveLength(2);
@@ -40,8 +40,8 @@ test("Intersection", () => {
 	expect(typeOfC instanceof Type).toBe(true);
 	expect(typeOfC).not.toBe(Type.Unknown);
 	expect(typeOfC.name).toBe("C");
-	expect(typeOfC.union).toBe(false);
-	expect(typeOfC.intersection).toBe(true);
+	expect(typeOfC.isUnion()).toBe(false);
+	expect(typeOfC.isIntersection()).toBe(true);
 	expect(typeOfC.isUnionOrIntersection()).toBe(true);
 	expect(typeOfC.types).toBeDefined();
 	expect(typeOfC.types).toHaveLength(2);

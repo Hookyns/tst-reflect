@@ -1,51 +1,17 @@
-import * as ts           from "typescript";
-import { Context }       from "./contexts/Context";
+import * as ts                 from "typescript";
+import { Context }             from "./contexts/Context";
 import {
 	GetTypeCall,
-	MethodDescriptionSource,
-	ParameterDescriptionSource
-}                        from "./declarations";
-import { getDecorators } from "./getDecorators";
-import { getTypeCall }   from "./getTypeCall";
+	MethodDescriptionSource
+}                              from "./declarations";
+import { getDecorators }          from "./getDecorators";
+import { getSignatureParameters } from "./getSignatureParameters";
+import { getTypeCall }            from "./getTypeCall";
 import {
 	getAccessModifier,
 	getFunctionLikeSignature,
-	getType,
 	getUnknownTypeCall,
-}                        from "./helpers";
-
-/**
- * Process the signature of the method and create a parameter description for each parameter
- *
- * @param {ts.Signature} signature
- * @param {Context} context
- * @returns {Array<ParameterDescriptionSource>}
- */
-export function getMethodParameters(signature: ts.Signature, context: Context): Array<ParameterDescriptionSource>
-{
-	const methodParameters = signature.getParameters();
-
-	if (!signature || !methodParameters?.length)
-	{
-		return [];
-	}
-
-	const parameters: Array<ParameterDescriptionSource> = [];
-
-	for (let parameter of methodParameters)
-	{
-		const declaration = parameter.valueDeclaration as ts.ParameterDeclaration;
-		const type = getType(parameter, context.typeChecker);
-
-		parameters.push({
-			n: parameter.getName(),
-			o: (parameter.flags & ts.TypeFlags.Object) === ts.TypeFlags.Object,
-			t: type && getTypeCall(type, type.symbol, context) || getUnknownTypeCall(context),
-		});
-	}
-
-	return parameters;
-}
+}                              from "./helpers";
 
 export function getMethodGenerics(symbol: ts.Symbol, context: Context): Array<GetTypeCall>
 {
@@ -73,7 +39,7 @@ export function getMethodDescription(symbol: ts.Symbol, context: Context): Metho
 	// TODO: Finish this implementation of methods
 	return {
 		n: symbol.escapedName.toString(),
-		params: methodSignature && getMethodParameters(methodSignature, context),
+		params: methodSignature && getSignatureParameters(methodSignature, context),
 		rt: returnType && getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
 		d: getDecorators(symbol, context.typeChecker),
 		tp: getMethodGenerics(symbol, context),

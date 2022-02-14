@@ -1,11 +1,12 @@
-import * as ts                    from "typescript";
+import * as ts                   from "typescript";
 import {
 	GetTypeCall,
+	TypeDescription,
 	TypePropertiesSource
-}                                 from "./declarations";
-import { createValueExpression }  from "./createValueExpression";
-import { getTypeDescription }     from "./getTypeDescription";
-import { Context }                from "./contexts/Context";
+}                                from "./declarations";
+import { createValueExpression } from "./createValueExpression";
+import { getTypeDescription }    from "./getTypeDescription";
+import { Context }               from "./contexts/Context";
 
 const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
 
@@ -39,7 +40,7 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 		typePropertiesObjectLiteral = createdTypes.get(id);
 	}
 
-	let props: any;
+	let typeDescription: TypeDescription | undefined = undefined;
 
 	if (!typePropertiesObjectLiteral)
 	{
@@ -54,8 +55,8 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 			creatingTypes.push(id);
 		}
 
-		props = getTypeDescription(type, symbol, context, typeCtor);
-		typePropertiesObjectLiteral = createValueExpression(props) as ts.ObjectLiteralExpression;
+		typeDescription = getTypeDescription(type, symbol, context, typeCtor);
+		typePropertiesObjectLiteral = createValueExpression(typeDescription.properties) as ts.ObjectLiteralExpression;
 
 		if (id)
 		{
@@ -65,7 +66,7 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 
 	if (id)
 	{
-		context.addTypeMetadata([id, typePropertiesObjectLiteral]);
+		context.addTypeMetadata([id, typePropertiesObjectLiteral, typeDescription?.localType ?? false]);
 		createdTypes.set(id, typePropertiesObjectLiteral);
 
 		/**
@@ -77,7 +78,7 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 	/**
 	 * Type is not registered (no id or no sourceFileContext) so direct type construction returned
 	 */
-	return context.metaWriter.factory.createDescriptionWithoutAddingToStore(props);
+	return context.metaWriter.factory.createDescriptionWithoutAddingToStore(typeDescription!.properties);
 }
 
 /**

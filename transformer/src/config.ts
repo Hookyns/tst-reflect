@@ -1,9 +1,12 @@
 import {
-	dirname,
 	join,
 	resolve
 }                      from "path";
 import * as ts         from "typescript";
+import {
+	ModuleKind,
+	ScriptTarget
+}                      from "typescript";
 import {
 	DEFAULT_METADATA_LIB_FILE_NAME,
 	MetadataType,
@@ -17,9 +20,9 @@ import { PACKAGE_ID }  from "./helpers";
 type ConfigReflectionSection = {
 	/**
 	 * Modes "universal" or "server".
-	 * 
+	 *
 	 * "universal" is general mode for general usage on the server or in the browser.
-	 * 
+	 *
 	 * "server" is special mode for servers. Metadata contain more information which can be handy on server, eg. file paths.
 	 * @default "universal"
 	 */
@@ -31,13 +34,13 @@ type ConfigReflectionSection = {
 	metadata: {
 		/**
 		 * Types "inline" or "typelib".
-		 * 
+		 *
 		 * "inline" type means, that metadata will be generated per-file. If you use getType<>() inside your index.ts, the metadata will be generated into index.js for local usage.
 		 * Using getType<>() over same type but from different file (eg. service.ts) will generate redundant metadata, same as in index.js, into service.js.
-		 * 
+		 *
 		 * "typelib" will generate one file with all of the metadata used across whole project. It is metadata library.
 		 * This library is auto-imported into transpiled JS source code.
-		 * 
+		 *
 		 * @default "inline"
 		 */
 		type: MetadataType,
@@ -48,7 +51,7 @@ type ConfigReflectionSection = {
 		 */
 		filePath: string
 	},
-	
+
 	debugMode: "true" | "false" | "0" | "1" | boolean
 }
 
@@ -63,7 +66,12 @@ export interface ConfigObject
 	 * Path of tsconfig.json file.
 	 */
 	tsConfigPath: string;
-	
+
+	/**
+	 * True if ModuleKind set to any version of ESM.
+	 */
+	esmModuleKind: boolean;
+
 	/**
 	 * Output directory.
 	 */
@@ -84,8 +92,8 @@ export interface ConfigObject
 	 * Generation of metadata file is enabled/disabled
 	 */
 	useMetadata: boolean;
-	
-	
+
+
 	useMetadataType: MetadataType;
 
 	/**
@@ -190,6 +198,7 @@ export function createConfig(options: ts.CompilerOptions, rootDir: string, packa
 		rootDir: packageInfo.rootDir,
 		outDir: options.outDir || rootDir,
 		tsConfigPath: configPath,
+		esmModuleKind: isESMModule(options),
 		projectDir: rootDir,
 		packageName: packageInfo.name,
 		useMetadata: config.useMetadata,
@@ -206,4 +215,15 @@ export function createConfig(options: ts.CompilerOptions, rootDir: string, packa
 			return config.mode === ModeValues.server;
 		},
 	};
+}
+
+function isESMModule(options: ts.CompilerOptions) {
+	// ref: https://www.typescriptlang.org/tsconfig#module
+	
+	const target = options.target || ScriptTarget.ES3;
+	const module = options.module || (
+		[ScriptTarget.ES3, ScriptTarget.ES5].includes(target) ? ModuleKind.CommonJS : ModuleKind.ES2015
+	);
+	
+	return [ModuleKind.ES2015, ModuleKind.ES2020, ModuleKind.ES2022, ModuleKind.ESNext].includes(module);
 }

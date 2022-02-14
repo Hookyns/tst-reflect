@@ -1,37 +1,17 @@
 import * as ts                          from "typescript";
 import { ConstructorDescriptionSource } from "./declarations";
-import {
-	getCtorTypeReference,
-	getDeclaration,
-	getType
-} from "./helpers";
-import { getTypeCall }                  from "./getTypeCall";
+import { getSignatureParameters }       from "./getSignatureParameters";
 import { Context }                      from "./contexts/Context";
 
 export function getConstructors(type: ts.Type, context: Context)
 {
 	const constructors: Array<ConstructorDescriptionSource> = [];
 	const ctors = type.getConstructSignatures();
-	let paramSymbol: ts.Symbol, paramType: ts.Type | undefined = undefined;
 
-	for (let ctor of ctors)
+	for (let ctorSignature of ctors)
 	{
-		const params = [];
-
-		for (paramSymbol of ctor.parameters)
-		{
-			paramType = getType(paramSymbol, context.typeChecker);
-			const declaration = getDeclaration(paramSymbol) as ts.ParameterDeclaration;
-
-			params.push({
-				n: paramSymbol.getName(),
-				t: getTypeCall(paramType, paramSymbol, context, getCtorTypeReference(paramSymbol)),
-				o: declaration.questionToken !== undefined || declaration.initializer !== undefined
-			});
-		}
-
 		constructors.push({
-			params: params
+			params: getSignatureParameters(ctorSignature, context)
 		});
 	}
 

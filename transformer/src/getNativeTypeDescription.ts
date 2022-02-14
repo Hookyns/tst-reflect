@@ -44,6 +44,8 @@ function getNativeTypeCtor(name: string): ts.FunctionExpression | undefined
 	{
 		return undefined;
 	}
+
+	// function() { return Promise.resolve($nativeCtorType) }
 	return ts.factory.createFunctionExpression(
 		undefined,
 		undefined,
@@ -53,9 +55,18 @@ function getNativeTypeCtor(name: string): ts.FunctionExpression | undefined
 		undefined,
 		ts.factory.createBlock([
 			ts.factory.createReturnStatement(
-				ts.factory.createIdentifier(nativeCtorType)
+				ts.factory.createCallExpression(
+					ts.factory.createPropertyAccessExpression(
+						ts.factory.createIdentifier("Promise"),
+						ts.factory.createIdentifier("resolve")
+					),
+					undefined,
+					[
+						ts.factory.createIdentifier(nativeCtorType)
+					]
+				)
 			)
-		], false)
+		], true)
 	);
 }
 

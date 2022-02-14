@@ -190,6 +190,7 @@ export function getSourceFileImports(sourceFile: ts.SourceFile): ts.ImportDeclar
 	return sourceFile.statements.filter(st => ts.isImportDeclaration(st)) as ts.ImportDeclaration[];
 }
 
+// TODO: Remove
 export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, string[], number]
 {
 	const imports = getSourceFileImports(sourceFile);
@@ -243,6 +244,7 @@ export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, st
 	return [isImported, namedImports, getTypeNodePosition];
 }
 
+// TODO: Remove
 export function getProjectSrcRoot(program: ts.Program): string
 {
 	return path.resolve(program.getCompilerOptions()?.rootDir || program.getCurrentDirectory());
@@ -252,11 +254,11 @@ export function getProjectSrcRoot(program: ts.Program): string
  * Return getter function for runtime type's Ctor.
  * @description Function generated so that, the require call isn't made until we actually call the function
  */
-export function createCtorGetter(
+export function createCtorPromise(
 	typeCtor: ts.EntityName | ts.DeclarationName,
 	constructorDescription: ConstructorImportDescriptionSource | undefined,
 	context: Context
-): [ts.FunctionExpression | undefined, ts.PropertyAccessExpression | undefined]
+): [promise: ts.FunctionExpression | undefined, requireCall: ts.PropertyAccessExpression | undefined]
 {
 	if (!constructorDescription)
 	{
@@ -270,6 +272,59 @@ export function createCtorGetter(
 		log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`);
 	}
 
+	if (context.config.esmModuleKind)
+	{
+		// import("...path...").then(m => m.ExportedMember)
+		const importExpression = ts.factory.createCallExpression(
+			ts.factory.createPropertyAccessExpression(
+				ts.factory.createCallExpression(
+					ts.factory.createIdentifier("import"),
+					undefined,
+					[
+						ts.factory.createStringLiteral(relative)
+					]
+				),
+				"then"
+			),
+			undefined,
+			[
+				ts.factory.createArrowFunction(
+					undefined,
+					undefined,
+					[
+						ts.factory.createParameterDeclaration(
+							undefined,
+							undefined,
+							undefined,
+							"m"
+						)
+					],
+					undefined,
+					ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+					ts.factory.createPropertyAccessExpression(
+						ts.factory.createIdentifier("m"),
+						ts.factory.createIdentifier(constructorDescription.en)
+					)
+				)
+			]
+		);
+		
+		return [
+			// function() { return $importExpression }
+			ts.factory.createFunctionExpression(
+				undefined,
+				undefined,
+				undefined,
+				undefined,
+				[],
+				undefined,
+				ts.factory.createBlock([ts.factory.createReturnStatement(importExpression)], true)
+			),
+			undefined
+		]
+	}
+
+	// require("...path...")
 	const requireCall = ts.factory.createPropertyAccessExpression(
 		ts.factory.createCallExpression(
 			ts.factory.createIdentifier("require"),
@@ -278,18 +333,31 @@ export function createCtorGetter(
 		),
 		ts.factory.createIdentifier(constructorDescription.en)
 	);
+	
+	// Promise.resolve($require)
+	const promise = ts.factory.createCallExpression(
+		ts.factory.createPropertyAccessExpression(
+			ts.factory.createIdentifier("Promise"),
+			ts.factory.createIdentifier("resolve")
+		),
+		undefined,
+		[
+			requireCall
+		]
+	);
 
-	const requireGetter = ts.factory.createFunctionExpression(
+	// function() { return $Promise }
+	const functionCall = ts.factory.createFunctionExpression(
 		undefined,
 		undefined,
 		undefined,
 		undefined,
 		[],
 		undefined,
-		ts.factory.createBlock([ts.factory.createReturnStatement(requireCall)], true)
-	);
-
-	return [requireGetter, requireCall];
+		ts.factory.createBlock([ts.factory.createReturnStatement(promise)], true)
+	)
+	
+	return [functionCall, requireCall];
 }
 
 /**

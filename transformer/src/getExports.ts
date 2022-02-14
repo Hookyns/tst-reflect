@@ -1,7 +1,10 @@
 import * as ts                                from "typescript";
 import { Context }                            from "./contexts/Context";
 import { ConstructorImportDescriptionSource } from "./declarations";
-import { getOutPathForSourceFile }            from "./helpers";
+import {
+	getDeclaration,
+	getOutPathForSourceFile
+} from "./helpers";
 import { log }                                from "./log";
 
 export function getExportOfConstructor(
@@ -18,12 +21,18 @@ export function getExportOfConstructor(
 		return undefined;
 	}
 
-	const classDeclaration = symbol.valueDeclaration as ts.ClassDeclaration;
+	const classDeclaration = getDeclaration(symbol) as ts.ClassDeclaration;
 	const name = classDeclaration?.name?.escapedText?.toString();
 
 	if (!name)
 	{
 		log.warn("getExportOfConstructor: Failed to get name of exported parent");
+		return undefined;
+	}
+	
+	// Type is not exported
+	if (!classDeclaration.modifiers?.some(m => m.kind === ts.SyntaxKind.ExportKeyword)) 
+	{
 		return undefined;
 	}
 
