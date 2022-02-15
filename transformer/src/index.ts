@@ -106,9 +106,6 @@ function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.
 			statements.push(ts.factory.createExpressionStatement(
 				sourceFileContext.metaWriter.factory.addDescriptionToStore(typeId, properties)
 			));
-			// statements.push(ts.factory.createExpressionStatement(
-			// 	ts.factory.createCallExpression(getTypeIdentifier, [], [properties, ts.factory.createNumericLiteral(typeId)])
-			// ));
 		}
 	}
 

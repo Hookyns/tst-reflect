@@ -65,6 +65,47 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 	return checker.getTypeOfSymbolAtLocation(symbol, declaration);
 }
 
+let symbolIdCounter = -1;
+function getSymbolId(symbol: ts.Symbol): number
+{
+	return (symbol as any).id ?? ((symbol as any).id = symbolIdCounter--);
+}
+
+/**
+ * Get Symbol of Type
+ * @param type
+ * @param typeChecker
+ */
+export function getTypeSymbol(type: ts.Type, typeChecker: ts.TypeChecker): ts.Symbol | undefined
+{
+	const symbol = type.aliasSymbol || type.symbol;
+
+	if (symbol)
+	{
+		return (symbol.flags & ts.SymbolFlags.Alias) ? typeChecker.getAliasedSymbol(symbol) : symbol;
+	}
+
+	return undefined;
+}
+
+/**
+ * Returns id of given type
+ * @description Id is taken from type's Symbol.
+ * @param type
+ * @param typeChecker
+ */
+export function getTypeId(type: ts.Type, typeChecker: ts.TypeChecker): number | undefined
+{
+	const symbol = getTypeSymbol(type, typeChecker);
+
+	if (symbol == undefined)
+	{
+		return;
+	}
+
+	return getSymbolId(symbol);
+}
+
 /**
  * Returns declaration of symbol. ValueDeclaration is preferred.
  * @param symbol

@@ -30,11 +30,11 @@
 	},
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/Hookyns/ts-reflection.git",
+		"url": "git+https://github.com/Hookyns/tst-reflect.git",
 		"directory": "runtime"
 	},
 	"bugs": {
-		"url": "https://github.com/Hookyns/ts-reflection/issues"
+		"url": "https://github.com/Hookyns/tst-reflect/issues"
 	},
-	"homepage": "https://github.com/Hookyns/ts-reflection#readme"
+	"homepage": "https://github.com/Hookyns/tst-reflect#readme"
 }

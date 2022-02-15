@@ -10,7 +10,7 @@ information about types such as list of properties and their types, list of cons
 **With working runtime generic types!**
 
 
-[Visit Github repository for more information](https://github.com/Hookyns/ts-reflection)
+[Visit Github repository for more information](https://github.com/Hookyns/tst-reflect)
 
 ## Simple Example
 
@@ -180,15 +180,15 @@ getType({
 ```
 
 ## Configuration
-[Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration)
+[Configuration [wiki]](https://github.com/Hookyns/tst-reflect/wiki/Configuration)
 
 
 ## More Information
 
-More information in [README](https://github.com/Hookyns/ts-reflection) in the root repository folder.
+More information in [README](https://github.com/Hookyns/tst-reflect) in the root repository folder.
 
-Or check [examples](https://github.com/Hookyns/ts-reflection/tree/main/examples)
-or [dev scripts](https://github.com/Hookyns/ts-reflection/tree/main/dev) we use to test things.
+Or check [examples](https://github.com/Hookyns/tst-reflect/tree/main/examples)
+or [dev scripts](https://github.com/Hookyns/tst-reflect/tree/main/dev) we use to test things.
 
 ## License
 This project is licensed under the [MIT license](./LICENSE).

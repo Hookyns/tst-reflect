@@ -10,6 +10,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Changed)
 
 
+## [0.7.4] - 2022-02-15
+### Added
+- `examples/di`
+
+### Changed
+- Fixed some rare problem with generated metadata,
+- performance optimizations,
+- modified way of getting types' ids,
+- NOTE: git repository renamed to `tst-reflect`
+
+
 ## [0.7.3] - 2022-02-14
 ### Added
 ### Changed

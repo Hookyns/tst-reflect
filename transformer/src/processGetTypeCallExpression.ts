@@ -1,9 +1,7 @@
 import * as ts            from "typescript";
 import { Context }        from "./contexts/Context";
-import { getError }       from "./getError";
 import { getTypeCall }    from "./getTypeCall";
 import { GENERIC_PARAMS } from "./helpers";
-import { log }            from "./log";
 
 export function processGetTypeCallExpression(
 	node: ts.CallExpression,
@@ -45,21 +43,14 @@ export function processGetTypeCallExpression(
 	// Parameter is specific type
 	else
 	{
-		const genericTypeSymbol = genericType.aliasSymbol || genericType.getSymbol();
-
-		if (!genericTypeSymbol)
-		{
-			log.warn(node, "Symbol of generic type argument not found.");
-			// throw getError(node, "Symbol of generic type argument not found.");
-		}
-
-		return context.metaWriter.factory.updateSourceFileGetTypeCall(
-			getTypeCall(
-				genericType,
-				genericTypeSymbol,
-				context,
-				ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
-			),
+		// [Hookyns] Commented out, this just cause troubles. I don't know reason why it is here.
+		// return context.metaWriter.factory.updateSourceFileGetTypeCall(getTypeCall(...));
+		
+		return getTypeCall(
+			genericType,
+			undefined,
+			context,
+			ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
 		);
 	}
 }

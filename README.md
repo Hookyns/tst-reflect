@@ -11,14 +11,14 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=ts-reflection&theme=tokyonight)](https://github.com/Hookyns/ts-reflection)
+[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=tst-reflect&theme=tokyonight)](https://github.com/Hookyns/tst-reflect)
 
 [Examples](#examples) 
 | [Synopsis](#synopsis) 
 | [How to start](#how-to-start) 
 | [How does it work](#how-does-it-work) 
-| [Configuration [wiki]](https://github.com/Hookyns/ts-reflection/wiki/Configuration) 
-| [Changelog](https://github.com/Hookyns/ts-reflection/blob/main/CHANGELOG.md)
+| [Configuration [wiki]](https://github.com/Hookyns/tst-reflect/wiki/Configuration) 
+| [Changelog](https://github.com/Hookyns/tst-reflect/blob/main/CHANGELOG.md)
 | [Contributors](#contributors-)
 
 ## About
@@ -229,7 +229,8 @@ _ts-node can be a little bugged if you use `reflection.metadata.type = "typelib"
 
 
 ## Examples
-- [Example 01 - Dependency Injection](https://github.com/Hookyns/tst-reflect-example-01) [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01.git)](https://repl.it/github/Hookyns/tst-reflect-example-01.git)
+- Simple Dependency Injection [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01)](https://replit.com/@Hookyns/tst-reflect-example-01#src/index.ts)
+- Object validation by Interface [![Run on repl.it](https://replit.com/badge/github/hookyns/tst-reflect-validate2)](https://replit.com/@Hookyns/tst-reflect-validate2#src/index.ts)
 
 Feel free to add Your interesting examples. Just add a link to this README and make a PR.
 
@@ -757,12 +758,12 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://bitbucket.org/HookCZ/"><img src="https://avatars.githubusercontent.com/u/2551259?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Roman Jámbor</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Code">💻</a> <a href="#maintenance-Hookyns" title="Maintenance">🚧</a> <a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Documentation">📖</a> <a href="https://github.com/hookyns/ts-reflection/pulls?q=is%3Apr+reviewed-by%3AHookyns" title="Reviewed Pull Requests">👀</a> <a href="#example-Hookyns" title="Examples">💡</a> <a href="#ideas-Hookyns" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-Hookyns" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#question-Hookyns" title="Answering Questions">💬</a> <a href="https://github.com/hookyns/ts-reflection/commits?author=Hookyns" title="Tests">⚠️</a></td>
-    <td align="center"><a href="https://github.com/iDevelopThings"><img src="https://avatars.githubusercontent.com/u/4105581?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sam Parton</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/commits?author=iDevelopThings" title="Code">💻</a> <a href="https://github.com/hookyns/ts-reflection/issues?q=author%3AiDevelopThings" title="Bug reports">🐛</a> <a href="#ideas-iDevelopThings" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://github.com/hugebdu"><img src="https://avatars.githubusercontent.com/u/1109601?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel Shmuglin</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3Ahugebdu" title="Bug reports">🐛</a> <a href="#ideas-hugebdu" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="http://filmos.net/"><img src="https://avatars.githubusercontent.com/u/78136833?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Filmos</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3AFilmos" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://bitbucket.org/HookCZ/"><img src="https://avatars.githubusercontent.com/u/2551259?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Roman Jámbor</b></sub></a><br /><a href="https://github.com/hookyns/tst-reflect/commits?author=Hookyns" title="Code">💻</a> <a href="#maintenance-Hookyns" title="Maintenance">🚧</a> <a href="https://github.com/hookyns/tst-reflect/commits?author=Hookyns" title="Documentation">📖</a> <a href="https://github.com/hookyns/tst-reflect/pulls?q=is%3Apr+reviewed-by%3AHookyns" title="Reviewed Pull Requests">👀</a> <a href="#example-Hookyns" title="Examples">💡</a> <a href="#ideas-Hookyns" title="Ideas, Planning, & Feedback">🤔</a> <a href="#infra-Hookyns" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#question-Hookyns" title="Answering Questions">💬</a> <a href="https://github.com/hookyns/tst-reflect/commits?author=Hookyns" title="Tests">⚠️</a></td>
+    <td align="center"><a href="https://github.com/iDevelopThings"><img src="https://avatars.githubusercontent.com/u/4105581?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Sam Parton</b></sub></a><br /><a href="https://github.com/hookyns/tst-reflect/commits?author=iDevelopThings" title="Code">💻</a> <a href="https://github.com/hookyns/tst-reflect/issues?q=author%3AiDevelopThings" title="Bug reports">🐛</a> <a href="#ideas-iDevelopThings" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="https://github.com/hugebdu"><img src="https://avatars.githubusercontent.com/u/1109601?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel Shmuglin</b></sub></a><br /><a href="https://github.com/hookyns/tst-reflect/issues?q=author%3Ahugebdu" title="Bug reports">🐛</a> <a href="#ideas-hugebdu" title="Ideas, Planning, & Feedback">🤔</a></td>
+    <td align="center"><a href="http://filmos.net/"><img src="https://avatars.githubusercontent.com/u/78136833?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Filmos</b></sub></a><br /><a href="https://github.com/hookyns/tst-reflect/issues?q=author%3AFilmos" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://dunglas.fr/"><img src="https://avatars.githubusercontent.com/u/57224?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Kévin Dunglas</b></sub></a><br /><a href="#ideas-dunglas" title="Ideas, Planning, & Feedback">🤔</a></td>
-    <td align="center"><a href="https://github.com/usaccounts"><img src="https://avatars.githubusercontent.com/u/12177064?v=4?s=100" width="100px;" alt=""/><br /><sub><b>usaccounts</b></sub></a><br /><a href="https://github.com/hookyns/ts-reflection/issues?q=author%3Ausaccounts" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/usaccounts"><img src="https://avatars.githubusercontent.com/u/12177064?v=4?s=100" width="100px;" alt=""/><br /><sub><b>usaccounts</b></sub></a><br /><a href="https://github.com/hookyns/tst-reflect/issues?q=author%3Ausaccounts" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://github.com/caiodallecio"><img src="https://avatars.githubusercontent.com/u/20131875?v=4?s=100" width="100px;" alt=""/><br /><sub><b>caiodallecio</b></sub></a><br /><a href="#ideas-caiodallecio" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
 </table>

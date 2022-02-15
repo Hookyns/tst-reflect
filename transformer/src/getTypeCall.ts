@@ -7,8 +7,9 @@ import {
 import { createValueExpression } from "./createValueExpression";
 import { getTypeDescription }    from "./getTypeDescription";
 import { Context }               from "./contexts/Context";
+import { getTypeId }             from "./helpers";
 
-const createdTypes: Map<number, ts.ObjectLiteralExpression> = new Map<number, ts.ObjectLiteralExpression>();
+const createdTypes = new Map<number, ts.ObjectLiteralExpression>();
 
 /**
  * This is an Stack for storing Ids of currently constructing type descriptions.
@@ -32,17 +33,10 @@ const creatingTypes: Array<number> = [];
  */
 export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall // TODO: Remove symbol parameter if possible
 {
-	const id: number | undefined = (type.aliasSymbol || type.symbol as any)?.["id"];
-	let typePropertiesObjectLiteral: ts.ObjectLiteralExpression | undefined = undefined;
-
-	if (id)
-	{
-		typePropertiesObjectLiteral = createdTypes.get(id);
-	}
-
+	const id = getTypeId(type, context.typeChecker);
 	let typeDescription: TypeDescription | undefined = undefined;
 
-	if (!typePropertiesObjectLiteral)
+	if (!id || !createdTypes.has(id))
 	{
 		if (id)
 		{
@@ -52,23 +46,28 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 				return context.metaWriter.factory.getTypeFromStoreLazily(id);
 			}
 
+			// insert type into the stack
 			creatingTypes.push(id);
 		}
 
 		typeDescription = getTypeDescription(type, symbol, context, typeCtor);
-		typePropertiesObjectLiteral = createValueExpression(typeDescription.properties) as ts.ObjectLiteralExpression;
+		const typePropertiesObjectLiteral = createValueExpression(typeDescription.properties) as ts.ObjectLiteralExpression;
 
 		if (id)
 		{
+			// remove type from the stack
 			creatingTypes.pop();
+			
+			// Add metadata
+			context.addTypeMetadata([id, typePropertiesObjectLiteral, typeDescription?.localType ?? false]);
+			
+			// Store created type
+			createdTypes.set(id, typePropertiesObjectLiteral);
 		}
 	}
 
 	if (id)
 	{
-		context.addTypeMetadata([id, typePropertiesObjectLiteral, typeDescription?.localType ?? false]);
-		createdTypes.set(id, typePropertiesObjectLiteral);
-
 		/**
 		 * Just call `getType()` with typeId; Type is going to be loaded from storage
 		 */
