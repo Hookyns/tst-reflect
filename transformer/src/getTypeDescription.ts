@@ -216,7 +216,7 @@ export function getTypeDescription(
 			log.info("'typeSymbol' is undefined.");
 		}
 
-		if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object)
+		if (type.flags & ts.TypeFlags.Object)
 		{
 			if (context.config.debugMode)
 			{
@@ -233,7 +233,7 @@ export function getTypeDescription(
 		}
 		else if ((type.flags & ts.TypeFlags.Conditional) == ts.TypeFlags.Conditional)
 		{
-			const ct = (type as ConditionalType).root.node;
+			const ct = (type as ts.ConditionalType).root.node;
 			const extendsType = checker.getTypeAtLocation(ct.extendsType);
 			const trueType = checker.getTypeAtLocation(ct.trueType);
 

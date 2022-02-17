@@ -1,9 +1,9 @@
 import { TypeKind }              from "tst-reflect";
 import * as ts                   from "typescript";
-import { TypeFlags }             from "typescript";
 import { Context }               from "./contexts/Context";
 import { TypeDescriptionResult } from "./declarations";
 import { getTypeCall }           from "./getTypeCall";
+import { isArrayType }           from "./helpers";
 
 /**
  * Questioning if this could be better/is pointless
@@ -92,8 +92,7 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 		};
 	}
 
-	// [Hookyns] Check if type is Array. I found no direct way to do so.
-	if ((type.flags & TypeFlags.Object) == TypeFlags.Object && type.getSymbol()?.escapedName == "Array")
+	if (isArrayType(type))
 	{
 		const typeArguments = context.typeChecker.getTypeArguments(type as ts.TypeReference);
 

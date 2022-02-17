@@ -5,6 +5,7 @@ import {
 	TypeKind,
 	REFLECT_DECORATOR
 }                                    from "tst-reflect";
+import { TypeFlags }                 from "typescript";
 import * as ts                       from "typescript";
 import { Context }                   from "./contexts/Context";
 import TransformerContext            from "./contexts/TransformerContext";
@@ -86,6 +87,16 @@ export function getTypeSymbol(type: ts.Type, typeChecker: ts.TypeChecker): ts.Sy
 	}
 
 	return undefined;
+}
+
+/**
+ * Check if the type is an Array
+ * @param type
+ */
+export function isArrayType(type: ts.Type): boolean
+{
+	// [Hookyns] Check if type is Array. I found no direct way to do so.
+	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Array";
 }
 
 /**

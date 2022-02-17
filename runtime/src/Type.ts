@@ -438,6 +438,14 @@ export class Type
 	}
 
 	/**
+	 * Check if this type is a Tuple
+	 */
+	isTuple(): boolean
+	{
+		return this.kind == TypeKind.Tuple;
+	}
+
+	/**
 	 * Check if this type is an any
 	 */
 	isAny(): boolean

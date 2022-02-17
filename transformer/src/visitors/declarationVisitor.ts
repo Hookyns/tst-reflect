@@ -1,9 +1,7 @@
 import * as ts                         from "typescript";
 import { Context }                     from "../contexts/Context";
-import {
-	GENERIC_PARAMS,
-	PACKAGE_ID
-}                                      from "../helpers";
+import { getError }                    from "../getError";
+import { GENERIC_PARAMS }              from "../helpers";
 import { getGenericParametersDetails } from "../getGenericParametersDetails";
 import { log }                         from "../log";
 
@@ -105,24 +103,50 @@ export default class DeclarationVisitor
 	 * @param body
 	 * @private
 	 */
-	private static getModifiedDeclarationProperties(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [Array<ts.ParameterDeclaration>, ts.Block]
+	private static getModifiedDeclarationProperties(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [ts.ParameterDeclaration[], ts.Block]
 	{
 		const lastParam = parameters[parameters.length - 1];
+
+		const argumentsIdentifier = ts.factory.createIdentifier("arguments");
+		const argumentsLength = ts.factory.createPropertyAccessExpression(
+			argumentsIdentifier,
+			ts.factory.createIdentifier("length")
+		);
 
 		// there is no "rest" parameter
 		if (!lastParam || lastParam.dotDotDotToken === undefined)
 		{
 			return [
-				[
-					...parameters,
-					ts.factory.createParameterDeclaration(
-						undefined,
-						undefined,
-						undefined,
-						ts.factory.createIdentifier(GENERIC_PARAMS)
-					)
-				],
-				body
+				parameters as unknown as ts.ParameterDeclaration[],
+				ts.factory.createBlock(
+					[
+						ts.factory.createVariableStatement(
+							undefined,
+							[
+								ts.factory.createVariableDeclaration(
+									GENERIC_PARAMS,
+									undefined,
+									undefined,
+									ts.factory.createElementAccessExpression(
+										argumentsIdentifier,
+										ts.factory.createPrefixDecrement(
+											argumentsLength
+										)
+									)
+								)
+							]
+						),
+						ts.factory.createExpressionStatement(
+							ts.factory.createDeleteExpression(
+								ts.factory.createElementAccessExpression(
+									argumentsIdentifier,
+									argumentsLength
+								)
+							)
+						),
+						...body.statements
+					]
+				)
 			];
 		}
 		// "rest" param is gonna be used; modify body to declare GENERIC_PARAMS const and remove values from that "rest" param
@@ -162,21 +186,34 @@ export default class DeclarationVisitor
 							)
 						]
 					),
+					ts.factory.createExpressionStatement(
+						ts.factory.createDeleteExpression(
+							ts.factory.createElementAccessExpression(
+								argumentsIdentifier,
+								ts.factory.createPrefixDecrement(
+									argumentsLength
+								)
+							)
+						)
+					),
 					...body.statements
 				]
 			);
 
-			return [[...parameters], body];
+			return [
+				parameters as unknown as ts.ParameterDeclaration[],
+				body
+			];
 		}
 		else if (ts.isArrayBindingPattern(lastParam.name))
 		{
 			// TODO: Implement
-			throw new Error(`${PACKAGE_ID}: ArrayBindingPattern not supported in generic declarations yet.`);
+			throw getError(body, "ArrayBindingPattern not supported in generic declarations yet.");
 		}
 		else if (ts.isObjectBindingPattern(lastParam.name))
 		{
 			// TODO: Implement
-			throw new Error(`${PACKAGE_ID}: ObjectBindingPattern not supported in generic declarations yet.`);
+			throw getError(body, "ObjectBindingPattern not supported in generic declarations yet.");
 		}
 
 		return [[...parameters], body];

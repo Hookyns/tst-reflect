@@ -1,13 +1,18 @@
-import { createValueExpression } from "../../createValueExpression";
+import { createValueExpression }  from "../../createValueExpression";
 import { TypePropertiesSource }   from "../../declarations";
 import { IMetadataNodeGenerator } from "../IMetadataNodeGenerator";
 import * as ts                    from "typescript";
 
 const factory = ts.factory;
 
-
 export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 {
+	private readonly identifier: ts.Identifier;
+
+	constructor()
+	{
+		this.identifier = factory.createIdentifier("_ßr");
+	}
 
 	/**
 	 * Generated import statements which will be added to each source file
@@ -22,7 +27,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 				undefined,
 				factory.createVariableDeclarationList(
 					[factory.createVariableDeclaration(
-						factory.createIdentifier("___tst_reflect"),
+						this.identifier,
 						undefined,
 						undefined,
 						factory.createCallExpression(
@@ -54,7 +59,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 			factory.createPropertyAccessExpression(
 				factory.createPropertyAccessExpression(
 					factory.createPropertyAccessExpression(
-						factory.createIdentifier("___tst_reflect"),
+						this.identifier,
 						factory.createIdentifier("Type")
 					),
 					factory.createIdentifier("store")
@@ -78,7 +83,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 			factory.createPropertyAccessExpression(
 				factory.createPropertyAccessExpression(
 					factory.createPropertyAccessExpression(
-						factory.createIdentifier("___tst_reflect"),
+						this.identifier,
 						factory.createIdentifier("Type")
 					),
 					factory.createIdentifier("store")
@@ -102,7 +107,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 			factory.createPropertyAccessExpression(
 				factory.createPropertyAccessExpression(
 					factory.createPropertyAccessExpression(
-						factory.createIdentifier("___tst_reflect"),
+						this.identifier,
 						factory.createIdentifier("Type")
 					),
 					factory.createIdentifier("store")
@@ -126,7 +131,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 			factory.createPropertyAccessExpression(
 				factory.createPropertyAccessExpression(
 					factory.createPropertyAccessExpression(
-						factory.createIdentifier("___tst_reflect"),
+						this.identifier,
 						factory.createIdentifier("Type")
 					),
 					factory.createIdentifier("store")
@@ -153,7 +158,7 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 				factory.createPropertyAccessExpression(
 					factory.createPropertyAccessExpression(
 						// this.inFileGetTypeIdentifier,
-						factory.createIdentifier("___tst_reflect"),
+						this.identifier,
 						factory.createIdentifier("Type")
 					),
 					factory.createIdentifier("store")

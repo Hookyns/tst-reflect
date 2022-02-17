@@ -3,6 +3,10 @@ import { Context }                                        from "./contexts/Conte
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
 import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
 import { getTypeCall }                                    from "./getTypeCall";
+import {
+	getUnknownTypeCall,
+	isArrayType
+}                                                         from "./helpers";
 import { log }                                            from "./log";
 import {
 	TypeArgumentValueDescription,
@@ -44,38 +48,71 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 
 		for (let genericParamName of state.usedGenericParameters)
 		{
-			let genericTypeNode = node.typeArguments?.[state.indexesOfGenericParameters[i]];
+			let typeArgumentNode = node.typeArguments?.[state.indexesOfGenericParameters[i]];
 			let typePropertyVal: ts.Expression;
-			let genericType;
+			let genericType: ts.Type | undefined;
 
-			if (genericTypeNode == undefined && state.requestedGenericsReflection)
+			if (typeArgumentNode == undefined)
 			{
-				const argsIndex = declaration.parameters
-					.findIndex(p => p.type && ts.isTypeReferenceNode(p.type) && p.type.typeName.getText() == genericParamName);
-
-				genericType = context.typeChecker.getTypeAtLocation(node.arguments[argsIndex]);
-				let symbol = context.typeChecker.getSymbolAtLocation(node.arguments[0]);
-
-				if (symbol)
+				let argsIndex = 0;
+				
+				for (const parameter of declaration.parameters)
 				{
-					genericTypeNode = (symbol.valueDeclaration as any)?.type; // TODO: This is not enough. This works only when the type is declared explicitly. 
+					if (parameter.type)
+					{
+						let type = parameter.type, isArrayTypeNode;
+
+						if ((isArrayTypeNode = ts.isArrayTypeNode(parameter.type)))
+						{
+							type = parameter.type.elementType;
+						}
+
+						if (ts.isTypeReferenceNode(type) && type.typeName.getText() == genericParamName)
+						{
+							genericType = context.typeChecker.getTypeAtLocation(node.arguments[argsIndex]);
+
+							// Target type is Array and it is not rest parameter, so we have to take type element of array argument
+							if (isArrayTypeNode && !parameter.dotDotDotToken)
+							{
+								if (isArrayType(genericType))
+								{
+									genericType = (genericType as any).resolvedTypeArguments?.[0];
+								}
+								else
+								{
+									genericType = undefined;
+									break;
+								}
+							}
+
+							let symbol = context.typeChecker.getSymbolAtLocation(node.arguments[0]);
+
+							if (symbol)
+							{
+								typeArgumentNode = (symbol.valueDeclaration as any)?.type; // TODO: This is not enough. This works only when the type is declared explicitly. 
+							}
+
+							break;
+						}
+					}
+					argsIndex++;
 				}
 			}
 
-			if (genericTypeNode || genericType)
+			if (typeArgumentNode || genericType)
 			{
-				genericType ??= context.typeChecker.getTypeAtLocation(genericTypeNode!);
+				genericType ??= context.typeChecker.getTypeAtLocation(typeArgumentNode!);
 				const genericTypeSymbol = genericType.getSymbol();
 				typePropertyVal = getTypeCall(
 					genericType,
 					genericTypeSymbol,
 					context,
-					genericTypeNode && ts.isTypeReferenceNode(genericTypeNode) ? genericTypeNode.typeName : undefined
+					typeArgumentNode && ts.isTypeReferenceNode(typeArgumentNode) ? typeArgumentNode.typeName : undefined
 				);
 			}
 			else
 			{
-				typePropertyVal = ts.factory.createIdentifier("undefined");
+				typePropertyVal = getUnknownTypeCall(context);
 			}
 
 			args.push({

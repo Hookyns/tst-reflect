@@ -12,13 +12,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.4] - 2022-02-15
 ### Added
-- `examples/di`
+- `examples/di`,
+- `Type.isTuple()`
 
 ### Changed
-- Fixed some rare problem with generated metadata,
-- performance optimizations,
-- modified way of getting types' ids,
-- NOTE: git repository renamed to `tst-reflect`
+- Enhanced generic types
+  - now it is possible to infer type from passed argument, no need to specify type argument, eg:
+
+<dl><dd><dl><dd>
+
+```typescript
+function getTypeName<T extends string | number>(arg: T): string
+{
+	return getType<T>().name;
+}
+
+getTypeName("Lorem ipsum dolor sit amet"); // > "string"
+ ```
+ 
+</dd></dl></dd></dl>
+<ul>
+<ul>
+<li>function/method argument can be <code>arg: T</code>, <code>arg: T[]</code> or <code>...args: T[]</code>.
+Other arguments eg. <code>arg: T | boolean</code> are resolved to <code>Type.Unknown</code>. There is still room for improvement. BTW you can still get type of passed value <code>getType(arg)</code>.</li>
+<li>fixed issues with `arguments` and `Function.length.</li>
+</ul>
+</ul>
+
+  - Fixed some troubles with generated metadata,
+  - small performance optimizations,
+  - modified way of getting types' ids,
+  - NOTE: git repository renamed to `tst-reflect`
 
 
 ## [0.7.3] - 2022-02-14
