@@ -132,101 +132,12 @@ class B {}
 
 ## How to Start
 
-1. Install packages.
-```
-npm i tst-reflect && npm i tst-reflect-transformer -D
-```
-
-
-2. In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
-```
-npm i ttypescript -D
-```
-
-
-3. Add transformer to `tsconfig.json`
-```json5
-{
-    "compilerOptions": {
-        // your options...
-
-        // ADD THIS!
-        "plugins": [
-            {
-                "transform": "tst-reflect-transformer"
-            }
-        ]
-    }
-}
-```
-4. Now just transpile your code by `ttsc` instead of `tsc`
-```
-npx ttsc
-```
-
-### Using Webpack
-Modify your webpack config. Use `options.compiler` of `ts-loader` to set `ttypescript` compiler.
-```javascript
-({
-    test: /\.(ts|tsx)$/,
-    loader: require.resolve("ts-loader"),
-    options: {
-        compiler: "ttypescript"
-    }
-})
-```
-
-### Using Parcel
-Install Parcel plugin.
-```
-npm i parcel-plugin-ttypescript
-```
-
-### Using Rollup
-Install Rollup plugin
-```
-npm i rollup-plugin-typescript2
-```
-and modify your rollup config.
-```javascript
-import ttypescript from "ttypescript";
-import tsPlugin from "rollup-plugin-typescript2";
-
-export default {
-    // your options...
-    
-    plugins: [
-        // ADD THIS!
-        tsPlugin({
-            typescript: ttypescript
-        })
-    ]
-}
-```
-
-### Using ts-node
-Modify your `tsconfig.json`.
-```json5
-{
-    "compilerOptions": {
-        // your options...
-
-        "plugins": [
-            {
-                "transform": "tst-reflect-transformer"
-            }
-        ]
-    },
-    
-    // ADD THIS!
-    "ts-node": {
-        // This can be omitted when using ts-patch
-        "compiler": "ttypescript"
-    },
-}
-```
-_ts-node can be a little bugged if you use `reflection.metadata.type = "typelib"` option!_
-
+- [Usage With Plain TypeScript](./docs/usage/plain-ts.md)
+- [Usage With Webpack](./docs/usage/webpack.md)
+- [Usage With Angular](./docs/usage/angular.md)
+- [Usage With Parcel](./docs/usage/parcel.md)
+- [Usage With Rollup](./docs/usage/rollup.md)
+- [Usage With ts-node](./docs/usage/ts-node.md)
 
 ## Examples
 - Simple Dependency Injection [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01)](https://replit.com/@Hookyns/tst-reflect-example-01#src/index.ts)

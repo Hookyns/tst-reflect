@@ -11,7 +11,7 @@
 		],
 		"plugins": [
 			{
-				"transform": "../../transformer/dist/index.js"
+				"transform": "tst-reflect-transformer"
 			}
 		]
 	},

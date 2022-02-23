@@ -5,8 +5,7 @@
 !dev/dev-compiler.js
 !repl/install.js
 dist
-runtime/dist
-transformer/dist
+packages/*/dist
 **/tsconfig.tsbuildinfo
 reflection.meta.js
 reflection.meta.ts

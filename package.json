@@ -2,8 +2,7 @@
 	"private": true,
 	"license": "MIT",
 	"workspaces": [
-		"runtime",
-		"transformer"
+		"packages/*"
 	],
 	"scripts": {
 		"inst": "npm install --foreground-scripts",

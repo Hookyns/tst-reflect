@@ -1,0 +1,15 @@
+<div class="content" role="main">
+  <pre><code>
+interface Foo {{ "{" }}
+	foo: string;
+	bar: number;
+	baz?: boolean;
+  
+	lorem(ipsum: boolean): string;
+	optionalMethod?(): void;
+}
+  </code></pre>
+
+	<property-list [properties]="type.getProperties()"></property-list>
+	<method-list [methods]="type.getMethods()"></method-list>
+</div>

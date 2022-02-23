@@ -1,2 +1,0 @@
-run = "cd repl && node install.js && npm run repl"
-language = "typescript"

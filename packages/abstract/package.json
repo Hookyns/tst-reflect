@@ -1,0 +1,43 @@
+{
+	"name": "@rtti/abstract",
+	"version": "0.1.0",
+	"description": "Abstract declarations for TypeScript runtime reflection",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"prepare": "npx tsc"
+	},
+	"files": [
+		"dist/**/*.js",
+		"dist/**/*.d.ts"
+	],
+	"keywords": [
+		"abstract",
+		"declaration",
+		"type",
+		"types",
+		"runtime",
+		"reflection",
+		"reflective",
+		"reflect",
+		"typescript",
+		"gettype",
+		"typeof"
+	],
+	"author": "Roman Jámbor",
+	"license": "MIT",
+	"devDependencies": {
+		"@types/node": "^16.0.0",
+		"typescript": "4.0.x"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Hookyns/tst-reflect.git",
+		"directory": "packages/abstract"
+	},
+	"bugs": {
+		"url": "https://github.com/Hookyns/tst-reflect/issues"
+	},
+	"homepage": "https://github.com/Hookyns/tst-reflect#readme"
+}

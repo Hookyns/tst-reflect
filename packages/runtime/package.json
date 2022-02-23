@@ -1,0 +1,43 @@
+{
+	"name": "tst-reflect",
+	"version": "0.10.0",
+	"description": "Runtime of TypeScript Transformer for Runtime Types & Reflection",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"prepare": "npx tsc"
+	},
+	"files": [
+		"dist/**/*.js",
+		"dist/**/*.d.ts"
+	],
+	"keywords": [
+		"runtime",
+		"types",
+		"reflection",
+		"reflective",
+		"reflect",
+		"typescript",
+		"gettype",
+		"typeof"
+	],
+	"author": "Roman Jámbor",
+	"license": "MIT",
+	"dependencies": {
+		"@rtti/abstract": "^0.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^16.0.0",
+		"typescript": "4.0.x"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/Hookyns/tst-reflect.git",
+		"directory": "packages/runtime"
+	},
+	"bugs": {
+		"url": "https://github.com/Hookyns/tst-reflect/issues"
+	},
+	"homepage": "https://github.com/Hookyns/tst-reflect#readme"
+}

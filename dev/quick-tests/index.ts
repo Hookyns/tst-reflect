@@ -1,40 +1,192 @@
 import {
-	getType,
-	Type
-} from "tst-reflect";
-//
-// class A
-// {
-// 	constructor(public foo: string)
-// 	{
-// 	}
-// }
-//
-// const someValue: unknown = new A("Lorem ipsum");
-// console.log(getType(someValue).is(getType<A>())); // > true
-//
-// const someValue2: unknown = { foo: "dolor sit amet" };
-// console.log(getType(someValue2).is(getType<A>())); // > false
-// console.log(getType(someValue2).isAssignableTo(getType<A>())); // > true
+	Type,
+	TypeKind
+}                  from "@rtti/abstract";
+import { getType } from "tst-reflect";
 
-interface IExpectedTypeOfTheResponse
+getType<{ foo: string, bar: number }>();
+
+interface ISomething
 {
-	foo: string[];
-	bar: number;
-	baz: boolean;
+	property: string;
+	optionalProperty?: string;
+	readonly readOnlyProperty: string;
+
+	get getter(): string;
+
+	set setter(val: string);
+
+	method(): string;
+
+	optionalMethod?(): string;
 }
 
-const response: unknown = { foo: ["a", "b"], bar: 99, baz: false, lorem: "ipsum" }; // await api.get("/something");
+// Interface
+getType<ISomething>();
 
-if (isResponseOfType<IExpectedTypeOfTheResponse>(response))
+function decorator(target: any)
 {
-	console.log("Je to očekávaný typ");
 }
 
-function isResponseOfType<TType>(response: unknown): response is TType
+@decorator
+class Something implements ISomething
 {
-	const type: Type = getType<TType>(); // <= fungující runtime genericita
-	const receivedType: Type = getType(response);
+	property: string;
+	optionalProperty?: string;
+	readonly readOnlyProperty: string;
 
-	return receivedType.isAssignableTo(type);
+	get getter(): string
+	{
+		return "";
+	}
+
+	set setter(val: string)
+	{
+	}
+
+	method(): string
+	{
+		return "";
+	}
+
+	optionalMethod?(): string;
 }
+
+// CLass
+getType<Something>();
+
+// TransientTypeReference
+getType<Readonly<{ foo: string }>>();
+getType<Partial<{ foo: string }>>();
+
+// Tuple
+getType<[named: string, tuple: string]>();
+getType<[string, number]>();
+
+// TypeParameter
+class GenericType<T>
+{
+	foo: T;
+}
+
+getType<GenericType<string>>(); // Class will have the TypeParameter
+
+// ConditionalType
+interface ConditionalType
+{
+	method<T>(): T extends string ? never : number;
+}
+
+getType<ConditionalType>(); // Method has ConditionalType return type
+
+// IndexedAccess
+interface IndexedAccess
+{
+	method<K extends keyof TypeKind>(key: K): TypeKind[K];
+}
+
+getType<IndexedAccess>();
+
+// Module
+module Mod
+{
+	export function foo()
+	{
+	}
+}
+namespace Ns
+{
+	function foo()
+	{
+	}
+}
+getType<typeof Mod>();
+getType<typeof Ns>();
+
+// Union
+getType<string | number>();
+
+// Intersection
+console.log("intersection");
+getType<{ foo: string } & { foo: string, bar: number }>();
+
+// Method
+getType<IndexedAccess["method"]>();
+
+// Function
+const fn = function (a: any) {
+};
+getType<typeof fn>();
+
+// GeneratorFunction
+const genFn = function* (a: any) {
+};
+getType<typeof genFn>();
+
+// Enum
+enum Enm
+{
+	One, Two
+}
+
+getType<Enm>();
+
+// Enum literal
+getType<Enm.One>();
+
+getType<any>();
+getType<unknown>();
+getType<undefined>();
+getType<null>();
+getType<void>();
+
+getType<string>();
+getType<number>();
+getType<BigInt>();
+getType<Boolean>();
+getType<Date>();
+
+getType<Array<number>>();
+getType<number[]>();
+
+getType<Map<string, string>>();
+getType<WeakMap<Function, string>>();
+getType<Set<string>>();
+getType<WeakSet<Function>>();
+
+getType<Int8Array>();
+getType<Uint8Array>();
+getType<Uint8ClampedArray>();
+getType<Int16Array>();
+getType<Uint16Array>();
+getType<Int32Array>();
+getType<Uint32Array>();
+getType<Float32Array>();
+getType<Float64Array>();
+getType<BigInt64Array>();
+getType<BigUint64Array>();
+
+getType<Symbol>();
+getType<Promise<boolean>>();
+getType<Error>();
+getType<RegExp>();
+
+getType<ArrayBuffer>();
+getType<SharedArrayBuffer>();
+getType<Atomics>();
+getType<DataView>();
+getType<Generator>();
+
+// Proxy TODO: Probably will not work, typeof proxy object is type of that object, proxy is not a type
+const proxy = new Proxy({}, {});
+getType<typeof proxy>();
+
+const regexLiteral = /[a-b]/;
+getType<typeof regexLiteral>();
+
+getType<5>();
+getType<"string">();
+getType<true>();
+const bigint = BigInt(5);
+getType<typeof bigint>();
+getType<`Some bigint ${bigint} here`>();
