@@ -10,12 +10,16 @@
 		"baseUrl": "./src",
 		"outDir": "./dist",
 		"composite": true,
+		"esModuleInterop": true,
 		"typeRoots": [
 			"../../node_modules/@types",
 			"node_modules/@types"
 		]
 	},
 	"references": [
+		{
+			"path": "../abstract"
+		},
 		{
 			"path": "../runtime"
 		}

@@ -2,8 +2,14 @@ import Metadata   from "./Metadata";
 import { Type }   from "./Type";
 import { Module } from "./Module";
 
-export { Type }                from "./Type";
-export { Module }              from "./Module";
+export {
+	Type,
+	TypeInitializer
+}                              from "./Type";
+export {
+	Module,
+	ModuleInitializer
+}                              from "./Module";
 export { default as Metadata } from "./Metadata";
 export *                       from "./enums";
 export *                       from "./declarations";

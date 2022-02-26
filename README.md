@@ -5,9 +5,7 @@
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect)
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
-![Code coverage](./coverage/badge.svg)
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Code coverage](./coverage/badge.svg)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -26,6 +24,11 @@
 Yeap! How the title says, this project is about runtime **reflection** with working **generic** types, 
 achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) 
 and runtime stuff (package `tst-reflect`).
+
+<center>
+
+![Reflect](./assets/logo_thin_384.png)
+</center>
 
 ### Features
 - clear Reflection system, generating JS metadata library - can be de facto standard for TS reflection,

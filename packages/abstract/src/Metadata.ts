@@ -1,14 +1,18 @@
 import {
-	ModuleReference,
+	ModuleIdentifier,
+	TypeIdentifier,
 	TypeReference
 }                 from "./declarations";
 import { Module } from "./Module";
-import { Type }   from "./Type";
+import {
+	NativeTypes,
+	Type
+}                 from "./Type";
 
 class MetadataLibrary
 {
-	private readonly modules: Map<ModuleReference, Module> = new Map<ModuleReference, Module>();
-	private readonly types: Map<TypeReference, Type> = new Map<TypeReference, Type>();
+	private readonly modules: Map<ModuleIdentifier, Module> = new Map<ModuleIdentifier, Module>();
+	private readonly types: Map<TypeIdentifier, Type> = new Map<TypeIdentifier, Type>();
 
 	/**
 	 * Add Module with its Types to the Metadata.
@@ -101,6 +105,19 @@ class MetadataLibrary
 	 */
 	resolveType(reference: TypeReference): Type
 	{
+		if (typeof (reference) === "object")
+		{
+			const nativeType: Type | undefined = NativeTypes[reference.kind];
+
+			if (nativeType)
+			{
+				return nativeType;
+			}
+			
+			console.error("Type referenced by", reference, "not found.");
+			return Type.Unknown;
+		}
+		
 		return this.types.get(reference) ?? Type.Unknown;
 	}
 
@@ -108,7 +125,7 @@ class MetadataLibrary
 	 * Returns a Module instance identified by the reference. Returns Module.Unknown if no Module found.
 	 * @param reference
 	 */
-	resolveModule(reference: ModuleReference): Module
+	resolveModule(reference: ModuleIdentifier): Module
 	{
 		return this.modules.get(reference) ?? Module.Unknown;
 	}

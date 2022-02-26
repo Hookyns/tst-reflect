@@ -1,5 +1,5 @@
-import { ModuleReference } from "../declarations";
-import { Module }          from "../Module";
+import { ModuleIdentifier } from "../declarations";
+import { Module }           from "../Module";
 import { Type }            from "../Type";
 
 let typeIdCounter = 0;
@@ -8,7 +8,7 @@ export abstract class TypeBuilderBase
 {
 	protected typeName: string = "dynamic";
 	protected fullName: string;
-	protected moduleReference: ModuleReference = Module.Dynamic.id;
+	protected moduleReference: ModuleIdentifier = Module.Dynamic.id;
 
 	protected constructor()
 	{
@@ -39,7 +39,7 @@ export abstract class TypeBuilderBase
 	 * Set parent module.
 	 * @param module
 	 */
-	setModule(module: ModuleReference)
+	setModule(module: ModuleIdentifier)
 	{
 		this.moduleReference = module;
 	}

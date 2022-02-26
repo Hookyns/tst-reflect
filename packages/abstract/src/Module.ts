@@ -1,5 +1,5 @@
-import { ModuleReference } from "./declarations";
-import type { Type }       from "./Type";
+import { ModuleIdentifier } from "./declarations";
+import type { Type }        from "./Type";
 
 export class Module
 {
@@ -20,7 +20,7 @@ export class Module
 
 	private readonly _children: Module[];
 	private readonly _types: Type[];
-	private readonly _id: ModuleReference;
+	private readonly _id: ModuleIdentifier;
 
 	/**
 	 * The name of the module.
@@ -36,7 +36,7 @@ export class Module
 	/**
 	 * Module identifier.
 	 */
-	get id(): ModuleReference
+	get id(): ModuleIdentifier
 	{
 		return this._id;
 	}
@@ -46,12 +46,7 @@ export class Module
 	 */
 	constructor(initializer: ModuleInitializer)
 	{
-		// if (!initializer)
-		// {
-		// 	throw new Error("Initializer is undefined.");
-		// }
-
-		this._id = initializer.id;
+		this._id = initializer.id || Symbol();
 		this.name = initializer.name;
 		this.path = initializer.path;
 		this._children = initializer.children || [];
@@ -78,7 +73,7 @@ export class Module
 
 export interface ModuleInitializer
 {
-	id: ModuleReference;
+	id?: ModuleIdentifier;
 	name: string;
 	path: string;
 	children?: Module[];
