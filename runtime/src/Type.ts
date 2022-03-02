@@ -410,7 +410,7 @@ export class Type
 	 */
 	isString(): boolean
 	{
-		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "string";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name.toLowerCase() == "string";
 	}
 
 	/**
@@ -418,7 +418,7 @@ export class Type
 	 */
 	isNumber(): boolean
 	{
-		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "number";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name.toLowerCase() == "number";
 	}
 
 	/**
@@ -426,7 +426,7 @@ export class Type
 	 */
 	isBoolean(): boolean
 	{
-		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "boolean";
+		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name.toLowerCase() == "boolean";
 	}
 
 	/**
@@ -435,6 +435,14 @@ export class Type
 	isArray(): boolean
 	{
 		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "Array";
+	}
+
+	/**
+	 * Check if this type is a promise
+	 */
+	isPromise(): boolean
+	{
+		return this.isNative() && this.name == "Promise";
 	}
 
 	/**
