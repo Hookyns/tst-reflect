@@ -100,6 +100,16 @@ export function isArrayType(type: ts.Type): boolean
 }
 
 /**
+ * Check if the type is an Promise
+ * @param type
+ */
+export function isPromiseType(type: ts.Type): boolean
+{
+	// [Hookyns] Check if type is Promise. I found no direct way to do so.
+	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Promise";
+}
+
+/**
  * Returns id of given type
  * @description Id is taken from type's Symbol.
  * @param type

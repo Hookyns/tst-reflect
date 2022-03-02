@@ -3,7 +3,10 @@ import * as ts                   from "typescript";
 import { Context }               from "./contexts/Context";
 import { TypeDescriptionResult } from "./declarations";
 import { getTypeCall }           from "./getTypeCall";
-import { isArrayType }           from "./helpers";
+import {
+	isArrayType,
+	isPromiseType
+} from "./helpers";
 
 /**
  * Questioning if this could be better/is pointless
@@ -104,6 +107,24 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 					n: "Array",
 					k: TypeKind.Native,
 					ctor: getNativeTypeCtor("Array"),
+					args: [getTypeCall(typeArguments[0], undefined, context)]
+				}
+			};
+		}
+	}
+
+	if (isPromiseType(type))
+	{
+		const typeArguments = context.typeChecker.getTypeArguments(type as ts.TypeReference);
+
+		if (typeArguments.length == 1)
+		{
+			return {
+				ok: true,
+				typeDescription: {
+					n: "Promise",
+					k: TypeKind.Native,
+					ctor: getNativeTypeCtor("Promise"),
 					args: [getTypeCall(typeArguments[0], undefined, context)]
 				}
 			};
