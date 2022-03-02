@@ -1,5 +1,5 @@
 import * as ts          from "typescript";
-import { isExpression } from "./helpers";
+import { isExpression } from "../helpers";
 
 export function createValueExpression(value: any): ts.Expression
 {

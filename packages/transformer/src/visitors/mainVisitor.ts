@@ -11,9 +11,9 @@ import {
 	isNodeIgnored
 }                                       from "../helpers";
 import { log }                          from "../log";
-import { processDecorator }             from "../processDecorator";
-import { processGenericCallExpression } from "../processGenericCallExpression";
-import { processGetTypeCallExpression } from "../processGetTypeCallExpression";
+import { processDecorator }             from "../transformers/processDecorator";
+import { processGenericCallExpression } from "../transformers/processGenericCallExpression";
+import { processGetTypeCallExpression } from "../transformers/processGetTypeCallExpression";
 import DeclarationVisitor               from "./declarationVisitor";
 
 /**
@@ -23,13 +23,19 @@ import DeclarationVisitor               from "./declarationVisitor";
  */
 export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitResult<ts.Node>
 {
-	const node = DeclarationVisitor.instance.visitDeclaration(nodeToVisit, context);
-	const config = context.config;
-
-	if (node === undefined)
+	if ((ts.isMethodDeclaration(nodeToVisit) || ts.isFunctionDeclaration(nodeToVisit)))
 	{
-		return nodeToVisit;
+		const visitedDeclaration = DeclarationVisitor.instance.visitDeclaration(nodeToVisit, context);
+
+		if (visitedDeclaration === undefined)
+		{
+			return nodeToVisit;
+		}
+
+		nodeToVisit = visitedDeclaration;
 	}
+
+	const node = nodeToVisit;
 
 	// Is it call expression? But not decorator! Decorators are handled in separated block.
 	if (ts.isCallExpression(node) && (!node.parent || !ts.isDecorator(node.parent)))
@@ -41,6 +47,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			return node;
 		}
 
+		// GETTYPE<TType>()
 		// Is it call of some function named "getType"?
 		if (ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
 		{
@@ -50,7 +57,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			// Check if it's our getType<T>() by checking it has our special static property.
 			if (fncType.getProperty(TYPE_ID_PROPERTY_NAME))
 			{
-				const res = processGetTypeCallExpression(node, context);
+				const res = processGetTypeCallExpression(context, node);
 
 				if (res)
 				{
@@ -58,6 +65,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 				}
 			}
 		}
+			// SOMETHING<TType>()
 		// It is call of some other function
 		else
 		{
@@ -67,7 +75,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			{
 				identifier = node.expression;
 			}
-			else if (ts.isPropertyAccessExpression(node.expression))
+			else if (ts.isPropertyAccessExpression(node.expression)) // TODO: Test it. It may be property access of property access.
 			{
 				identifier = node.expression.name;
 			}
@@ -80,26 +88,29 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 				// Later there is check if the declaration has the @reflect JSDoc comment.
 				if (node.typeArguments?.length || (type.getSymbol()?.valueDeclaration as ts.FunctionLikeDeclaration | undefined)?.typeParameters?.length)
 				{
-					const res = processGenericCallExpression(node, type, context);
+					const res = processGenericCallExpression(context, node, type);
 
 					if (res)
 					{
 						return ts.visitEachChild(res, context.visitor, context.transformationContext);
 					}
 				}
-				else if (config.debugMode)
+				else if (context.config.debugMode)
 				{
 					log.info(`There is an callExpression '${identifier.escapedText}' but no declaration has been found.`);
 				}
 			}
 		}
 	}
-	else if (ts.isDecorator(node) && (
-		ts.isClassDeclaration(node.parent)
-		|| ts.isPropertyDeclaration(node.parent)
-		|| ts.isMethodDeclaration(node.parent)
-		|| ts.isGetAccessorDeclaration(node.parent)
-		|| ts.isSetAccessorDeclaration(node.parent))
+	// DECORATOR usage - Assign Type's Id to its prototype
+	else if (ts.isDecorator(node)
+		&& (
+			ts.isClassDeclaration(node.parent)
+			|| ts.isPropertyDeclaration(node.parent)
+			|| ts.isMethodDeclaration(node.parent)
+			|| ts.isGetAccessorDeclaration(node.parent)
+			|| ts.isSetAccessorDeclaration(node.parent)
+		)
 	)
 	{
 		// type of decorator
@@ -121,7 +132,6 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 
 		if (type && hasReflectJsDoc(type.getSymbol()))
 		{
-
 			const res = processDecorator(node, type, context);
 
 			if (res)
@@ -130,9 +140,11 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			}
 		}
 	}
+	// CLASS Declaration - Assign Type's Id to its prototype
 	else if (ts.isClassDeclaration(node))
 	{
-		const typeId = (context.typeChecker.getTypeAtLocation(node).symbol as any).id;
+		const typeId = (context.typeChecker.getTypeAtLocation(node) as any).id;
+		// const typeId = (context.typeChecker.getTypeAtLocation(node).symbol as any).id;
 
 		if (typeId)
 		{
@@ -140,7 +152,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			return [
 				ts.visitEachChild(node, context.visitor, context.transformationContext),
 
-				// ClassIdentifier.prototype[REFLECTED_TYPE_ID] = typeId;
+				// EMIT: ClassIdentifier.prototype[REFLECTED_TYPE_ID] = typeId;
 				ts.factory.createExpressionStatement(
 					ts.factory.createBinaryExpression(
 						ts.factory.createElementAccessExpression(

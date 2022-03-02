@@ -1,19 +1,16 @@
 import * as ts                                            from "typescript";
-import { Context }                                        from "./contexts/Context";
-import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
-import { getErrorMessage }                                from "./getErrorMessage";
-import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
-import { getTypeCall }                                    from "./getTypeCall";
-import {
-	getUnknownTypeCall,
-	isArrayType
-}                                                         from "./helpers";
+import { Context }                                        from "../contexts/Context";
+import { UnknownTypeReference }                           from "../declarations";
+import { FunctionLikeDeclarationGenericParametersDetail } from "../FunctionLikeDeclarationGenericParametersDetail";
+import { getErrorMessage }                                from "../utils/getErrorMessage";
+import { getGenericParametersDetails }                    from "../getGenericParametersDetails";
+import { isArrayType }                                    from "../utils/typeHelpers";
 import {
 	TypeArgumentValueDescription,
 	updateCallExpression
 }                                                         from "./updateCallExpression";
 
-export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
+export function processGenericCallExpression(context: Context, node: ts.CallExpression, fncType: ts.Type): ts.Node | undefined
 {
 	if (!fncType.symbol.declarations)
 	{
@@ -53,10 +50,11 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 			let typePropertyVal: ts.Expression;
 			let genericType: ts.Type | undefined;
 
+			// INFER type from passed argument
 			if (typeArgumentNode == undefined)
 			{
 				let argsIndex = 0;
-				
+
 				for (const parameter of declaration.parameters)
 				{
 					if (parameter.type)
@@ -104,16 +102,20 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 			{
 				genericType ??= context.typeChecker.getTypeAtLocation(typeArgumentNode!);
 				const genericTypeSymbol = genericType.getSymbol();
-				typePropertyVal = getTypeCall(
-					genericType,
-					genericTypeSymbol,
-					context,
-					typeArgumentNode && ts.isTypeReferenceNode(typeArgumentNode) ? typeArgumentNode.typeName : undefined
-				);
+				
+				const ref = context.metadata.addType(typeArgumentNode!, genericType); // TODO: Solve TypeNode	
+				
+				typePropertyVal = context.metadata.factory.createTypeResolver(ref);
+					// getTypeCall(
+					// 	genericType,
+					// 	genericTypeSymbol,
+					// 	context,
+					// 	typeArgumentNode && ts.isTypeReferenceNode(typeArgumentNode) ? typeArgumentNode.typeName : undefined
+					// );
 			}
 			else
 			{
-				typePropertyVal = getUnknownTypeCall(context);
+				typePropertyVal = context.metadata.factory.createTypeResolver(UnknownTypeReference);
 			}
 
 			args.push({

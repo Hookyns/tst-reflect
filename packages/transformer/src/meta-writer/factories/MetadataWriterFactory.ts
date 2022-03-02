@@ -1,5 +1,5 @@
 import { MetadataTypeValues }    from "../../config-options";
-import TransformerContext        from "../../contexts/TransformerContext";
+import { TransformerContext }    from "../../contexts/TransformerContext";
 import { IMetadataWriter }       from "../IMetadataWriter";
 import { InlineMetadataWriter }  from "../inline/InlineMetadataWriter";
 import { TypeLibMetadataWriter } from "../type-lib/TypeLibMetadataWriter";
@@ -7,17 +7,18 @@ import { TypeLibMetadataWriter } from "../type-lib/TypeLibMetadataWriter";
 export const MetadataWriterFactory = {
 	/**
 	 * Create new instance of MetadataWriter
-	 * @param {TransformerContext} context
-	 * @return {IMetadataWriter | undefined}
+	 * @param context
 	 */
-	create(context: TransformerContext): IMetadataWriter | undefined
+	create(context: TransformerContext): IMetadataWriter
 	{
-		switch (context.config.useMetadataType)
+		switch (context.config.metadataType)
 		{
 			case MetadataTypeValues.inline:
 				return new InlineMetadataWriter(context.config.projectDir, context);
 			case MetadataTypeValues.typeLib:
-				return new TypeLibMetadataWriter(context.config.metadataFilePath, context);
+				return new TypeLibMetadataWriter(context.config.typeLibFilePath, context);
 		}
+		
+		return new InlineMetadataWriter(context.config.projectDir, context);
 	}
 };

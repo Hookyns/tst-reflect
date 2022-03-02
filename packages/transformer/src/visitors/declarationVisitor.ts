@@ -1,6 +1,7 @@
+import { REFLECT_DECORATOR }           from "tst-reflect";
 import * as ts                         from "typescript";
 import { Context }                     from "../contexts/Context";
-import { getErrorMessage }             from "../getErrorMessage";
+import { getErrorMessage }             from "../utils/getErrorMessage";
 import { GENERIC_PARAMS }              from "../helpers";
 import { getGenericParametersDetails } from "../getGenericParametersDetails";
 import { log }                         from "../log";
@@ -28,34 +29,51 @@ export default class DeclarationVisitor
 	 * @param node
 	 * @param context
 	 */
-	visitDeclaration(node: ts.Node, context: Context): ts.Node | undefined
+	visitDeclaration(node: ts.MethodDeclaration | ts.FunctionDeclaration, context: Context): ts.Node | undefined
 	{
 		// Update method and function declarations containing getTypes of generic parameter
-		if ((ts.isMethodDeclaration(node) || ts.isFunctionDeclaration(node))/* && node.typeParameters?.length && !(node as unknown as StateNode)[STATE_PROP]*/)
+
+		// If it has no body, there is nothing to do
+		if (node.body === undefined)
 		{
-			// If it has no body, there is nothing to do
-			if (node.body === undefined)
+			if (context.config.debugMode)
 			{
-				if (context.config.debugMode)
-				{
-					log.info("Visiting declaration without body.");
-				}
-
-				return undefined;
+				log.info("Visiting declaration without body.");
 			}
 
-			const genericParametersDetails = getGenericParametersDetails(node, context, []);
-
-			// Do NOT continue, if it has no generic parameter's details
-			if (!genericParametersDetails.usedGenericParameters)
-			{
-				return node;
-			}
-
-			return DeclarationVisitor.modifyDeclaration(node);
+			return undefined;
 		}
 
-		return node;
+		const genericParametersDetails = getGenericParametersDetails(node, context, []);
+
+		// Do NOT continue, if it has no generic parameter's details
+		if (!genericParametersDetails.usedGenericParameters)
+		{
+			return node;
+		}
+
+		// TODO: Test it out! It should add @reflect JSDoc tag automatically
+		const jsDoc: ts.JSDoc | undefined = (node as any).jsDoc;
+		const reflectTag = ts.factory.createJSDocUnknownTag(ts.factory.createIdentifier(REFLECT_DECORATOR), undefined);
+
+		if (jsDoc)
+		{
+			(node as any).jsDoc = ts.factory.updateJSDocComment(
+				jsDoc,
+				jsDoc.comment,
+				jsDoc.tags === undefined ? [reflectTag] : jsDoc.tags.concat([reflectTag])
+			);
+		}
+		else
+		{
+			(node as any).jsDoc = ts.factory.createJSDocComment(
+				undefined,
+				[reflectTag]
+			);
+		}
+
+		// TODO: JSDoc is removed by visitation etc. so this removed generated JSDoc => find out how to update JSDoc
+		return DeclarationVisitor.modifyDeclaration(node);
 	}
 
 	/**
@@ -152,7 +170,7 @@ export default class DeclarationVisitor
 		// "rest" param is gonna be used; modify body to declare GENERIC_PARAMS const and remove values from that "rest" param
 		else if (ts.isIdentifier(lastParam.name))
 		{
-			// TODO: const __genericParam__ = theRestArgs.splice(theRestArgs.length - 1, 1)[0];
+			// var __genericParam__ = theRestArgs.splice(theRestArgs.length - 1, 1)[0];
 			body = ts.factory.createBlock(
 				[
 					ts.factory.createVariableStatement(

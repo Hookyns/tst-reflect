@@ -26,12 +26,14 @@
 	"author": "Roman Jámbor",
 	"license": "MIT",
 	"devDependencies": {
-		"@types/node": "^16.0.0"
+		"@types/node": "^16.0.0",
+		"@types/minimatch": "^3.0.5"
 	},
 	"dependencies": {
 		"@rtti/abstract": "^0.1.0",
 		"tst-reflect": "^0.10.0",
-		"typescript": "^4.0.0"
+		"typescript": "^4.0.0",
+		"minimatch": "^5.0.1"
 	},
 	"repository": {
 		"type": "git",

@@ -1,12 +1,11 @@
 import * as ts                                            from "typescript";
-import { Context }                                        from "./contexts/Context";
-import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
-import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
-import { getTypeCall }                                    from "./getTypeCall";
+import { getDeclaration }                                 from "../utils/symbolHelpers";
+import { Context }                                        from "../contexts/Context";
+import { FunctionLikeDeclarationGenericParametersDetail } from "../FunctionLikeDeclarationGenericParametersDetail";
+import { getGenericParametersDetails }                    from "../getGenericParametersDetails";
 import {
-	getDeclaration,
 	ignoreNode
-}                                                         from "./helpers";
+}                                                         from "../helpers";
 import { updateCallExpression }                           from "./updateCallExpression";
 
 export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, context: Context): ts.Decorator | undefined
@@ -42,12 +41,13 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	{
 		// Decorator does not accept generic type argument but processDecorator was 
 		// forced by @reflect, so we'll generate metadata and keep decorator as is.
-		getTypeCall(
-			genericType,
-			genericTypeSymbol,
-			context,
-			genericTypeNode.name
-		);
+		// getTypeCall(
+		// 	genericType,
+		// 	genericTypeSymbol,
+		// 	context,
+		// 	genericTypeNode.name
+		// );
+		context.metadata.addType(genericTypeNode as any, genericType); // TODO: Fix typenode!
 		
 		return undefined;
 	}
@@ -56,14 +56,20 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	const genericParamName = state.usedGenericParameters[0];
 
 	let callExpression: ts.CallExpression;
+	
+	
+	const ref = context.metadata.addType(genericTypeNode as any, genericType); // TODO: Fix typenode!
+	
+	
 	const typeArgumentDescription = {
 		genericTypeName: genericParamName,
-		reflectedType: getTypeCall(
-			genericType,
-			genericTypeSymbol,
-			context,
-			genericTypeNode.name
-		)
+		reflectedType: context.metadata.factory.createTypeResolver(ref)
+		// 	getTypeCall(
+		// 	genericType,
+		// 	genericTypeSymbol,
+		// 	context,
+		// 	genericTypeNode.name
+		// )
 	};
 
 	if (ts.isCallExpression(node.expression))
@@ -85,7 +91,7 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	return ts.factory.updateDecorator(node, callExpression);
 }
 
-function createCallExpressionFromIdentifier(context: Context, node: ts.Decorator, typeArgumentDescription: { reflectedType: ts.CallExpression; genericTypeName: string })
+function createCallExpressionFromIdentifier(context: Context, node: ts.Decorator, typeArgumentDescription: { reflectedType: ts.Expression; genericTypeName: string })
 {
 	const args = [];
 	const declaration = getDeclaration(context.typeChecker.getSymbolAtLocation(node.expression));

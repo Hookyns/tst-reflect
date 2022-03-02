@@ -1,11 +1,6 @@
-import * as ts             from "typescript";
-import { VisitResult }     from "typescript";
-import type {
-	MetadataEntry,
-	TransformerVisitor
-}                          from "../declarations";
-import { IMetadataWriter } from "../meta-writer/IMetadataWriter";
-import SourceFileContext   from "./SourceFileContext";
+import * as ts                     from "typescript";
+import type { SourceFileContext }  from "./SourceFileContext";
+import type { TransformerVisitor } from "../declarations";
 
 /**
  * Context of visitors
@@ -19,6 +14,11 @@ export class Context
 	 * When visiting declaration bodies, names of generic types used in getType() are inserted into this array.
 	 */
 	public usedGenericParameters: Array<string> = [];
+
+	get metadata()
+	{
+		return this._sourceFileContext.metadata;
+	}
 
 	get log()
 	{
@@ -51,23 +51,23 @@ export class Context
 		this._visitor = (node: ts.Node) => visitor(node, this);
 	}
 
-	visit(node: ts.Node): VisitResult<ts.Node>
+	visit(node: ts.Node): ts.VisitResult<ts.Node>
 	{
 		return this.visitor(node);
 	}
 
-	addTypeMetadata(metadataEntry: MetadataEntry)
-	{
-		this._sourceFileContext.typesMetadata.push(metadataEntry);
-	}
-
-	addTypeCtor(ctorDescription: ts.PropertyAccessExpression)
-	{
-		if (this._sourceFileContext.typesCtors.indexOf(ctorDescription) === -1)
-		{
-			this._sourceFileContext.typesCtors.push(ctorDescription);
-		}
-	}
+	// addTypeMetadata(metadataEntry: MetadataEntry)
+	// {
+	// 	this._sourceFileContext.typesMetadata.push(metadataEntry);
+	// }
+	//
+	// addTypeCtor(ctorDescription: ts.PropertyAccessExpression)
+	// {
+	// 	if (this._sourceFileContext.typesCtors.indexOf(ctorDescription) === -1)
+	// 	{
+	// 		this._sourceFileContext.typesCtors.push(ctorDescription);
+	// 	}
+	// }
 
 	visitFunctionLikeDeclaration(node: ts.FunctionLikeDeclarationBase): void
 	{
@@ -82,14 +82,14 @@ export class Context
 
 	get currentSourceFile(): ts.SourceFile
 	{
-		return this._sourceFileContext.currentSourceFile;
+		return this._sourceFileContext.sourceFile;
 	}
 
-	/**
-	 * Get the metadata library writer handler
-	 */
-	get metaWriter(): IMetadataWriter
-	{
-		return this._sourceFileContext.metaWriter;
-	}
+	// /**
+	//  * Get the metadata library writer handler
+	//  */
+	// get metaWriter(): IMetadataWriter
+	// {
+	// 	return this._sourceFileContext.metaWriter;
+	// }
 }

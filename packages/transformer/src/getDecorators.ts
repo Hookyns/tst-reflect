@@ -1,14 +1,12 @@
-import * as ts                        from "typescript";
-import { Context }                    from "./contexts/Context";
-import { DecoratorDescriptionSource } from "./declarations";
-import { getNodeLocationText }        from "./getNodeLocationText";
-import {
-	getDeclaration,
-	getTypeFullName
-}                                     from "./helpers";
-import { log }                        from "./log";
+import * as ts                 from "typescript";
+import { getNodeLocationText } from "./utils/getNodeLocationText";
+import { getDeclaration }      from "./utils/symbolHelpers";
+import { Context }             from "./contexts/Context";
+import { DecoratorProperties } from "./declarations";
+import { log }                 from "./log";
+import { getTypeFullName }     from "./utils/typeHelpers";
 
-export function getDecorators(symbol: ts.Symbol, context: Context): Array<DecoratorDescriptionSource> | undefined
+export function getDecorators(symbol: ts.Symbol, context: Context): Array<DecoratorProperties> | undefined
 {
 	const declaration = getDeclaration(symbol);
 
@@ -17,7 +15,7 @@ export function getDecorators(symbol: ts.Symbol, context: Context): Array<Decora
 		return undefined;
 	}
 
-	const decorators: Array<DecoratorDescriptionSource> = [];
+	const decorators: Array<DecoratorProperties> = [];
 
 	for (let decorator of declaration.decorators)
 	{
@@ -68,8 +66,8 @@ export function getDecorators(symbol: ts.Symbol, context: Context): Array<Decora
 		}
 
 		decorators.push({
-			n: decoratorSymbol!.escapedName.toString(),
-			fn: getTypeFullName(decoratorType.getSymbol(), context),
+			name: decoratorSymbol!.escapedName.toString(),
+			fullName: getTypeFullName(decoratorType, context),
 			args: args.length == 0 ? undefined : args
 		});
 	}

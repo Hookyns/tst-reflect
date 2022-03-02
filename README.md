@@ -5,7 +5,8 @@
 [![tst-reflect](https://img.shields.io/npm/v/tst-reflect.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect)](https://www.npmjs.com/package/tst-reflect)
 [![tst-reflect-transformer](https://img.shields.io/npm/v/tst-reflect-transformer.svg?color=brightgreen&style=flat-square&logo=npm&label=tst-reflect-transformer)](https://www.npmjs.com/package/tst-reflect-transformer)
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
-![Code coverage](./coverage/badge.svg)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+![Code coverage](./coverage/badge.svg)
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow%20%40hookyns)](https://twitter.com/hookyns)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
 [![All Contributors](https://img.shields.io/badge/all_contributors-7-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
@@ -47,7 +48,8 @@ and runtime stuff (package `tst-reflect`).
 - access to constructors of all the types - you can instantiate every type,
 - configuration with multiple options,
 - browser usage,
-- you can check if one type is assignable to another without instances of those type - eg. check if some class is assignable to some interface,
+- you can check if one type is assignable to another without instances of those type - eg. check if some class is assignable to some interface.
+- [PLUGINS](https://github.com/Hookyns/tst-reflect/wiki/Plugins): You can write custom transformer plugin which will be executed in a context of the `tst-reflect` so you will have access to the types, you can change them or just use them for something
 - and there are probably more... and a lot of things are on TODO list.
 
 ## How to Get the Type
@@ -702,6 +704,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
 
 This project follows the [all-contributors](https://allcontributors.org) specification.
 Contributions of any kind are welcome!
+
 
 ## Motivation
 

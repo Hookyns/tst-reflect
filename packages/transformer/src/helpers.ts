@@ -1,22 +1,17 @@
-import * as path                     from "path";
+import * as path          from "path";
 import {
 	AccessModifier,
 	Accessor,
 	TypeKind
-}                                    from "@rtti/abstract";
+}                         from "@rtti/abstract";
 import {
 	REFLECT_DECORATOR
-}                                    from "tst-reflect";
-import { TypeFlags }                 from "typescript";
-import * as ts                       from "typescript";
-import { Context }                   from "./contexts/Context";
-import TransformerContext            from "./contexts/TransformerContext";
-import {
-	ConstructorImportDescriptionSource,
-	GetTypeCall
-}                                    from "./declarations";
-import { getTypeCallFromProperties } from "./getTypeCall";
-import { log }                       from "./log";
+}                         from "tst-reflect";
+import * as ts            from "typescript";
+import { Context }        from "./contexts/Context";
+import { ImportInfo }     from "./declarations";
+import { log }            from "./log";
+import { getDeclaration } from "./utils/symbolHelpers";
 
 export const PATH_SEPARATOR_REGEX = /\\/g;
 
@@ -41,10 +36,10 @@ export const TRACE_DECORATOR = "trace";
  */
 export const UNKNOWN_TYPE_PROPERTIES = { k: TypeKind.Unknown };
 
-/**
- * Variable to cache created "unknown" type call
- */
-let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
+// /**
+//  * Variable to cache created "unknown" type call
+//  */
+// let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
 
 /**
  * Get type of symbol
@@ -69,12 +64,12 @@ export function getType(symbol: ts.Symbol, context: Context): ts.Type | undefine
 	return context.typeChecker.getTypeOfSymbolAtLocation(symbol, declaration);
 }
 
-let symbolIdCounter = -1;
-
-function getSymbolId(symbol: ts.Symbol): number
-{
-	return (symbol as any).id ?? ((symbol as any).id = symbolIdCounter--);
-}
+// let symbolIdCounter = -1;
+//
+// function getSymbolId(symbol: ts.Symbol): number
+// {
+// 	return (symbol as any).id ?? ((symbol as any).id = symbolIdCounter--);
+// }
 
 /**
  * Get Symbol of Type
@@ -91,48 +86,6 @@ export function getTypeSymbol(type: ts.Type, typeChecker: ts.TypeChecker): ts.Sy
 	}
 
 	return undefined;
-}
-
-/**
- * Check if the type is an Array
- * @param type
- */
-export function isArrayType(type: ts.Type): boolean
-{
-	// [Hookyns] Check if type is Array. I found no direct way to do so.
-	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Array";
-}
-
-/**
- * Returns id of given type
- * @description Id is taken from type's Symbol.
- * @param type
- * @param typeChecker
- */
-export function getTypeId(type: ts.Type, typeChecker: ts.TypeChecker): number | undefined
-{
-	const symbol = getTypeSymbol(type, typeChecker);
-
-	if (symbol == undefined)
-	{
-		return;
-	}
-
-	return getSymbolId(symbol);
-}
-
-/**
- * Returns declaration of symbol. ValueDeclaration is preferred.
- * @param symbol
- */
-export function getDeclaration(symbol?: ts.Symbol): ts.Declaration | undefined
-{
-	if (!symbol)
-	{
-		return undefined;
-	}
-
-	return symbol.valueDeclaration || symbol.declarations?.[0];
 }
 
 // /**
@@ -165,50 +118,6 @@ export function getDeclaration(symbol?: ts.Symbol): ts.Declaration | undefined
 // 	return undefined;
 // }
 
-const nodeModulesPattern = "/node_modules/";
-
-/**
- * Get full name of type
- * @param typeSymbol
- * @param context
- */
-export function getTypeFullName(typeSymbol: ts.Symbol | undefined, context: Context)
-{
-	if (!typeSymbol)
-	{
-		if (context.config.debugMode)
-		{
-			context.log.warn("Unable to get fullname of type, because its symbol is undefined.");
-		}
-
-		return undefined;
-	}
-
-	if (!typeSymbol.declarations)
-	{
-		if (context.config.debugMode)
-		{
-			context.log.error("Unable to get fullname of type, because its symbol is undefined.");
-		}
-
-		return undefined;
-	}
-
-	let { packageName, rootDir } = TransformerContext.instance.config;
-	let filePath = typeSymbol.declarations[0].getSourceFile().fileName;
-	const nodeModulesIndex = filePath.lastIndexOf(nodeModulesPattern);
-
-	if (nodeModulesIndex != -1)
-	{
-		filePath = filePath.slice(nodeModulesIndex + nodeModulesPattern.length);
-	}
-	else if (rootDir)
-	{
-		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(PATH_SEPARATOR_REGEX, "/");
-	}
-
-	return filePath + ":" + typeSymbol.getName() + "#" + ((typeSymbol as any).id || "0");
-}
 
 /**
  * Check that value is TS Expression
@@ -310,34 +219,34 @@ export function hasRuntimePackageImport(sourceFile: ts.SourceFile): [boolean, st
 	return [isImported, namedImports, getTypeNodePosition];
 }
 
-// TODO: Remove
-export function getProjectSrcRoot(program: ts.Program): string
-{
-	return path.resolve(program.getCompilerOptions()?.rootDir || program.getCurrentDirectory());
-}
+// // TODO: Remove
+// export function getProjectSrcRoot(program: ts.Program): string
+// {
+// 	return path.resolve(program.getCompilerOptions()?.rootDir || program.getCurrentDirectory());
+// }
 
 /**
  * Return getter function for runtime type's Ctor.
  * @description Function generated so that, the require call isn't made until we actually call the function
  */
 export function createCtorPromise(
-	constructorDescription: ConstructorImportDescriptionSource | undefined,
+	constructorDescription: ImportInfo | undefined,
 	context: Context
-): [promise: ts.FunctionExpression | undefined, requireCall: ts.PropertyAccessExpression | undefined]
+): [promise: ts.FunctionExpression | undefined, requireCall: ts.PropertyAccessExpression | undefined] // TODO: Move this to some metadata writer
 {
 	if (!constructorDescription)
 	{
 		return [undefined, undefined];
 	}
 
-	let relative = context.metaWriter.getRequireRelativePath(context, constructorDescription.srcPath);
+	let relative = context.metadata.writer.getRequireRelativePath(context, constructorDescription.path);
 
 	if (context.config.debugMode)
 	{
 		log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`);
 	}
 
-	if (context.config.esmModuleKind)
+	if (context.config.esmModule)
 	{
 		// import("...path...").then(m => m.ExportedMember)
 		const importExpression = ts.factory.createCallExpression(
@@ -368,7 +277,7 @@ export function createCtorPromise(
 					ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
 					ts.factory.createPropertyAccessExpression(
 						ts.factory.createIdentifier("m"),
-						ts.factory.createIdentifier(constructorDescription.en)
+						ts.factory.createIdentifier(constructorDescription.exportName)
 					)
 				)
 			]
@@ -396,7 +305,7 @@ export function createCtorPromise(
 			undefined,
 			[ts.factory.createStringLiteral(relative)]
 		),
-		ts.factory.createIdentifier(constructorDescription.en)
+		ts.factory.createIdentifier(constructorDescription.exportName)
 	);
 
 	// Promise.resolve($require)
@@ -477,14 +386,14 @@ export function isReadonly(modifiers?: ts.ModifiersArray): boolean
 	return modifiers?.some(m => m.kind == ts.SyntaxKind.ReadonlyKeyword) ?? false;
 }
 
-/**
- * Return true if there is readonly modifier
- * @param context
- */
-export function getUnknownTypeCall(context: Context): GetTypeCall
-{
-	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties(UNKNOWN_TYPE_PROPERTIES, context));
-}
+// /**
+//  * Return true if there is readonly modifier
+//  * @param context
+//  */
+// export function getUnknownTypeCall(context: Context): GetTypeCall
+// {
+// 	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties(UNKNOWN_TYPE_PROPERTIES, context));
+// }
 
 /**
  * Return signature of method/function

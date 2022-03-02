@@ -1,5 +1,5 @@
 import * as ts                                            from "typescript";
-import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
+import { FunctionLikeDeclarationGenericParametersDetail } from "../FunctionLikeDeclarationGenericParametersDetail";
 
 export type TypeArgumentValueDescription = { genericTypeName: string, reflectedType: ts.Expression };
 

@@ -28,4 +28,4 @@ export type MetadataType = typeof MetadataTypeValues[keyof typeof MetadataTypeVa
  * Default name of the matadata library file.
  * @type {string}
  */
-export const DEFAULT_METADATA_LIB_FILE_NAME = "reflection.meta.ts"; // TODO: Check if it rly should be .TS, not .JS
+export const DEFAULT_METADATA_TYPELIB_FILE_NAME = "reflection.meta.ts"; // TODO: Check if it rly should be .TS, not .JS

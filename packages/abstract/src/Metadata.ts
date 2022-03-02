@@ -1,5 +1,6 @@
 import {
 	ModuleIdentifier,
+	ModuleReference,
 	TypeIdentifier,
 	TypeReference
 }                 from "./declarations";
@@ -18,7 +19,7 @@ class MetadataLibrary
 	 * Add Module with its Types to the Metadata.
 	 * @param modules
 	 */
-	addModule(...modules: Module[]): MetadataLibrary
+	addModule(...modules: Module[]): void
 	{
 		for (let module of modules)
 		{
@@ -27,22 +28,18 @@ class MetadataLibrary
 			// Add types from the module
 			this.addType(...module.getTypes());
 		}
-
-		return this;
 	}
 
 	/**
 	 * Add Types to the Metadata.
 	 * @param types
 	 */
-	addType(...types: Type[]): MetadataLibrary
+	addType(...types: Type[]): void
 	{
 		for (let type of types)
 		{
 			this.types.set(type.id ?? Symbol(), type);
 		}
-
-		return this;
 	}
 
 	/**
@@ -113,11 +110,11 @@ class MetadataLibrary
 			{
 				return nativeType;
 			}
-			
+
 			console.error("Type referenced by", reference, "not found.");
 			return Type.Unknown;
 		}
-		
+
 		return this.types.get(reference) ?? Type.Unknown;
 	}
 
@@ -125,7 +122,7 @@ class MetadataLibrary
 	 * Returns a Module instance identified by the reference. Returns Module.Unknown if no Module found.
 	 * @param reference
 	 */
-	resolveModule(reference: ModuleIdentifier): Module
+	resolveModule(reference: ModuleReference): Module
 	{
 		return this.modules.get(reference) ?? Module.Unknown;
 	}

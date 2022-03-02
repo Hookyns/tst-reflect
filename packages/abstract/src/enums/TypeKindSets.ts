@@ -5,8 +5,7 @@ export const LiteralTypeKinds = [
 	TypeKind.NumberLiteral,
 	TypeKind.BooleanLiteral,
 	TypeKind.BigIntLiteral,
-	TypeKind.RegExpLiteral,
-	TypeKind.TemplateLiteral,
+	TypeKind.RegExpLiteral
 ];
 
 export const PrimitiveTypeKinds = [

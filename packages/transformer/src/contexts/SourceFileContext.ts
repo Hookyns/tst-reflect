@@ -1,20 +1,15 @@
-import * as ts             from "typescript";
-import { IMetadataWriter } from "../meta-writer/IMetadataWriter";
-import { Context }         from "./Context";
-import { Logger }          from "../log";
-import type {
-	CtorsLibrary,
-	MetadataLibrary
-}                          from "../declarations";
-import { mainVisitor }     from "../visitors/mainVisitor";
-import TransformerContext  from "./TransformerContext";
+import * as ts                from "typescript";
+import { MetadataLibrary }    from "../metadata/MetadataLibrary";
+import { Context }            from "./Context";
+import { Logger }             from "../log";
+import { mainVisitor }        from "../visitors/mainVisitor";
+import { TransformerContext } from "./TransformerContext";
 
-export default class SourceFileContext
+export class SourceFileContext
 {
-	private _typesMetadata: MetadataLibrary = [];
-	private _ctorsLibrary: CtorsLibrary = [];
 	private readonly _context: Context;
-	private readonly _currentSourceFile: ts.SourceFile;
+	private readonly _sourceFile: ts.SourceFile;
+	private readonly _metadata: MetadataLibrary;
 
 	public readonly transformationContext: ts.TransformationContext;
 	public readonly program: ts.Program;
@@ -22,57 +17,55 @@ export default class SourceFileContext
 	public readonly transformerContext: TransformerContext;
 	public readonly log: Logger;
 
+	/**
+	 * Current context.
+	 */
 	get context(): Context
 	{
 		return this._context;
 	}
 
-	get typesMetadata(): MetadataLibrary
+	/**
+	 * Metadata library.
+	 */
+	get metadata(): MetadataLibrary
 	{
-		return this._typesMetadata;
-	}
-
-	get typesCtors(): CtorsLibrary
-	{
-		return this._ctorsLibrary;
+		return this._metadata;
 	}
 
 	/**
 	 * Construct SourceFile context.
+	 * @param sourceFile
 	 * @param transformerContext
 	 * @param transformationContext
-	 * @param program
-	 * @param checker
-	 * @param sourceFile
 	 */
 	constructor(
+		sourceFile: ts.SourceFile,
 		transformerContext: TransformerContext,
-		transformationContext: ts.TransformationContext,
-		program: ts.Program,
-		checker: ts.TypeChecker,
-		sourceFile: ts.SourceFile
+		transformationContext: ts.TransformationContext
 	)
 	{
 		this.log = new Logger(sourceFile.fileName);
 		this.transformerContext = transformerContext;
 		this.transformationContext = transformationContext;
-		this.program = program;
-		this.checker = checker;
-		this._currentSourceFile = sourceFile;
+		this.program = transformerContext.program;
+		this.checker = transformerContext.checker;
+		this._metadata = transformerContext.metadata;
+		this._sourceFile = sourceFile;
 
 		this._context = new Context(this, mainVisitor);
 	}
 
-	get currentSourceFile(): ts.SourceFile
+	get sourceFile(): ts.SourceFile
 	{
-		return this._currentSourceFile;
+		return this._sourceFile;
 	}
 
-	/**
-	 * Get the metadata library writer handler
-	 */
-	get metaWriter(): IMetadataWriter
-	{
-		return this.transformerContext.metaWriter;
-	}
+	// /**
+	//  * Get the metadata library writer handler
+	//  */
+	// get metaWriter(): IMetadataWriter
+	// {
+	// 	return this.transformerContext.metaWriter;
+	// }
 }

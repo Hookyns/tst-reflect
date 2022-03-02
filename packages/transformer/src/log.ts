@@ -24,7 +24,7 @@ export class Logger
 
 	constructor(context?: string)
 	{
-		this.contextSuffix = context ? "\n\tIn " + context : "";
+		this.contextSuffix = context ? "\r\n\tIn " + context : "";
 	}
 
 	log(level: LogLevel, color?: number, ...args: any[])

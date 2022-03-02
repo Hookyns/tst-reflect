@@ -1,14 +1,11 @@
-import { Context }                      from "contexts/Context";
+import { Context }                from "contexts/Context";
 import {
 	MetadataType,
 	MetadataTypeValues
-}                                       from "../../config-options";
-import TransformerContext               from "../../contexts/TransformerContext";
-import { getRequireRelativePath }       from "../../helpers";
-import { MetadataTransformerFactory }   from "../factories/MetadataTransformerFactory";
-import { MetadataWriterBase }           from "../MetadataWriterBase";
-import { TypeLibMetadataNodeGenerator } from "./TypeLibMetadataNodeGenerator";
-import { TypeLibMetadataTransformer }   from "./TypeLibMetadataTransformer";
+}                                 from "../../config-options";
+import { TransformerContext }     from "../../contexts/TransformerContext";
+import { getRequireRelativePath } from "../../helpers";
+import { MetadataWriterBase }     from "../MetadataWriterBase";
 
 export class TypeLibMetadataWriter extends MetadataWriterBase
 {
@@ -19,30 +16,30 @@ export class TypeLibMetadataWriter extends MetadataWriterBase
 		super(
 			metadataFilePath,
 			context,
-			new TypeLibMetadataNodeGenerator(),
-			new MetadataTransformerFactory(TypeLibMetadataTransformer)
+			// new TypeLibMetadataNodeGenerator(),
+			// new MetadataTransformerFactory(TypeLibMetadataTransformer)
 		);
 
 		this.createBaseMeta();
 	}
 
-	/**
-	 * Does this meta writer use a stub file?
-	 *
-	 * For example,
-	 * ts version uses a file with pre-made store etc.
-	 * js version is generated on the fly
-	 * inline doesn't use one
-	 *
-	 * If it uses a stub file, we return [yes, stub file name]
-	 * If not, [no, undefined]
-	 *
-	 * @returns {[boolean, string|undefined]}
-	 */
-	usesStubFile(): [boolean, string | undefined]
-	{
-		return [true, "type-lib-file-stub.template.ts"];
-	}
+	// /**
+	//  * Does this meta writer use a stub file?
+	//  *
+	//  * For example,
+	//  * ts version uses a file with pre-made store etc.
+	//  * js version is generated on the fly
+	//  * inline doesn't use one
+	//  *
+	//  * If it uses a stub file, we return [yes, stub file name]
+	//  * If not, [no, undefined]
+	//  *
+	//  * @returns {[boolean, string|undefined]}
+	//  */
+	// usesStubFile(): [boolean, string | undefined]
+	// {
+	// 	return [true, "type-lib-file-stub.template.ts"];
+	// }
 
 	/**
 	 * @inheritDoc
