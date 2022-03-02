@@ -10,10 +10,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Changed)
 
 
-## [0.7.4] - 2022-02-15
+## [0.7.4] - 2022-03-02
+### Added
+- `Type.isPromise()`
+- `Type.isTuple()` - but it is not implemented by the transformer yet.
+### Changed
+
+
+## [0.9.3] - 2022-02-17 - transformer
 ### Added
 - `examples/di`,
-- `Type.isTuple()`
 
 ### Changed
 - Enhanced generic types

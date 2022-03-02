@@ -1,8 +1,5 @@
 import { TypeKind }                 from "tst-reflect";
 import * as ts                      from "typescript";
-import {
-	ConditionalType
-}                                   from "typescript";
 import { MetadataTypeValues }       from "./config-options";
 import { Context }                  from "./contexts/Context";
 import {
