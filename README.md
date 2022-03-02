@@ -423,6 +423,10 @@ export declare class Type
      */
     isArray(): boolean;
     /**
+     * Check if this type is a promise
+     */
+    isPromise(): boolean;
+    /**
      *
      * @return {boolean}
      */
