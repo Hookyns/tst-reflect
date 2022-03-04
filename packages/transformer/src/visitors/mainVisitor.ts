@@ -65,6 +65,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 				}
 			}
 		}
+
 			// SOMETHING<TType>()
 		// It is call of some other function
 		else

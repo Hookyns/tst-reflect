@@ -42,7 +42,7 @@ export class ModuleMetadata
 	/**
 	 * Returns properties of this module.
 	 */
-	getModuleProperties({ withoutTypes = false }: { withoutTypes?: boolean }): ModuleProperties
+	getModuleProperties({ withoutTypes = false }: { withoutTypes?: boolean } = { withoutTypes: false }): ModuleProperties
 	{
 		return {
 			...this.moduleProperties,

@@ -5,7 +5,7 @@
 		"packages/*"
 	],
 	"scripts": {
-		"inst": "npm install --foreground-scripts",
+		"setup": "npm install --foreground-scripts",
 		"tsc": "tsc --build",
 		"watch": "tsc --build --watch",
 		"test": "ttsc -p ./tests/tsconfig.json && jest",

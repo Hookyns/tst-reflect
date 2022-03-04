@@ -1,29 +1,27 @@
-import fs             from "fs";
-import { log }        from "./log";
-import path           from "path";
+import fs                          from "fs";
+import { log }                     from "./log";
+import path                        from "path";
 import {
 	join,
 	resolve
-}                     from "path";
-import * as ts        from "typescript";
+}                                  from "path";
+import * as ts                     from "typescript";
 import {
 	ModuleKind,
 	ScriptTarget
-}                     from "typescript";
+}                                  from "typescript";
 import {
 	DEFAULT_METADATA_TYPELIB_FILE_NAME,
 	MetadataType,
 	MetadataTypeValues,
 	Mode,
 	ModeValues
-}                     from "./config-options";
-import type {
-	MetadataMiddleware,
-	PackageInfo,
-	SourceFileVisitorPlugin
-}                     from "./declarations";
-import { PACKAGE_ID } from "./helpers";
-import { makeRe }     from "minimatch";
+}                                  from "./config-options";
+import type { PackageInfo }        from "./declarations";
+import { PACKAGE_ID }              from "./helpers";
+import { makeRe }                  from "minimatch";
+import { MetadataMiddleware }      from "./middlewares";
+import { SourceFileVisitorPlugin } from "./plugins";
 
 const UnknownPackageName = "@@this";
 

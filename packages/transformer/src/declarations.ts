@@ -82,31 +82,6 @@ export interface MetadataSource
 }
 
 /**
- * Interface of "Next" middleware object.
- */
-export interface NextMetadataMiddleware
-{
-	invoke(): MetadataSource;
-}
-
-/**
- * Middleware handling generated type properties before emitting to the result javascript code.
- */
-export type MetadataMiddleware = (
-	context: SourceFileContext,
-	next: NextMetadataMiddleware
-) => MetadataSource | ts.CallExpression | ts.ArrayLiteralExpression | ts.ObjectLiteralExpression;
-
-
-/**
- * Interface for Plugins visiting and transforming SourceFiles.
- */
-export interface SourceFileVisitorPlugin
-{
-	visit(sourceFile: ts.SourceFile, context: SourceFileContext): ts.SourceFile;
-}
-
-/**
  * @internal
  */
 export type PackageInfo = {
