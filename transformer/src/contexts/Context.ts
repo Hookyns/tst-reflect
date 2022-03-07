@@ -58,7 +58,13 @@ export class Context
 
 	addTypeMetadata(metadataEntry: MetadataEntry)
 	{
+		this._sourceFileContext.generatedTypeIds.add(metadataEntry[0]);
 		this._sourceFileContext.typesMetadata.push(metadataEntry);
+	}
+
+	containsMetadataOfType(id: number): boolean
+	{
+		return this._sourceFileContext.generatedTypeIds.has(id);
 	}
 
 	addTypeCtor(ctorDescription: ts.PropertyAccessExpression)

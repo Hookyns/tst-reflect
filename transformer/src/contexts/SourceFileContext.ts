@@ -16,6 +16,7 @@ export default class SourceFileContext
 	private readonly _context: Context;
 	private readonly _currentSourceFile: ts.SourceFile;
 
+	public readonly generatedTypeIds = new Set<number>();
 	public readonly transformationContext: ts.TransformationContext;
 	public readonly program: ts.Program;
 	public readonly checker: ts.TypeChecker;

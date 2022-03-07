@@ -10,6 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Changed)
 
 
+## [0.9.4] - 2022-03-07 - transformer
+### Added
+### Changed
+- Ids of types are generated from ts.Type, not from ts.Symbol anymore.
+
+
 ## [0.7.4] - 2022-03-02
 ### Added
 - `Type.isPromise()`

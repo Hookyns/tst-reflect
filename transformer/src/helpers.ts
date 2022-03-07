@@ -66,12 +66,6 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 	return checker.getTypeOfSymbolAtLocation(symbol, declaration);
 }
 
-let symbolIdCounter = -1;
-function getSymbolId(symbol: ts.Symbol): number
-{
-	return (symbol as any).id ?? ((symbol as any).id = symbolIdCounter--);
-}
-
 /**
  * Get Symbol of Type
  * @param type
@@ -109,6 +103,8 @@ export function isPromiseType(type: ts.Type): boolean
 	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Promise";
 }
 
+let typeIdCounter = -1;
+
 /**
  * Returns id of given type
  * @description Id is taken from type's Symbol.
@@ -117,14 +113,13 @@ export function isPromiseType(type: ts.Type): boolean
  */
 export function getTypeId(type: ts.Type, typeChecker: ts.TypeChecker): number | undefined
 {
-	const symbol = getTypeSymbol(type, typeChecker);
+	return (type as any).id ?? ((type as any).id = typeIdCounter--);
+}
 
-	if (symbol == undefined)
-	{
-		return;
-	}
-
-	return getSymbolId(symbol);
+let symbolIdCounter = -1;
+function getSymbolId(symbol: ts.Symbol): number
+{
+	return (symbol as any).id ?? ((symbol as any).id = symbolIdCounter--);
 }
 
 /**
@@ -173,25 +168,36 @@ export function getTypeKind(symbol: ts.Symbol)
 const nodeModulesPattern = "/node_modules/";
 
 /**
- * Get full name of type
- * @param typeSymbol
+ * Returns symbol of the type.
+ * @param type
  */
-export function getTypeFullName(typeSymbol?: ts.Symbol)
+export function getSymbol(type: ts.Type): ts.Symbol
 {
-	if (!typeSymbol)
+	return type.aliasSymbol || type.symbol; // TODO: Check aliasSymbol vs symbol
+}
+
+/**
+ * Get full name of the type
+ * @param type
+ * @param context
+ */
+export function getTypeFullName(type: ts.Type, context: Context)
+{
+	const symbol = getSymbol(type);
+	const declaration = getDeclaration(symbol);
+
+	if (!declaration)
 	{
-		// TODO: Log in debug mode
+		if (context.config.debugMode)
+		{
+			context.log.error("Unable to get fullname of type, because its symbol is undefined.");
+		}
+
 		return undefined;
 	}
 
-	if (!typeSymbol.declarations)
-	{
-		// TODO: Log in debug mode
-		throw new Error("Unable to resolve declarations of symbol.");
-	}
-
 	let { packageName, rootDir } = TransformerContext.instance.config;
-	let filePath = typeSymbol.declarations[0].getSourceFile().fileName;
+	let filePath = declaration.getSourceFile().fileName;
 	const nodeModulesIndex = filePath.lastIndexOf(nodeModulesPattern);
 
 	if (nodeModulesIndex != -1)
@@ -203,7 +209,7 @@ export function getTypeFullName(typeSymbol?: ts.Symbol)
 		filePath = packageName + "/" + path.relative(rootDir, filePath).replace(PATH_SEPARATOR_REGEX, "/");
 	}
 
-	return filePath + ":" + typeSymbol.getName() + "#" + ((typeSymbol as any).id || "0");
+	return filePath + ":" + symbol.getName() + "#" + getTypeId(type, context.typeChecker); // TODO: Check if type can be used in getTypeId(); references, aliases? It must be Id of final type.
 }
 
 /**

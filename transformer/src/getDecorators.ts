@@ -1,4 +1,5 @@
 import * as ts                        from "typescript";
+import { Context }                    from "./contexts/Context";
 import { DecoratorDescriptionSource } from "./declarations";
 import { getNodeLocationText }        from "./getNodeLocationText";
 import {
@@ -7,7 +8,7 @@ import {
 }                                     from "./helpers";
 import { log }                        from "./log";
 
-export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array<DecoratorDescriptionSource> | undefined
+export function getDecorators(symbol: ts.Symbol, context: Context): Array<DecoratorDescriptionSource> | undefined
 {
 	const declaration = getDeclaration(symbol);
 
@@ -17,6 +18,7 @@ export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array
 	}
 
 	const decorators: Array<DecoratorDescriptionSource> = [];
+	const checker = context.typeChecker;
 
 	for (let decorator of declaration.decorators)
 	{
@@ -68,7 +70,7 @@ export function getDecorators(symbol: ts.Symbol, checker: ts.TypeChecker): Array
 
 		decorators.push({
 			n: decoratorSymbol!.escapedName.toString(),
-			fn: getTypeFullName(decoratorType.getSymbol()),
+			fn: getTypeFullName(decoratorType, context),
 			args: args.length == 0 ? undefined : args
 		});
 	}

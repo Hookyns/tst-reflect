@@ -35,7 +35,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 				return {
 					n: memberSymbol.escapedName.toString(),
 					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context, getCtorTypeReference(memberSymbol)),
-					d: getDecorators(memberSymbol, context.typeChecker),
+					d: getDecorators(memberSymbol, context),
 					am: getAccessModifier(declaration?.modifiers),
 					acs: accessor,
 					ro: isReadonly(declaration?.modifiers) || accessor == Accessor.Getter,

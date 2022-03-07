@@ -41,7 +41,7 @@ export function getMethodDescription(symbol: ts.Symbol, context: Context): Metho
 		n: symbol.escapedName.toString(),
 		params: methodSignature && getSignatureParameters(methodSignature, context),
 		rt: returnType && getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
-		d: getDecorators(symbol, context.typeChecker),
+		d: getDecorators(symbol, context),
 		tp: getMethodGenerics(symbol, context),
 		o: (symbol.flags & ts.SymbolFlags.Optional) === ts.SymbolFlags.Optional,
 		am: getAccessModifier(symbol.valueDeclaration?.modifiers)

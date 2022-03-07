@@ -132,7 +132,7 @@ export function getTypeDescription(
 					properties: {
 						k: TypeKind.Object,
 						n: type.aliasSymbol.name,
-						fn: getTypeFullName(type.aliasSymbol),
+						fn: getTypeFullName(type, context),
 						props: getProperties(symbol, type, context)
 					},
 					localType: false
@@ -334,7 +334,7 @@ export function getTypeDescription(
 		throw new Error("Unable to resolve TypeParameter's declaration.");
 	}
 
-	const decorators = getDecorators(typeSymbol, checker);
+	const decorators = getDecorators(typeSymbol, context);
 	const kind = getTypeKind(typeSymbol);
 	const symbolType = getType(typeSymbol, checker);
 	const symbolToUse = typeSymbol || symbol;
@@ -343,7 +343,7 @@ export function getTypeDescription(
 	const properties: TypePropertiesSource = {
 		k: kind,
 		n: typeSymbol.getName(),
-		fn: getTypeFullName(symbolToUse),
+		fn: getTypeFullName(type, context),
 		props: getProperties(symbolToUse, type, context),
 		meths: getMethods(symbolToUse, type, context),
 		decs: decorators,

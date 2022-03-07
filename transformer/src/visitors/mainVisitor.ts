@@ -7,9 +7,10 @@ import * as ts                          from "typescript";
 import { Context }                      from "../contexts/Context";
 import {
 	getType,
+	getTypeId,
 	hasReflectJsDoc,
 	isNodeIgnored
-}                                       from "../helpers";
+} from "../helpers";
 import { log }                          from "../log";
 import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";
@@ -132,7 +133,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 	}
 	else if (ts.isClassDeclaration(node))
 	{
-		const typeId = (context.typeChecker.getTypeAtLocation(node).symbol as any).id;
+		const typeId = getTypeId(context.typeChecker.getTypeAtLocation(node), context.typeChecker);
 
 		if (typeId)
 		{

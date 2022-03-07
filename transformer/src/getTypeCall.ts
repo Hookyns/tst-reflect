@@ -33,7 +33,8 @@ const creatingTypes: Array<number> = [];
  */
 export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, context: Context, typeCtor?: ts.EntityName | ts.DeclarationName): GetTypeCall // TODO: Remove symbol parameter if possible
 {
-	const id = getTypeId(type, context.typeChecker);
+	const isNative = (type as any)["intrinsicName"] !== undefined;
+	const id = isNative ? undefined : getTypeId(type, context.typeChecker);
 	let typeDescription: TypeDescription | undefined = undefined;
 
 	if (!id || !createdTypes.has(id))
@@ -57,12 +58,21 @@ export function getTypeCall(type: ts.Type, symbol: ts.Symbol | undefined, contex
 		{
 			// remove type from the stack
 			creatingTypes.pop();
-			
+
 			// Add metadata
 			context.addTypeMetadata([id, typePropertiesObjectLiteral, typeDescription?.localType ?? false]);
-			
+
 			// Store created type
 			createdTypes.set(id, typePropertiesObjectLiteral);
+		}
+	}
+	// Metadata generated and stored, but maybe not in this file (in case of in-line mode)
+	else
+	{
+		if (!context.containsMetadataOfType(id)) 
+		{
+			// Add metadata
+			context.addTypeMetadata([id, createdTypes.get(id)!, false]);
 		}
 	}
 
