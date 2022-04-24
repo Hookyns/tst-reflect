@@ -1,10 +1,10 @@
 import * as ts                      from "typescript";
 import { TransformerContext }       from "../contexts/TransformerContext";
 import { TransformerTypeReference } from "../declarations";
-import { MetadataWriterFactory }    from "../meta-writer/factories/MetadataWriterFactory";
-import { IMetadataWriter }          from "../meta-writer/IMetadataWriter";
 import { MetadataFactory }          from "./MetadataFactory";
 import { ModuleMetadata }           from "./ModuleMetadata";
+import { IMetadataWriter }          from "./writer/IMetadataWriter";
+import { MetadataWriterFactory }    from "./writer/MetadataWriterFactory";
 
 const InstanceKey: symbol = Symbol.for("tst-reflect.MetadataLibrary");
 let instance: MetadataLibrary = (global as any)[InstanceKey] || null;
@@ -122,7 +122,7 @@ export class MetadataLibrary
 	 * Returns list of type references used inside given SourceFile.
 	 * @param sourceFile
 	 */
-	getInFileTypes(sourceFile: ts.SourceFile)
+	getInFileTypes(sourceFile: ts.SourceFile): TransformerTypeReference[]
 	{
 		return this.sourceFileContextTypes.get(sourceFile) || [];
 	}

@@ -8,7 +8,9 @@ import {
 	TypeProperties
 }                              from "../declarations";
 import { getTypeProperties }   from "../properties/getTypeProperties";
+import { getSourceFile }       from "../utils/findSourceFile";
 import { getNodeLocationText } from "../utils/getNodeLocationText";
+// import { getCanonizedPathOfImportedModule } from "../utils/path";
 import { getTypeId }           from "../utils/typeHelpers";
 
 /**
@@ -117,23 +119,15 @@ export class ModuleMetadata
 			}
 
 			const sourceFileContext = this.context.currentSourceFileContext!;
+			const childSourceFile = getSourceFile(importDeclaration, this.context);
 
-			if (ts.isStringLiteral(importDeclaration.moduleSpecifier))
+			if (childSourceFile)
 			{
-				const childSourceFile = this.context.program.getSourceFile(importDeclaration.moduleSpecifier.text); // TODO: Check if it is right
-
-				if (childSourceFile)
-				{
-					references.push(ModuleMetadata.getSourceFileId(childSourceFile));
-				}
-				else
-				{
-					sourceFileContext.log.error(`SourceFile of '${importDeclaration.moduleSpecifier.text}' not found.\r\n\tAt ${getNodeLocationText(importDeclaration)}`);
-				}
+				references.push(ModuleMetadata.getSourceFileId(childSourceFile));
 			}
 			else
 			{
-				sourceFileContext.log.error("Invalid module specifier.\r\n\tAt " + getNodeLocationText(importDeclaration));
+				sourceFileContext.log.error(`SourceFile of module '${importDeclaration.moduleSpecifier.getText()}' not found.\r\n\tAt ${getNodeLocationText(importDeclaration)}`);
 			}
 		}
 

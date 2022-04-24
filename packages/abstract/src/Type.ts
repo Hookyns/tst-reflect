@@ -26,7 +26,7 @@ import {
 import { Module }  from "./Module";
 import { flatten } from "./utils/flatten";
 
-export interface TypeInitializer
+export interface TypeMetadata
 {
 	id?: TypeIdentifier;
 	kind: TypeKind;
@@ -136,7 +136,7 @@ export class Type
 	/**
 	 * @param initializer
 	 */
-	constructor(initializer: TypeInitializer)
+	constructor(initializer: TypeMetadata)
 	{
 		this._id = initializer.id ?? Symbol();
 		this._ctor = initializer.ctor;
@@ -269,7 +269,7 @@ export class Type
 	/**
 	 * Underlying value in case of literal type.
 	 */
-	get value(): any
+	get literalValue(): any
 	{
 		return this._value;
 	}
@@ -574,11 +574,27 @@ export class Type
 	}
 
 	/**
+	 * Returns property matched by name.
+	 */
+	getProperty(name: string): PropertyInfo | undefined
+	{
+		return this._properties.find(x => x.name === name);
+	}
+
+	/**
 	 * Returns array of methods.
 	 */
 	getMethods(): ReadonlyArray<MethodInfo>
 	{
 		return this._methods.slice();
+	}
+
+	/**
+	 * Returns method matched by name.
+	 */
+	getMethod(name: string): MethodInfo | undefined
+	{
+		return this._methods.find(x => x.name === name);
 	}
 
 	/**
@@ -623,9 +639,9 @@ export class Type
 
 	/**
 	 * Determines whether the Object represented by the current Type is structurally compatible and assignable to the Object represented by the specified Type.
+	 * @experimental
 	 * @param {Type} target
 	 * @return {boolean}
-	 * @private
 	 */
 	isStructurallyAssignableTo(target: Type)
 	{
@@ -671,6 +687,7 @@ export class Type
 
 	/**
 	 * Determines whether an instance of the current Type can be assigned to an instance of the specified Type.
+	 * @experimental
 	 * @description This is fulfilled by derived types or compatible types.
 	 * @param target
 	 */

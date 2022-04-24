@@ -1,4 +1,4 @@
-import { Context } from "../contexts/Context";
+import { Context } from "../../contexts/Context";
 
 export interface IMetadataWriter
 {
@@ -26,7 +26,7 @@ export interface IMetadataWriter
 	 * Return relative path to given file.
 	 * Root of relative path is based on implementation (inline vs typeLib).
 	 * TypeLib implementation returns path relative to metadata lib file.
-	 * Inline is relative to current file.
+	 * Inline is relative to source file.
 	 * @param context
 	 * @param filePath
 	 */

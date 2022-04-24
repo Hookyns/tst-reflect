@@ -1,89 +1,16 @@
-import * as ts                  from "typescript";
-import { SourceFileContext }    from "../contexts/SourceFileContext";
-import { MetadataSource }       from "../declarations";
-import { log }                  from "../log";
-import {
-	MetadataMiddleware,
-	MiddlewareContext,
-	MiddlewareResult,
-	NextMetadataMiddleware
-} from "../middlewares";
-import { shortArraySerializer } from "../middlewares/shortArraySerializer";
+import * as ts                   from "typescript";
+import { MetadataTypeValues }    from "../config-options";
+import { SourceFileContext }     from "../contexts/SourceFileContext";
+import { log }                   from "../log";
+import { MiddlewareResult }      from "../middlewares";
+import { createValueExpression } from "../utils/createValueExpression";
 
-export function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.SourceFile)
+export function updateSourceFile(sourceFileContext: SourceFileContext, visitedNode: ts.SourceFile, metadata: MiddlewareResult): ts.SourceFile
 {
-	const statements: Array<ts.Statement> = [];
-	const modules = Array.from(sourceFileContext.metadata.getModules()).map(moduleMetadata => moduleMetadata.getModuleProperties());
-	const middlewares: MetadataMiddleware[] = sourceFileContext.transformerContext.config.metadataMiddlewares;
-	let metadata: MiddlewareResult | undefined = undefined;
-
-	// Add our default middleware
-	middlewares.push(shortArraySerializer);
-
-	// MIDDLEWARES
-	if (middlewares.length)
+	if (!metadata)
 	{
-		const source: MetadataSource = { modules };
-		let middlewareIndex = 0;
-
-		const middlewareContext: MiddlewareContext = {
-			sourceFileContext,
-			metadata: source,
-			get result(): MiddlewareResult | undefined
-			{
-				return metadata;
-			},
-			setResult(expression: MiddlewareResult)
-			{
-				metadata = expression;
-			}
-		};
-
-		const nextMetadataMiddleware: NextMetadataMiddleware = {
-			invoke()
-			{
-				const middleware = middlewares[middlewareIndex++];
-
-				if (middleware)
-				{
-					middleware(middlewareContext, nextMetadataMiddleware);
-				}
-			}
-		};
-
-		nextMetadataMiddleware.invoke();
-
-		// function next(prevResult: MetadataSource)
-		// {
-		//
-		// 	const middleware = middlewares[middlewareIndex++];
-		//
-		// 	if (middleware)
-		// 	{
-		// 		const res = middleware(sourceFileContext, { invoke: () => next() });
-		// 		return res;
-		// 	}
-		//
-		// 	return prevResult;
-		// }
-		//
-		// next(source);
+		return visitedNode;
 	}
-
-	// // Add metadata into statements if metadata lib file is disabled
-	// if (TransformerContext.instance.config.metadataType == MetadataTypeValues.inline)
-	// {
-	// 	for (let moduleMetadata of modules)
-	// 	{
-	// 		statements.push(ts.factory.createExpressionStatement(
-	// 			sourceFileContext.metaWriter.factory.addDescriptionToStore(typeId, properties)
-	// 		));
-	// 	}
-	// }
-	// else
-	// {
-	// 	const types = sourceFileContext.metadata.getInFileTypes(sourceFileContext.sourceFile);
-	// }
 
 	const importsCount = visitedNode.statements.findIndex(s => !ts.isImportDeclaration(s));
 
@@ -92,8 +19,27 @@ export function updateSourceFile(sourceFileContext: SourceFileContext, visitedNo
 		log.warn("Reflection: getType<T>() used, but no import found.");
 	}
 
-	// TODO: Add import of metadata library
-	// visitedNode = transformerContext.metaWriter.addLibImportToSourceFile(visitedNode);
+	const statements: Array<ts.Statement> = [];
+
+	// Add metadata into statements if metadata lib file is disabled
+	if (sourceFileContext.transformerContext.config.metadataType == MetadataTypeValues.inline)
+	{
+		const metadataExpression = createValueExpression(metadata);
+		console.warn("Mode 'inline' is not implemented yet.");
+		//const types = sourceFileContext.metadata.getInFileTypes(sourceFileContext.sourceFile);
+
+		// for (let moduleMetadata of modules)
+		// {
+		// 	statements.push(ts.factory.createExpressionStatement(
+		// 		sourceFileContext.metaWriter.factory.addDescriptionToStore(typeId, properties)
+		// 	));
+		// }
+	}
+	else if (sourceFileContext.transformerContext.config.metadataType == MetadataTypeValues.typeLib)
+	{
+		statements.push(sourceFileContext.metadata.factory.createTypeLibImport(sourceFileContext.sourceFile));
+		// visitedNode = transformerContext.metaWriter.addLibImportToSourceFile(visitedNode);
+	}
 
 	const finalizedStatements = importsCount == -1
 		? [...statements, ...visitedNode.statements]

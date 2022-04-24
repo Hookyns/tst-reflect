@@ -1,8 +1,8 @@
 import { MetadataTypeValues }    from "../../config-options";
 import { TransformerContext }    from "../../contexts/TransformerContext";
-import { IMetadataWriter }       from "../IMetadataWriter";
-import { InlineMetadataWriter }  from "../inline/InlineMetadataWriter";
-import { TypeLibMetadataWriter } from "../type-lib/TypeLibMetadataWriter";
+import { IMetadataWriter }       from "./IMetadataWriter";
+import { InlineMetadataWriter }  from "./InlineMetadataWriter";
+import { TypeLibMetadataWriter } from "./TypeLibMetadataWriter";
 
 export const MetadataWriterFactory = {
 	/**

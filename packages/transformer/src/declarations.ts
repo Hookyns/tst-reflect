@@ -2,7 +2,7 @@ import { TemplateInfoInitializer } from "@rtti/abstract/dist/declarations/Templa
 import { NativeTypeKind }          from "@rtti/abstract/dist/enums/TypeKind";
 import * as ts                     from "typescript";
 import type {
-	TypeInitializer,
+	TypeMetadata,
 	ModuleReference,
 	NativeTypeReference,
 	GenericInfoInitializer,
@@ -15,7 +15,6 @@ import {
 	TypeKind,
 }                                  from "@rtti/abstract";
 import type { Context }            from "./contexts/Context";
-import { SourceFileContext }       from "./contexts/SourceFileContext";
 
 /**
  * TypeReference used inside transformer
@@ -23,7 +22,7 @@ import { SourceFileContext }       from "./contexts/SourceFileContext";
 export type TransformerTypeReference = number | NativeTypeReference;
 
 type BaseTypeProperties =
-	Omit<TypeInitializer, "ctor" | "ctorSync" | "id" | "name" | "module" | "kind" | "template" | "constructors" | "generic" | "properties" | "methods" | "decorators">
+	Omit<TypeMetadata, "ctor" | "ctorSync" | "id" | "name" | "module" | "kind" | "template" | "constructors" | "generic" | "properties" | "methods" | "decorators">
 	& {
 	notExported?: true;
 

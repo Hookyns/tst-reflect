@@ -1,12 +1,15 @@
-import * as ts                    from "typescript";
+import path                      from "path";
+import * as ts                   from "typescript";
 import {
 	MetadataType,
 	MetadataTypeValues
-}                                 from "../config-options";
-import { Context }                from "../contexts/Context";
-import { TransformerContext }     from "../contexts/TransformerContext";
-import { getRequireRelativePath } from "../helpers";
-import { IMetadataWriter }        from "./IMetadataWriter";
+}                                from "../../config-options";
+import { Context }               from "../../contexts/Context";
+import { TransformerContext }    from "../../contexts/TransformerContext";
+import { ImportInfo }            from "../../declarations";
+import { PATH_SEPARATOR_REGEX, } from "../../helpers";
+import { log }                   from "../../log";
+import { IMetadataWriter }       from "./IMetadataWriter";
 
 export abstract class MetadataWriterBase implements IMetadataWriter
 {
@@ -85,38 +88,12 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	 */
 	protected constructor(
 		metadataFilePath: string,
-		context: TransformerContext,
-		// metadataNodeGenerator: IMetadataNodeGenerator,
-		// metadataTransformerFactory: MetadataTransformerFactory,
-		// inFileGetTypeIdentifier: ts.Identifier = ts.factory.createIdentifier("_tst_reflect_set"),
-		// metaFileGetTypeIdentifier: ts.Identifier = ts.factory.createIdentifier("_tst_reflect_set")
+		context: TransformerContext
 	)
 	{
 		this.context = context;
 		this.metadataFilePath = metadataFilePath;
-		// this.inFileGetTypeIdentifier = inFileGetTypeIdentifier;
-		// this.metaFileGetTypeIdentifier = metaFileGetTypeIdentifier;
-		// this.metadataNodeGenerator = metadataNodeGenerator;
-		// this.metadataTransformer = metadataTransformerFactory.create(metaFileGetTypeIdentifier);
-
-		// this.tsPrinter = ts.createPrinter();
-		// this.metaSourceFile = this.createLibFile();
 	}
-
-	// /**
-	//  * Does this meta writer use a stub file?
-	//  *
-	//  * For example,
-	//  * ts version uses a file with pre-made store etc.
-	//  * js version is generated on the fly
-	//  * inline doesn't use one
-	//  *
-	//  * If it uses a stub file, we return [yes, stub file name]
-	//  * If not, [no, undefined]
-	//  *
-	//  * @returns {[boolean, string|undefined]}
-	//  */
-	// abstract usesStubFile(): [boolean, string | undefined];
 
 	/**
 	 * @inheritDoc
@@ -173,6 +150,197 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 		//
 		// this.logMessage(`Wrote lib file to ${this.metadataFilePath}`);
 	}
+
+	/**
+	 * Return relative path from source file to the type lib file.
+	 * @param {ts.SourceFile} sourceFile
+	 * @returns {string}
+	 */
+	private getRelativePathToTypeLib(sourceFile: ts.SourceFile): string
+	{
+		return this.getRelativePath(sourceFile.fileName, this.metadataFilePath);
+	}
+
+	/**
+	 * Returns relative path from source file to target file.
+	 * @param sourceFilePath
+	 * @param targetFilePath
+	 * @protected
+	 */
+	protected getRelativePath(sourceFilePath: string, targetFilePath: string)
+	{
+		return this.replaceExtension(
+			"./" + path.relative(path.dirname(sourceFilePath), targetFilePath),
+			""
+		);
+	}
+
+	/**
+	 * Return function resolving type's Ctor in runtime.
+	 */
+	createCtorPromise(
+		constructorDescription: ImportInfo | undefined,
+		context: Context
+	): [resolver: ts.FunctionExpression | undefined, accessToExportedMember: ts.PropertyAccessExpression | undefined] // TODO: Move this to some metadata writer
+	{
+		if (!constructorDescription)
+		{
+			return [undefined, undefined];
+		}
+
+		let relative = context.metadata.writer.getRequireRelativePath(context, constructorDescription.path);
+
+		if (context.config.debugMode)
+		{
+			log.info(`Relative import for source file(${context.currentSourceFile.fileName}) is: ${relative}`);
+		}
+
+		if (context.config.esmModule)
+		{
+			// import("...path...").then(m => m.ExportedMember)
+			const importExpression = ts.factory.createCallExpression(
+				ts.factory.createPropertyAccessExpression(
+					ts.factory.createCallExpression(
+						ts.factory.createIdentifier("import"),
+						undefined,
+						[
+							ts.factory.createStringLiteral(relative)
+						]
+					),
+					"then"
+				),
+				undefined,
+				[
+					ts.factory.createArrowFunction(
+						undefined,
+						undefined,
+						[
+							ts.factory.createParameterDeclaration(
+								undefined,
+								undefined,
+								undefined,
+								"m"
+							)
+						],
+						undefined,
+						ts.factory.createToken(ts.SyntaxKind.EqualsGreaterThanToken),
+						ts.factory.createPropertyAccessExpression(
+							ts.factory.createIdentifier("m"),
+							ts.factory.createIdentifier(constructorDescription.exportName)
+						)
+					)
+				]
+			);
+
+			return [
+				// function() { return $importExpression }
+				ts.factory.createFunctionExpression(
+					undefined,
+					undefined,
+					undefined,
+					undefined,
+					[],
+					undefined,
+					ts.factory.createBlock([ts.factory.createReturnStatement(importExpression)], true)
+				),
+				undefined
+			];
+		}
+
+		// require("...path...")
+		const requireCall = ts.factory.createPropertyAccessExpression(
+			ts.factory.createCallExpression(
+				ts.factory.createIdentifier("require"),
+				undefined,
+				[ts.factory.createStringLiteral(relative)]
+			),
+			ts.factory.createIdentifier(constructorDescription.exportName)
+		);
+
+		// Promise.resolve($require)
+		const promise = ts.factory.createCallExpression(
+			ts.factory.createPropertyAccessExpression(
+				ts.factory.createIdentifier("Promise"),
+				ts.factory.createIdentifier("resolve")
+			),
+			undefined,
+			[
+				requireCall
+			]
+		);
+
+		// function() { return $Promise }
+		const functionCall = ts.factory.createFunctionExpression(
+			undefined,
+			undefined,
+			undefined,
+			undefined,
+			[],
+			undefined,
+			ts.factory.createBlock([ts.factory.createReturnStatement(promise)], true)
+		);
+
+		return [functionCall, requireCall];
+	}
+
+	// protected getOutPathForSourceFile(sourceFileName: string, context: Context): string
+	// {
+	// 	if (isTsNode())
+	// 	{
+	// 		return sourceFileName;
+	// 	}
+	//
+	// 	if (context.config.parsedCommandLine)
+	// 	{
+	// 		// getOutputPathWithoutChangingExt(
+	// 		// 	sourceFileName,
+	// 		// 	context.config.parsedCommandLine,
+	// 		// 	true,
+	// 		// 	context
+	// 		// )
+	// 		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx")[0];
+	// 	}
+	//
+	// 	// Get the actual file location, regardless of dist/source dir
+	// 	// This should leave us with:
+	// 	// /ctor-reflection/SomeServiceClass.ts
+	// 	let outPath = sourceFileName.replace(context.config.rootDir, "");
+	//
+	// 	// If we have a slash at the start, it has to go
+	// 	// Now we have:
+	// 	// ctor-reflection/SomeServiceClass.ts
+	// 	if (outPath.startsWith("/"))
+	// 	{
+	// 		outPath = outPath.slice(1);
+	// 	}
+	//
+	// 	// Now we can take the build path, from the tsconfig file and combine it
+	// 	// This should give us:
+	// 	// /Users/sam/Code/Packages/ts-reflection/dev/testing/dist/method-reflection/index.ts
+	// 	outPath = path.join(context.config.outDir, outPath);
+	//
+	// 	return replaceExtension(outPath, ".js");
+	// }
+
+	protected replaceExtension(fileName: string, replaceWith: string): string
+	{
+		const extName = path.extname(fileName);
+		// If we're running ts-node, the outDir is set to ".ts-node" and it can't be over-ridden
+		// If we just do .replace(extName, '.js'), it won't replace the actual file extension
+		// Now we just replace the extension:
+		if (fileName.endsWith(extName))
+		{
+			fileName = fileName.slice(0, fileName.length - extName.length) + replaceWith;
+		}
+
+		return fileName.replace(PATH_SEPARATOR_REGEX, "/");
+	}
+
+// function getOutputPathWithoutChangingExt(inputFileName: string, configFile: ts.ParsedCommandLine, ignoreCase: boolean, getCommonSourceDirectory) {
+// 	return configFile.options.outDir ?
+// 		(ts as any).resolvePath(configFile.options.outDir, (ts as any).getRelativePathFromDirectory(getCommonSourceDirectory ? getCommonSourceDirectory() : getCommonSourceDirectoryOfConfig(configFile, ignoreCase), inputFileName, ignoreCase)) :
+// 		inputFileName;
+// }
 
 	// writeTranspiledMetaSourceFile()
 	// {
@@ -276,7 +444,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	// 		return sourceFile;
 	// 	}
 	//
-	// 	const relative = this.getRelativeMetaLibPath(sourceFile);
+	// 	const relative = this.getRelativePathToTypeLib(sourceFile);
 	//
 	// 	this.logMessage(`Added lib import to source file:${sourceFile.fileName}`);
 	//
@@ -368,19 +536,6 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	//
 	// 	return source;
 	// }
-
-	/**
-	 * Get the import path for the meta lib, in relation to a specified source file
-	 *
-	 * This is used when generating imports of the meta file("src/meta-lib.ts") in our typescript sources.
-	 *
-	 * @param {ts.SourceFile} relativeToSourceFile
-	 * @returns {string}
-	 */
-	private getRelativeMetaLibPath(relativeToSourceFile: ts.SourceFile): string
-	{
-		return getRequireRelativePath(relativeToSourceFile.fileName, this.metadataFilePath);
-	}
 
 	// /**
 	//  * Log trace message

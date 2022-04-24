@@ -44,7 +44,7 @@ export class Module
 	/**
 	 * @param initializer
 	 */
-	constructor(initializer: ModuleInitializer)
+	constructor(initializer: ModuleMetadata)
 	{
 		this._id = initializer.id || Symbol();
 		this.name = initializer.name;
@@ -71,7 +71,7 @@ export class Module
 	}
 }
 
-export interface ModuleInitializer
+export interface ModuleMetadata
 {
 	id?: ModuleIdentifier;
 	name: string;

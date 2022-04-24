@@ -4,8 +4,7 @@ import {
 }                                 from "../../config-options";
 import { Context }                from "../../contexts/Context";
 import { TransformerContext }     from "../../contexts/TransformerContext";
-import { getRequireRelativePath } from "../../helpers";
-import { MetadataWriterBase }     from "../MetadataWriterBase";
+import { MetadataWriterBase }     from "./MetadataWriterBase";
 
 export class InlineMetadataWriter extends MetadataWriterBase
 {
@@ -86,6 +85,6 @@ export class InlineMetadataWriter extends MetadataWriterBase
 	 */
 	getRequireRelativePath(context: Context, filePath: string): string
 	{
-		return getRequireRelativePath(context.currentSourceFile.fileName, filePath);
+		return this.getRelativePath(context.currentSourceFile.fileName, filePath);
 	}
 }

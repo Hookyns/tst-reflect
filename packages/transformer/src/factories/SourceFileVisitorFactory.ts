@@ -2,7 +2,13 @@ import * as ts                from "typescript";
 import { MetadataTypeValues } from "../config-options";
 import { SourceFileContext }  from "../contexts/SourceFileContext";
 import { TransformerContext } from "../contexts/TransformerContext";
+import {
+	MetadataSource,
+	TransformerTypeReference
+} from "../declarations";
 import { PACKAGE_ID }         from "../helpers";
+import { MiddlewareResult }   from "../middlewares";
+import { processMiddlewares } from "../middlewares/processMiddlewares";
 import { updateSourceFile }   from "../transformers/updateSourceFile";
 import {
 	color,
@@ -57,35 +63,50 @@ export class SourceFileVisitorFactory
 				plugin.visit(node, sourceFileContext);
 			}
 
-			// Update current SourceFile (inline mode and/or local only types)
 			if (visitedNode)
 			{
-				visitedNode = updateSourceFile(sourceFileContext, visitedNode);
-			}
+				const modules = Array.from(sourceFileContext.metadata.getModules()).map(moduleMetadata => moduleMetadata.getModuleProperties());
 
-			if (config.metadataType == MetadataTypeValues.typeLib)
-			{
-				// 		const propertiesStatements: Array<[number, ts.ObjectLiteralExpression]> = [];
-				// 		const typeIdUniqueObj: { [key: number]: boolean } = {};
-				//
-				// 		for (let [typeId, properties] of sourceFileContext.typesMetadata)
-				// 		{
-				// 			if (typeIdUniqueObj[typeId])
-				// 			{
-				// 				continue;
-				// 			}
-				//
-				// 			typeIdUniqueObj[typeId] = true;
-				// 			propertiesStatements.push([typeId, properties]);
-				// 		}
-				//
-				// 		const typeCtor = new Set<ts.PropertyAccessExpression>();
-				// 		for (let ctor of sourceFileContext.typesCtors)
-				// 		{
-				// 			typeCtor.add(ctor);
-				// 		}
-				//
-				// 		transformerContext.metaWriter.writeMetaProperties(propertiesStatements, typeCtor, transformationContext);
+				// Filter 
+				if (config.metadataType == MetadataTypeValues.inline)
+				{
+					for (const module of modules) {
+						const typesInFile: TransformerTypeReference[] = sourceFileContext.metadata.getInFileTypes(sourceFileContext.sourceFile);
+						module.types = module.types?.filter(type => typesInFile.some(typeInFileReference => type.id == typeInFileReference || (type.id == undefined && type.kind == typeInFileReference)));
+					}
+				}
+				
+				const source: MetadataSource = { modules };
+				const metadata: MiddlewareResult = processMiddlewares(sourceFileContext, source);
+				
+				// Update current SourceFile (inline mode and/or local only types)
+				visitedNode = updateSourceFile(sourceFileContext, visitedNode, metadata);
+
+				// Update typelib
+				if (config.metadataType == MetadataTypeValues.typeLib)
+				{
+					// 		const propertiesStatements: Array<[number, ts.ObjectLiteralExpression]> = [];
+					// 		const typeIdUniqueObj: { [key: number]: boolean } = {};
+					//
+					// 		for (let [typeId, properties] of sourceFileContext.typesMetadata)
+					// 		{
+					// 			if (typeIdUniqueObj[typeId])
+					// 			{
+					// 				continue;
+					// 			}
+					//
+					// 			typeIdUniqueObj[typeId] = true;
+					// 			propertiesStatements.push([typeId, properties]);
+					// 		}
+					//
+					// 		const typeCtor = new Set<ts.PropertyAccessExpression>();
+					// 		for (let ctor of sourceFileContext.typesCtors)
+					// 		{
+					// 			typeCtor.add(ctor);
+					// 		}
+					//
+					// 		transformerContext.metaWriter.writeMetaProperties(propertiesStatements, typeCtor, transformationContext);
+				}
 			}
 
 			if (config.debugMode)

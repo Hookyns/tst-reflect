@@ -17,7 +17,7 @@ export class EnumInfo
 			throw new Error("Argument must be type representing Enum.");
 		}
 
-		this._entries = enumType.getTypes().map(type => Object.freeze<readonly [enumeratorName: string, value: any]>([type.name, type.value])) || [];
+		this._entries = enumType.getTypes().map(type => Object.freeze<readonly [enumeratorName: string, value: any]>([type.name, type.literalValue])) || [];
 	}
 
 	/**

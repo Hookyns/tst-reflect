@@ -4,11 +4,11 @@ import { Module } from "./Module";
 
 export {
 	Type,
-	TypeInitializer
+	TypeMetadata
 }                              from "./Type";
 export {
 	Module,
-	ModuleInitializer
+	ModuleMetadata
 }                              from "./Module";
 export { default as Metadata } from "./Metadata";
 export *                       from "./enums";
