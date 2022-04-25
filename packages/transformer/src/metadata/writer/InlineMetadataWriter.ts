@@ -1,10 +1,11 @@
+import * as ts                from "typescript";
 import {
 	MetadataType,
 	MetadataTypeValues
-}                                 from "../../config-options";
-import { Context }                from "../../contexts/Context";
-import { TransformerContext }     from "../../contexts/TransformerContext";
-import { MetadataWriterBase }     from "./MetadataWriterBase";
+}                             from "../../config-options";
+import { Context }            from "../../contexts/Context";
+import { TransformerContext } from "../../contexts/TransformerContext";
+import { MetadataWriterBase } from "./MetadataWriterBase";
 
 export class InlineMetadataWriter extends MetadataWriterBase
 {
@@ -21,7 +22,7 @@ export class InlineMetadataWriter extends MetadataWriterBase
 			// ts.factory.createIdentifier("____tst_reflect_set"), // TODO: Should it be same instance of identifier? I suppose to.
 		);
 
-		this.createBaseMeta();
+		// this.createBaseMeta();
 	}
 
 	// /**
@@ -86,5 +87,12 @@ export class InlineMetadataWriter extends MetadataWriterBase
 	getRequireRelativePath(context: Context, filePath: string): string
 	{
 		return this.getRelativePath(context.currentSourceFile.fileName, filePath);
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	writeModule(expression: ts.Expression): void
+	{
 	}
 }

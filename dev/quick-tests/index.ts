@@ -1,8 +1,9 @@
 import {
 	Type,
 	TypeKind
-}                  from "@rtti/abstract";
-import { getType } from "tst-reflect";
+}                   from "@rtti/abstract";
+import { getType }  from "tst-reflect";
+import { SomeEnum } from "./SomeEnum";
 
 getType<number>();
 

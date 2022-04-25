@@ -100,6 +100,12 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	 */
 	abstract getRequireRelativePath(context: Context, filePath: string): string;
 
+	/**
+	 * Write module metadataa
+	 * @param expression
+	 */
+	abstract writeModule(expression: ts.Expression): void;
+
 	// /**
 	//  * Get the stub file from "src/meta-writer/stubs" directory and turn it into ts.SourceFile
 	//  *
@@ -121,35 +127,35 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	// 	);
 	// }
 
-	/**
-	 * When we initialize the writer, we need to write some "base" meta to prepare it for
-	 * adding all of our source file meta.
-	 */
-	createBaseMeta()
-	{
-		// if (!this.isUsingLibFile())
-		// {
-		// 	return;
-		// }
-		//
-		// let statements: ts.Statement[] = [];
-		//
-		// if (this.usesStubFile() && this.metaSourceFile)
-		// {
-		// 	statements = [...this.metaSourceFile.statements];
-		// }
-		// else
-		// {
-		// 	const { statement, getTypeIdentifier } = nodeGenerator.createGetTypeImport();
-		// 	this.inFileGetTypeIdentifier = getTypeIdentifier;
-		// 	// SourceFile with import {getType} from "tst-reflect"
-		// 	statements = [statement];
-		// }
-		//
-		// this.writeSourceFile(this.createMetaSourceFile(statements));
-		//
-		// this.logMessage(`Wrote lib file to ${this.metadataFilePath}`);
-	}
+	// /**
+	//  * When we initialize the writer, we need to write some "base" meta to prepare it for
+	//  * adding all of our source file meta.
+	//  */
+	// protected createBaseMeta()
+	// {
+	// 	// if (!this.isUsingLibFile())
+	// 	// {
+	// 	// 	return;
+	// 	// }
+	// 	//
+	// 	// let statements: ts.Statement[] = [];
+	// 	//
+	// 	// if (this.usesStubFile() && this.metaSourceFile)
+	// 	// {
+	// 	// 	statements = [...this.metaSourceFile.statements];
+	// 	// }
+	// 	// else
+	// 	// {
+	// 	// 	const { statement, getTypeIdentifier } = nodeGenerator.createGetTypeImport();
+	// 	// 	this.inFileGetTypeIdentifier = getTypeIdentifier;
+	// 	// 	// SourceFile with import {getType} from "tst-reflect"
+	// 	// 	statements = [statement];
+	// 	// }
+	// 	//
+	// 	// this.writeSourceFile(this.createMetaSourceFile(statements));
+	// 	//
+	// 	// this.logMessage(`Wrote lib file to ${this.metadataFilePath}`);
+	// }
 
 	/**
 	 * Return relative path from source file to the type lib file.

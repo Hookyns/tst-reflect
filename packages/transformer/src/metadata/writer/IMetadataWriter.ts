@@ -1,3 +1,4 @@
+import * as ts     from "typescript";
 import { Context } from "../../contexts/Context";
 
 export interface IMetadataWriter
@@ -17,12 +18,6 @@ export interface IMetadataWriter
 	// getStubFile(stubFileName: string): ts.SourceFile;
 
 	/**
-	 * When we initialize the writer, we need to write some "base" meta to prepare it for
-	 * adding all of our source file meta.
-	 */
-	createBaseMeta(): void;
-
-	/**
 	 * Return relative path to given file.
 	 * Root of relative path is based on implementation (inline vs typeLib).
 	 * TypeLib implementation returns path relative to metadata lib file.
@@ -31,6 +26,12 @@ export interface IMetadataWriter
 	 * @param filePath
 	 */
 	getRequireRelativePath(context: Context, filePath: string): string;
+
+	/**
+	 * Add module
+	 * @param expression
+	 */
+	writeModule(expression: ts.Expression): void;
 
 	// /**
 	//  * Write our getType descriptions to the meta file

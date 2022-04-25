@@ -5,16 +5,17 @@ import { TransformerContext } from "../contexts/TransformerContext";
 import {
 	MetadataSource,
 	TransformerTypeReference
-} from "../declarations";
-import { PACKAGE_ID }         from "../helpers";
-import { MiddlewareResult }   from "../middlewares";
-import { processMiddlewares } from "../middlewares/processMiddlewares";
-import { updateSourceFile }   from "../transformers/updateSourceFile";
+}                                from "../declarations";
+import { PACKAGE_ID }            from "../helpers";
+import { MiddlewareResult }      from "../middlewares";
+import { processMiddlewares }    from "../middlewares/processMiddlewares";
+import { updateSourceFile }      from "../transformers/updateSourceFile";
 import {
 	color,
 	log,
 	LogLevel
-}                             from "../log";
+}                                from "../log";
+import { createValueExpression } from "../utils/createValueExpression";
 
 /**
  * Factory of SourceFile visitor.
@@ -78,34 +79,56 @@ export class SourceFileVisitorFactory
 				
 				const source: MetadataSource = { modules };
 				const metadata: MiddlewareResult = processMiddlewares(sourceFileContext, source);
-				
-				// Update current SourceFile (inline mode and/or local only types)
-				visitedNode = updateSourceFile(sourceFileContext, visitedNode, metadata);
 
-				// Update typelib
-				if (config.metadataType == MetadataTypeValues.typeLib)
+				if (metadata)
 				{
-					// 		const propertiesStatements: Array<[number, ts.ObjectLiteralExpression]> = [];
-					// 		const typeIdUniqueObj: { [key: number]: boolean } = {};
-					//
-					// 		for (let [typeId, properties] of sourceFileContext.typesMetadata)
-					// 		{
-					// 			if (typeIdUniqueObj[typeId])
-					// 			{
-					// 				continue;
-					// 			}
-					//
-					// 			typeIdUniqueObj[typeId] = true;
-					// 			propertiesStatements.push([typeId, properties]);
-					// 		}
-					//
-					// 		const typeCtor = new Set<ts.PropertyAccessExpression>();
-					// 		for (let ctor of sourceFileContext.typesCtors)
-					// 		{
-					// 			typeCtor.add(ctor);
-					// 		}
-					//
-					// 		transformerContext.metaWriter.writeMetaProperties(propertiesStatements, typeCtor, transformationContext);
+					const metadataExpression = createValueExpression(metadata);
+					
+					// Update typelib
+					if (config.metadataType == MetadataTypeValues.typeLib)
+					{
+						visitedNode = updateSourceFile(
+							visitedNode, 
+							[
+								sourceFileContext.metadata.factory.createTypeLibImport(sourceFileContext.sourceFile)
+							]
+						);
+						
+						// 		const propertiesStatements: Array<[number, ts.ObjectLiteralExpression]> = [];
+						// 		const typeIdUniqueObj: { [key: number]: boolean } = {};
+						//
+						// 		for (let [typeId, properties] of sourceFileContext.typesMetadata)
+						// 		{
+						// 			if (typeIdUniqueObj[typeId])
+						// 			{
+						// 				continue;
+						// 			}
+						//
+						// 			typeIdUniqueObj[typeId] = true;
+						// 			propertiesStatements.push([typeId, properties]);
+						// 		}
+						//
+						// 		const typeCtor = new Set<ts.PropertyAccessExpression>();
+						// 		for (let ctor of sourceFileContext.typesCtors)
+						// 		{
+						// 			typeCtor.add(ctor);
+						// 		}
+						//
+						transformerContext.metadata.writer.writeModule(metadataExpression);//writeMetaProperties(propertiesStatements, typeCtor, transformationContext);
+					}
+					else if (config.metadataType == MetadataTypeValues.inline) 
+					{
+						console.warn("Mode 'inline' is not implemented yet.");
+						
+						//const types = sourceFileContext.metadata.getInFileTypes(sourceFileContext.sourceFile);
+
+						// for (let moduleMetadata of modules)
+						// {
+						// 	statements.push(ts.factory.createExpressionStatement(
+						// 		sourceFileContext.metaWriter.factory.addDescriptionToStore(typeId, properties)
+						// 	));
+						// }
+					}
 				}
 			}
 

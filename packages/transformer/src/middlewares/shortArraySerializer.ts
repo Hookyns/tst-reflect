@@ -13,5 +13,15 @@ export const shortArraySerializer: MetadataMiddleware = function shortArraySeria
 		return;
 	}
 
-	context.setResult({});
+	const metadata = context.metadata.modules.map(module => {
+		let { types, ...moduleProperties } = module;
+		types ??= [];
+		
+		return [
+			moduleProperties,
+			...types // TODO: Serialize into Array
+		]
+	});
+
+	context.setResult(metadata);
 };

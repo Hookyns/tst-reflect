@@ -20,9 +20,9 @@
 		"**/*.ts"
 	],
 	"reflection": {
-//		"metadata": {
-//			"type": "typelib"
-//		},
+		"metadata": {
+			"type": "typelib",
+		},
 		"debugMode": false
 	}
 }
