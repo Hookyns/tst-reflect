@@ -2,6 +2,7 @@ import * as ts                                            from "typescript";
 import { Context }                                        from "./contexts/Context";
 import { FunctionLikeDeclarationGenericParametersDetail } from "./FunctionLikeDeclarationGenericParametersDetail";
 import { getGenericParametersDetails }                    from "./getGenericParametersDetails";
+import { getNodeLocationText }                            from "./getNodeLocationText";
 import { getTypeCall }                                    from "./getTypeCall";
 import {
 	getUnknownTypeCall,
@@ -17,7 +18,12 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 {
 	if (!fncType.symbol.declarations)
 	{
-		throw new Error("Unable to resolve declarations of symbol.");
+		if (context.config.debugMode)
+		{
+			context.log.debug("Unable to resolve declaration of the generic type's symbol signature.\r\n" + getNodeLocationText(node));
+		}
+		
+		return undefined;
 	}
 
 	// Method/function declaration; take the only one or find right declaration by signature.
