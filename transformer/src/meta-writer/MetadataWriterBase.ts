@@ -217,7 +217,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 
 		if (parsedCommandLine)
 		{
-			if (parsedCommandLine.fileNames.indexOf(this.metaSourceFile.fileName) == -1)
+			if (!parsedCommandLine.fileNames.includes(this.metaSourceFile.fileName))
 			{
 				parsedCommandLine.fileNames.push(this.metaSourceFile.fileName);
 			}

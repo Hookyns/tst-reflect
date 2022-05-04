@@ -555,6 +555,11 @@ export function getOutPathForSourceFile(sourceFileName: string, context: Context
 
 	if (context.config.parsedCommandLine)
 	{
+		if (!context.config.parsedCommandLine.fileNames.includes(sourceFileName))
+		{
+			context.config.parsedCommandLine.fileNames.push(sourceFileName);
+		}
+
 		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx")[0];
 	}
 
