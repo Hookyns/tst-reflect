@@ -16,7 +16,7 @@ import {
 
 export function processGenericCallExpression(node: ts.CallExpression, fncType: ts.Type, context: Context): ts.CallExpression | undefined
 {
-	if (!fncType.symbol.declarations)
+	if (!fncType.symbol?.declarations)
 	{
 		if (context.config.debugMode)
 		{
