@@ -26,15 +26,22 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 		const members: Array<ts.Symbol> = Array.from(symbol.members.values() as any);
 
 		const properties = members
-			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor || (m.flags & ts.SymbolFlags.SetAccessor) == ts.SymbolFlags.SetAccessor)
+			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor || (m.flags & ts.SymbolFlags.SetAccessor) == ts.SymbolFlags.SetAccessor || m.escapedName === ts.InternalSymbolName.Index)
 			.map((memberSymbol: ts.Symbol) =>
 			{
 				const declaration = getDeclaration(memberSymbol);
 				const accessor = getAccessor(declaration);
-				
+				let type = getType(memberSymbol, context.typeChecker);
+
+				if (declaration && ts.isIndexSignatureDeclaration(declaration))
+				{
+					const indexSignature = declaration as ts.IndexSignatureDeclaration;
+					type = context.typeChecker.getTypeAtLocation(indexSignature.type);
+				}
+
 				return {
 					n: memberSymbol.escapedName.toString(),
-					t: getTypeCall(getType(memberSymbol, context.typeChecker), memberSymbol, context, getCtorTypeReference(memberSymbol)),
+					t: getTypeCall(type, memberSymbol, context, getCtorTypeReference(memberSymbol)),
 					d: getDecorators(memberSymbol, context),
 					am: getAccessModifier(declaration?.modifiers),
 					acs: accessor,
