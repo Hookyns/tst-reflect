@@ -31,11 +31,11 @@ export class Logger
 	{
 		if (color)
 		{
-			console.log.apply(undefined, [`\x1b[${color}m[${level}] ${PACKAGE_ID}`, ...args, this.contextSuffix, "\x1b[0m"]);
+			console.log.apply(undefined, [`\x1b[${color}m[${level}] ${PACKAGE_ID}:`, ...args, this.contextSuffix, "\x1b[0m"]);
 		}
 		else
 		{
-			console.log.apply(undefined, [`[${level}] ${PACKAGE_ID}`, ...args, this.contextSuffix]);
+			console.log.apply(undefined, [`[${level}] ${PACKAGE_ID}:`, ...args, this.contextSuffix]);
 		}
 	}
 

@@ -4,7 +4,6 @@
 		"target": "ES2019",
 		"removeComments": true,
 		"sourceMap": false,
-		"declaration": false,
 		"stripInternal": true,
 		"strict": true,
 		"rootDir": "./src",

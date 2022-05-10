@@ -1,17 +1,18 @@
 import * as ts            from "typescript";
 import SourceFileContext  from "./contexts/SourceFileContext";
 import TransformerContext from "./contexts/TransformerContext";
-import { PACKAGE_ID }     from "./helpers";
 import {
 	color,
 	log,
 	LogLevel
 }                         from "./log";
 
-
 export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
 {
 	TransformerContext.instance.init(program);
+
+	log.log(LogLevel.Info, color.cyan, `using tsconfig '${TransformerContext.instance.config.tsConfigPath}'.`);
+	log.log(LogLevel.Info, color.cyan, `detected root directory '${TransformerContext.instance.config.rootDir}'.`);
 
 	return (context: ts.TransformationContext): ts.Transformer<ts.SourceFile> =>
 	{
@@ -39,7 +40,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 
 		if (config.debugMode)
 		{
-			log.log(LogLevel.Trace, color.cyan, `${PACKAGE_ID}: Visitation of file ${node.fileName} started.`);
+			log.log(LogLevel.Trace, color.cyan, `Visitation of file ${node.fileName} started.`);
 		}
 
 		const sourceFileContext = new SourceFileContext(transformerContext, context, program, typeChecker, node);
@@ -77,7 +78,7 @@ function getVisitor(context: ts.TransformationContext, program: ts.Program): ts.
 
 		if (config.debugMode)
 		{
-			log.trace(`${PACKAGE_ID}: Visitation of file ${node.fileName} has been finished.`);
+			log.trace(`Visitation of file ${node.fileName} has been finished.`);
 		}
 
 		visitedNode = transformerContext.metaWriter.addLibImportToSourceFile(visitedNode);
