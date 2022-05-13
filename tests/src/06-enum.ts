@@ -1,6 +1,7 @@
 import {
 	getType,
-	Type
+	Type,
+	TypeKind
 } from "tst-reflect";
 
 test("getType<T>() is transformed and it is not Type.Unknown", () => {
@@ -19,4 +20,17 @@ test("getType<T>() is transformed and it is not Type.Unknown", () => {
 	expect(type.getEnum()!.getValues()).toEqual([0, 1]);
 	expect(type.getEnum()!.getEnumerators()).toEqual(["One", "Two"]);
 	expect(type.getEnum()!.getEntries()).toEqual([["One", 0], ["Two", 1]]);
+});
+
+test("getType<T>() mixed type enum", () => {
+	enum A
+	{
+		A, // = 0
+		B = 1,
+		C = true as any,
+		D = "str" as any
+	}
+
+	const type = getType<A>();
+	expect(type.kind).toBe(TypeKind.Enum);
 });
