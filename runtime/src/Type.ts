@@ -434,7 +434,7 @@ export class Type
 	 */
 	isArray(): boolean
 	{
-		return (this.isNative() || this.kind == TypeKind.LiteralType) && this.name == "Array";
+		return (this.isNative() || this.kind == TypeKind.LiteralType || this.kind == TypeKind.TransientTypeReference) && (this.name == "Array" || this.name == "ReadonlyArray");
 	}
 
 	/**
