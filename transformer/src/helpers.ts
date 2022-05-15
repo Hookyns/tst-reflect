@@ -162,6 +162,11 @@ export function getTypeKind(symbol: ts.Symbol)
 		return TypeKind.Method;
 	}
 
+	if ((symbol.flags & ts.SymbolFlags.RegularEnum) !== 0)
+	{
+		return TypeKind.Enum;
+	}
+
 	throw new Error("Unknown type kind");
 }
 
