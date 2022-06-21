@@ -11,8 +11,12 @@ export default function transform(program: ts.Program): ts.TransformerFactory<ts
 {
 	TransformerContext.instance.init(program);
 
-	log.log(LogLevel.Info, color.cyan, `using tsconfig '${TransformerContext.instance.config.tsConfigPath}'.`);
-	log.log(LogLevel.Info, color.cyan, `detected root directory '${TransformerContext.instance.config.rootDir}'.`);
+	if (!(process as any)["tstReflectInit"])
+	{
+		log.log(LogLevel.Info, color.cyan, `using tsconfig '${TransformerContext.instance.config.tsConfigPath}'.`);
+		log.log(LogLevel.Info, color.cyan, `detected root directory '${TransformerContext.instance.config.rootDir}'.`);
+		(process as any)["tstReflectInit"] = "1";
+	}
 
 	return (context: ts.TransformationContext): ts.Transformer<ts.SourceFile> =>
 	{

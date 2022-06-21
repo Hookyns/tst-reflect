@@ -10,6 +10,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Changed)
 
 
+## [0.9.10] - 2022-06-21
+### Added
+- Generic type forwarding.
+```typescript
+	function foo<X>()
+	{
+		bar<X>(); // forward the type
+		
+		const type = getType<X>();
+		doSomethingWithTypeHere(type);
+	}
+
+	function bar<Y>()
+	{
+		baz<Y>(); // forward the type
+	}
+
+	function baz<Z>()
+	{
+		const type = getType<Z>();
+	}
+
+	class A
+	{
+	}
+
+	foo<A>();
+```
+### Changed
+- Fix of recursive ("lazy") types,
+- small fixes and PRs.
+
 ## [0.9.4] - 2022-03-07 - transformer
 ### Added
 ### Changed

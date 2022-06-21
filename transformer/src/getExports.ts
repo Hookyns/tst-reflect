@@ -42,6 +42,6 @@ export function getExportOfConstructor(
 		en: exportSymbol.escapedName.toString(),
 		n: name,
 		srcPath: source.fileName,
-		outPath: getOutPathForSourceFile(source.fileName, context),
+		outPath: getOutPathForSourceFile(source.fileName, context.sourceFileContext.transformerContext),
 	};
 }

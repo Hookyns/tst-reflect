@@ -26,12 +26,15 @@ export abstract class MetadataStoreBase implements MetadataStore
 	/**
 	 * @inheritDoc
 	 */
-	abstract set(id: number, description: any): Type;
+	set(id: number, description: any): Type
+	{
+		return this.wrap(description, id);
+	}
 
 	/**
 	 * @inheritDoc
 	 */
-	wrap(description: any): Type
+	wrap(description: any, _storeWithId?: number): Type
 	{
 		if (description.k == TypeKind.Native && description.n)
 		{
@@ -44,6 +47,12 @@ export abstract class MetadataStoreBase implements MetadataStore
 		}
 
 		const type: Type = Reflect.construct(Type, [], TypeActivator);
+
+		if (_storeWithId != undefined)
+		{
+			this.store[_storeWithId] = type;
+		}
+
 		type.initialize(description);
 		return type;
 	}

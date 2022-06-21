@@ -551,9 +551,9 @@ export function getRequireRelativePath(sourceFileDefiningImport: string, sourceF
 	);
 }
 
-export function getOutPathForSourceFile(sourceFileName: string, context: Context): string
+export function getOutPathForSourceFile(sourceFileName: string, context: TransformerContext, useTsNode: boolean = true): string
 {
-	if (isTsNode())
+	if (useTsNode && isTsNode())
 	{
 		return sourceFileName;
 	}
@@ -565,7 +565,7 @@ export function getOutPathForSourceFile(sourceFileName: string, context: Context
 			context.config.parsedCommandLine.fileNames.push(sourceFileName);
 		}
 
-		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx")[0];
+		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx" || fn.slice(-5) == ".d.ts")[0];
 	}
 
 	// Get the actual file location, regardless of dist/source dir

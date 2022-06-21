@@ -57,17 +57,8 @@ export class NodeProcessMetadataStore extends MetadataStoreBase
 
 	getLazy(id: number): () => (Type | undefined)
 	{
-		return function () {
+		return function lazyType() {
 			return process[REFLECT_STORE_SYMBOL].get(id) ?? undefined;
 		};
-	}
-
-	set(id: number, description: any): Type
-	{
-		const type = this.wrap(description);
-
-		this._store[id] = type;
-
-		return type;
 	}
 }

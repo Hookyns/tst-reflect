@@ -3,7 +3,7 @@
 		"module": "commonjs",
 		"target": "ES2019",
 		"removeComments": true,
-		"sourceMap": false,
+		"sourceMap": true,
 		"stripInternal": true,
 		"strict": true,
 		"rootDir": "./src",

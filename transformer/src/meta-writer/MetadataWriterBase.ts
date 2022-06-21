@@ -7,7 +7,10 @@ import {
 }                                     from "../config-options";
 import { Context }                    from "../contexts/Context";
 import TransformerContext             from "../contexts/TransformerContext";
-import { getRequireRelativePath }     from "../helpers";
+import {
+	getOutPathForSourceFile,
+	getRequireRelativePath
+} from "../helpers";
 import {
 	color,
 	log,
@@ -217,12 +220,7 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 
 		if (parsedCommandLine)
 		{
-			if (!parsedCommandLine.fileNames.includes(this.metaSourceFile.fileName))
-			{
-				parsedCommandLine.fileNames.push(this.metaSourceFile.fileName);
-			}
-
-			outFileName = ts.getOutputFileNames(parsedCommandLine, this.metaSourceFile.fileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx")[0];
+			outFileName = getOutPathForSourceFile(this.metaSourceFile.fileName, this.context, false);
 		}
 
 		if (!outFileName)

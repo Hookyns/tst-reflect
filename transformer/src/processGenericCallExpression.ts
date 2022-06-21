@@ -5,6 +5,7 @@ import { getGenericParametersDetails }                    from "./getGenericPara
 import { getNodeLocationText }                            from "./getNodeLocationText";
 import { getTypeCall }                                    from "./getTypeCall";
 import {
+	GENERIC_PARAMS,
 	getUnknownTypeCall,
 	isArrayType
 }                                                         from "./helpers";
@@ -22,7 +23,7 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 		{
 			context.log.debug("Unable to resolve declaration of the generic type's symbol signature.\r\n" + getNodeLocationText(node));
 		}
-		
+
 		return undefined;
 	}
 
@@ -61,7 +62,7 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 			if (typeArgumentNode == undefined)
 			{
 				let argsIndex = 0;
-				
+
 				for (const parameter of declaration.parameters)
 				{
 					if (parameter.type)
@@ -108,13 +109,38 @@ export function processGenericCallExpression(node: ts.CallExpression, fncType: t
 			if (typeArgumentNode || genericType)
 			{
 				genericType ??= context.typeChecker.getTypeAtLocation(typeArgumentNode!);
-				const genericTypeSymbol = genericType.getSymbol();
-				typePropertyVal = getTypeCall(
-					genericType,
-					genericTypeSymbol,
-					context,
-					typeArgumentNode && ts.isTypeReferenceNode(typeArgumentNode) ? typeArgumentNode.typeName : undefined
-				);
+
+				// Parameter is another generic type; replace by "__genericParam__.X", where X is name of generic parameter
+				if (typeArgumentNode && genericType.flags == ts.TypeFlags.TypeParameter)
+				{
+					if (ts.isTypeReferenceNode(typeArgumentNode) && ts.isIdentifier(typeArgumentNode.typeName))
+					{
+						typePropertyVal = ts.factory.createParenthesizedExpression(
+							ts.factory.createBinaryExpression(
+								ts.factory.createIdentifier(GENERIC_PARAMS),
+								ts.SyntaxKind.AmpersandAmpersandToken,
+								ts.factory.createPropertyAccessExpression(
+									ts.factory.createIdentifier(GENERIC_PARAMS),
+									ts.factory.createIdentifier(typeArgumentNode.typeName.escapedText.toString())
+								)
+							)
+						);
+					}
+					else
+					{
+						typePropertyVal = getUnknownTypeCall(context);
+					}
+				}
+				else
+				{
+					const genericTypeSymbol = genericType.getSymbol();
+					typePropertyVal = getTypeCall(
+						genericType,
+						genericTypeSymbol,
+						context,
+						typeArgumentNode && ts.isTypeReferenceNode(typeArgumentNode) ? typeArgumentNode.typeName : undefined
+					);
+				}
 			}
 			else
 			{

@@ -12,7 +12,7 @@ import SourceFileContext   from "./SourceFileContext";
  */
 export class Context
 {
-	private readonly _sourceFileContext: SourceFileContext;
+	public readonly sourceFileContext: SourceFileContext;
 	private readonly _visitor: ts.Visitor;
 
 	/**
@@ -22,12 +22,12 @@ export class Context
 
 	get log()
 	{
-		return this._sourceFileContext.log;
+		return this.sourceFileContext.log;
 	}
 
 	get config()
 	{
-		return this._sourceFileContext.transformerContext.config;
+		return this.sourceFileContext.transformerContext.config;
 	}
 
 	get visitor(): ts.Visitor
@@ -37,17 +37,17 @@ export class Context
 
 	get transformationContext(): ts.TransformationContext
 	{
-		return this._sourceFileContext.transformationContext;
+		return this.sourceFileContext.transformationContext;
 	}
 
 	get typeChecker(): ts.TypeChecker
 	{
-		return this._sourceFileContext.checker;
+		return this.sourceFileContext.checker;
 	}
 
 	constructor(sourceFileContext: SourceFileContext, visitor: TransformerVisitor)
 	{
-		this._sourceFileContext = sourceFileContext;
+		this.sourceFileContext = sourceFileContext;
 		this._visitor = (node: ts.Node) => visitor(node, this);
 	}
 
@@ -58,37 +58,37 @@ export class Context
 
 	addTypeMetadata(metadataEntry: MetadataEntry)
 	{
-		this._sourceFileContext.generatedTypeIds.add(metadataEntry[0]);
-		this._sourceFileContext.typesMetadata.push(metadataEntry);
+		this.sourceFileContext.generatedTypeIds.add(metadataEntry[0]);
+		this.sourceFileContext.typesMetadata.push(metadataEntry);
 	}
 
 	containsMetadataOfType(id: number): boolean
 	{
-		return this._sourceFileContext.generatedTypeIds.has(id);
+		return this.sourceFileContext.generatedTypeIds.has(id);
 	}
 
 	addTypeCtor(ctorDescription: ts.PropertyAccessExpression)
 	{
-		if (this._sourceFileContext.typesCtors.indexOf(ctorDescription) === -1)
+		if (this.sourceFileContext.typesCtors.indexOf(ctorDescription) === -1)
 		{
-			this._sourceFileContext.typesCtors.push(ctorDescription);
+			this.sourceFileContext.typesCtors.push(ctorDescription);
 		}
 	}
 
 	visitFunctionLikeDeclaration(node: ts.FunctionLikeDeclarationBase): void
 	{
-		ts.visitEachChild(node, this.visitor, this._sourceFileContext.transformationContext);
+		ts.visitEachChild(node, this.visitor, this.sourceFileContext.transformationContext);
 	}
 
 	createNestedContext<TReturn = undefined>(visitor: TransformerVisitor, contextAction: (context: Context) => TReturn)
 	{
-		const context = new Context(this._sourceFileContext, visitor);
+		const context = new Context(this.sourceFileContext, visitor);
 		return contextAction(context);
 	}
 
 	get currentSourceFile(): ts.SourceFile
 	{
-		return this._sourceFileContext.currentSourceFile;
+		return this.sourceFileContext.currentSourceFile;
 	}
 
 	/**
@@ -96,6 +96,6 @@ export class Context
 	 */
 	get metaWriter(): IMetadataWriter
 	{
-		return this._sourceFileContext.metaWriter;
+		return this.sourceFileContext.metaWriter;
 	}
 }
