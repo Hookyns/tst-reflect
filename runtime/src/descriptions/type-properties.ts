@@ -1,4 +1,5 @@
 import { TypeKind }                     from "../enums";
+import { TypeProvider }                 from "../Type";
 import type { Type }                    from "../Type";
 import { ConditionalTypeDescription }   from "./conditional-type";
 import { ConstructorImportDescription } from "./constructor-import";
@@ -53,7 +54,7 @@ export interface TypeProperties
 	/**
 	 * Generic type parameters
 	 */
-	tp?: Array<Type>;
+	tp?: Array<Type | TypeProvider>;
 
 	/**
 	 * Is union type
@@ -68,7 +69,7 @@ export interface TypeProperties
 	/**
 	 * Unified or intersecting types
 	 */
-	types?: Array<Type>;
+	types?: Array<Type | TypeProvider>;
 
 	/**
 	 * Some path/export information about the module it-self. Will help dynamically import modules.
@@ -84,12 +85,12 @@ export interface TypeProperties
 	/**
 	 * Extended base type
 	 */
-	bt?: Type;
+	bt?: Type | TypeProvider;
 
 	/**
 	 * Implemented interface
 	 */
-	iface?: Type;
+	iface?: Type | TypeProvider;
 
 	/**
 	 * Literal value
@@ -99,17 +100,17 @@ export interface TypeProperties
 	/**
 	 * Type arguments
 	 */
-	args?: Array<Type>;
+	args?: Array<Type | TypeProvider>;
 
 	/**
 	 * Default type
 	 */
-	def?: Type;
+	def?: Type | TypeProvider;
 
 	/**
 	 * Constraining type
 	 */
-	con?: Type;
+	con?: Type | TypeProvider;
 
 	/**
 	 * Conditional type description

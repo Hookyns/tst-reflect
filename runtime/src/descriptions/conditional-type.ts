@@ -1,3 +1,7 @@
+import {
+	LazyType,
+	TypeProvider
+}                    from "../Type";
 import type { Type } from "../Type";
 
 /**
@@ -8,33 +12,57 @@ export interface ConditionalTypeDescription
 	/**
 	 * Extends type
 	 */
-	e: Type;
+	e: Type | TypeProvider;
 
 	/**
 	 * True type
 	 */
-	tt: Type;
+	tt: Type | TypeProvider;
 
 	/**
 	 * False type
 	 */
-	ft: Type;
+	ft: Type | TypeProvider;
 }
 
-export interface ConditionalType
+export class ConditionalType
 {
+	private readonly _extends: LazyType;
+	private readonly _trueType: LazyType;
+	private readonly _falseType: LazyType;
+
 	/**
 	 * Extends type
 	 */
-	extends: Type;
+	get extends(): Type
+	{
+		return this._extends.type;
+	}
 
 	/**
 	 * True type
 	 */
-	trueType: Type;
+	get trueType(): Type
+	{
+		return this._trueType.type;
+	}
 
 	/**
 	 * False type
 	 */
-	falseType: Type;
+	get falseType(): Type
+	{
+		return this._falseType.type;
+	}
+
+	/**
+	 * @internal
+	 * @param properties
+	 */
+	constructor(properties: ConditionalTypeDescription)
+	{
+		this._extends = new LazyType(properties.e);
+		this._trueType = new LazyType(properties.tt);
+		this._falseType = new LazyType(properties.ft);
+	}
 }

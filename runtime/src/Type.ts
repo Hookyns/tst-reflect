@@ -1,25 +1,48 @@
-import type { MetadataStore }     from "./meta-stores";
+import type { MetadataStore } from "./meta-stores";
 import {
 	Constructor,
 	Method,
-}                                 from "./descriptions/method";
-import type { Decorator }         from "./descriptions/decorator";
-import type { IndexedAccessType } from "./descriptions/indexed-access-type";
-import type { ConditionalType }   from "./descriptions/conditional-type";
+}                             from "./descriptions/method";
+import { Decorator }          from "./descriptions/decorator";
+import { IndexedAccessType }  from "./descriptions/indexed-access-type";
+import { ConditionalType }    from "./descriptions/conditional-type";
 import {
 	ConstructorImport,
 	ConstructorImportActivator
-}                                 from "./descriptions/constructor-import";
-import type { Property, }         from "./descriptions/property";
-import type { MethodParameter, }  from "./descriptions/parameter";
-import type { EnumInfo }          from "./descriptions/enum-info";
-import type { TypeProperties }    from "./descriptions/type-properties";
-import { TypeKind }               from "./enums";
-import {
-	Mapper,
-	resolveLazyType
-}                                 from "./mapper";
-import { flatten }                from "./flatten";
+}                             from "./descriptions/constructor-import";
+import { Property, }          from "./descriptions/property";
+import { MethodParameter, }   from "./descriptions/parameter";
+import { EnumInfo }           from "./descriptions/enum-info";
+import { TypeProperties }     from "./descriptions/type-properties";
+import { TypeKind }           from "./enums";
+import { Mapper }             from "./mapper";
+import { flatten }            from "./flatten";
+
+export type TypeProvider = () => Type;
+
+export class LazyType
+{
+	private resolvedType?: Type;
+	private readonly typeResolver: () => Type;
+
+	get type(): Type
+	{
+		return this.resolvedType ?? (this.resolvedType = this.typeResolver());
+	}
+
+	constructor(type: Type | (() => Type))
+	{
+		if (typeof type === "function")
+		{
+			this.typeResolver = type.name === "lazyType" ? type : () => Type.Unknown;
+		}
+		else
+		{
+			this.typeResolver = () => Type.Undefined;
+			this.resolvedType = type;
+		}
+	}
+}
 
 /**
  * Object representing TypeScript type in memory
@@ -54,7 +77,7 @@ export class Type
 	/** @internal */
 	private _isIntersection!: boolean;
 	/** @internal */
-	private _types!: Array<Type>;
+	private _types!: Array<LazyType>;
 	/** @internal */
 	private _properties!: Array<Property>;
 	/** @internal */
@@ -64,23 +87,23 @@ export class Type
 	/** @internal */
 	private _constructors!: Array<Constructor>;
 	/** @internal */
-	private _typeParameters!: Array<Type>;
+	private _typeParameters!: Array<LazyType>;
 	/** @internal */
-	private _baseType?: Type;
+	private _baseType?: LazyType;
 	/** @internal */
-	private _interface?: Type;
+	private _interface?: LazyType;
 	/** @internal */
 	private _literalValue?: any;
 	/** @internal */
-	private _typeArgs!: Array<Type>;
+	private _typeArgs!: Array<LazyType>;
 	/** @internal */
 	private _conditionalType?: ConditionalType;
 	/** @internal */
 	private _indexedAccessType?: IndexedAccessType;
 	/** @internal */
-	private _genericTypeConstraint?: Type;
+	private _genericTypeConstraint?: LazyType;
 	/** @internal */
-	private _genericTypeDefault?: Type;
+	private _genericTypeDefault?: LazyType;
 
 	/** @internal */
 	private static _store: MetadataStore = {
@@ -128,37 +151,26 @@ export class Type
 		this._properties = description.props?.map(Mapper.mapProperties) || [];
 		this._methods = description.meths?.map(Mapper.mapMethods) || [];
 		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
-		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
+		this._typeParameters = description.tp?.map(t => new LazyType(t)) || [];
 		this._ctor = description.ctor;
 		this._ctorDesc = Reflect.construct(ConstructorImport, [description.ctorDesc], ConstructorImportActivator);
-		this._interface = resolveLazyType(description.iface);
+		this._interface = description.iface ? new LazyType(description.iface) : undefined;
 		this._isUnion = description.union || false;
 		this._isIntersection = description.inter || false;
-		this._types = description.types?.map(t => resolveLazyType(t)) || [];
+		this._types = description.types?.map(t => new LazyType(t)) || [];
 		this._literalValue = description.v;
-		this._typeArgs = description.args?.map(t => resolveLazyType(t)) || [];
-		this._conditionalType = description.ct ? {
-			extends: description.ct.e,
-			trueType: resolveLazyType(description.ct.tt),
-			falseType: resolveLazyType(description.ct.ft)
-		} : undefined;
-		this._conditionalType = description.ct ? {
-			extends: description.ct.e,
-			trueType: resolveLazyType(description.ct.tt),
-			falseType: resolveLazyType(description.ct.ft)
-		} : undefined;
-		this._indexedAccessType = description.iat ? {
-			objectType: description.iat.ot,
-			indexType: resolveLazyType(description.iat.it)
-		} : undefined;
-		this._genericTypeConstraint = resolveLazyType(description.con);
-		this._genericTypeDefault = resolveLazyType(description.def);
+		this._typeArgs = description.args?.map(t => new LazyType(t)) || [];
+		this._conditionalType = description.ct ? new ConditionalType(description.ct) : undefined;
+		this._indexedAccessType = description.iat ? new IndexedAccessType(description.iat) : undefined;
+		this._genericTypeConstraint = description.con ? new LazyType(description.con): undefined;
+		this._genericTypeDefault = description.def ? new LazyType(description.def) : undefined;
 
 		// BaseType of Type.Object must be undefined
-		this._baseType = resolveLazyType(description.bt)
-			?? (this.isNative() && this.name == "Object" && (!description.props || !description.props.length)
+		this._baseType = description.bt 
+			? new LazyType(description.bt)
+			: (this.isNative() && this.name === "Object" && (!description.props || !description.props.length)
 					? undefined
-					: Type.Object
+					: new LazyType(Type.Object)
 			);
 	}
 
@@ -183,7 +195,7 @@ export class Type
 	 */
 	get types(): ReadonlyArray<Type>
 	{
-		return this._types.slice();
+		return this._types.map(t => t.type);
 	}
 
 	/**
@@ -201,7 +213,7 @@ export class Type
 	 */
 	get baseType(): Type | undefined
 	{
-		return this._baseType;
+		return this._baseType?.type;
 	}
 
 	/**
@@ -209,7 +221,7 @@ export class Type
 	 */
 	get interface(): Type | undefined
 	{
-		return this._interface;
+		return this._interface?.type;
 	}
 
 	/**
@@ -250,7 +262,7 @@ export class Type
 	 */
 	get genericTypeConstraint(): Type | undefined
 	{
-		return this._genericTypeConstraint;
+		return this._genericTypeConstraint?.type;
 	}
 
 	/**
@@ -521,7 +533,7 @@ export class Type
 	 */
 	getTypeParameters(): ReadonlyArray<Type>
 	{
-		return this._typeParameters.slice();
+		return this._typeParameters.map(t => t.type);
 	}
 
 	/**
@@ -529,7 +541,7 @@ export class Type
 	 */
 	getTypeArguments(): ReadonlyArray<Type>
 	{
-		return this._typeArgs.slice();
+		return this._typeArgs.map(t => t.type);
 	}
 
 	/**

@@ -21,3 +21,16 @@ test("getType<T>() of recursive type", () => {
 	expect(typeof rightPropNodeType).not.toBe("function");
 	expect(rightPropNodeType).toBe(nodeType);
 });
+
+test("getType<T>() of recursive type - cross types", () => {
+	type Settings = {
+		users: User[];
+	};
+
+	type User = {
+		friends: Array<User>;
+	};
+
+	const userType = getType<Settings>().getProperties()[0].type.getTypeArguments()[0].getProperties()[0].type.getTypeArguments()[0];
+	expect(userType == getType<User>()).toBeTruthy();
+});

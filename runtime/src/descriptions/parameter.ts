@@ -1,3 +1,7 @@
+import {
+	LazyType,
+	TypeProvider
+}                    from "../Type";
 import type { Type } from "../Type";
 
 /**
@@ -13,7 +17,7 @@ export interface ParameterDescription
 	/**
 	 * Type of the parameter
 	 */
-	t: Type;
+	t: Type | TypeProvider;
 
 	/**
 	 * Optional parameter
@@ -24,20 +28,36 @@ export interface ParameterDescription
 /**
  * Method parameter description
  */
-export interface MethodParameter
+export class MethodParameter
 {
+	private readonly _type: LazyType;
+
 	/**
 	 * Parameter name
 	 */
-	name: string;
+	public readonly name: string;
 
 	/**
 	 * Parameter type
 	 */
-	type: Type;
+	get type(): Type
+	{
+		return this._type.type;
+	}
 
 	/**
 	 * Parameter is optional
 	 */
-	optional: boolean;
+	public readonly optional: boolean;
+
+	/**
+	 * @internal
+	 * @param properties
+	 */
+	constructor(properties: ParameterDescription)
+	{
+		this._type = new LazyType(properties.t);
+		this.name = properties.n;
+		this.optional = properties.o;
+	}
 }

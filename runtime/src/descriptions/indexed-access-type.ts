@@ -1,3 +1,7 @@
+import {
+	LazyType,
+	TypeProvider
+}                    from "../Type";
 import type { Type } from "../Type";
 
 /**
@@ -8,23 +12,42 @@ export interface IndexedAccessTypeDescription
 	/**
 	 * Object type
 	 */
-	ot: Type;
+	ot: Type | TypeProvider;
 
 	/**
 	 * Index type
 	 */
-	it: Type;
+	it: Type | TypeProvider;
 }
 
-export interface IndexedAccessType
+export class IndexedAccessType
 {
+	private readonly _objectType: LazyType;
+	private readonly _indexType: LazyType;
+
 	/**
 	 * Object type
 	 */
-	objectType: Type;
+	get objectType(): Type
+	{
+		return this._objectType.type;
+	}
 
 	/**
 	 * Index type
 	 */
-	indexType: Type;
+	get indexType(): Type
+	{
+		return this._indexType.type;
+	}
+
+	/**
+	 * @internal
+	 * @param properties
+	 */
+	constructor(properties: IndexedAccessTypeDescription)
+	{
+		this._objectType = new LazyType(properties.ot);
+		this._indexType = new LazyType(properties.it);
+	}
 }

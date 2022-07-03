@@ -123,12 +123,15 @@ function createNativeType(typeName: string, ctor?: Function): Type
 	return type;
 }
 
+const objectNativeType = createNativeType("Object", Object);
+(Type as any).Object = objectNativeType;
+
 /**
  * List of native types
  * @description It should save some memory and all native Types will be the same instances.
  */
 const nativeTypes = {
-	"Object": createNativeType("Object", Object),
+	"Object": objectNativeType,
 	"Unknown": createNativeType("unknown"),
 	"Any": createNativeType("any"),
 	"Void": createNativeType("void"),

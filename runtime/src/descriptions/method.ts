@@ -1,8 +1,9 @@
 import { AccessModifier } from "../enums";
+import { Mapper }         from "../mapper";
 import {
-	Mapper,
-	resolveLazyType
-}                         from "../mapper";
+	LazyType,
+	TypeProvider
+}                         from "../Type";
 import type { Type }      from "../Type";
 import {
 	Decorator,
@@ -41,7 +42,7 @@ export interface MethodDescription
 	/**
 	 * Generic type parameters
 	 */
-	tp?: Array<Type>;
+	tp?: Array<Type | TypeProvider>;
 
 	/**
 	 * Optional method
@@ -64,7 +65,7 @@ export abstract class MethodBase
 	 */
 	protected constructor(params: Array<ParameterDescription>)
 	{
-		this._parameters = params?.map(Mapper.mapMethodParameters) || [];
+		this._parameters = params?.map(param => new MethodParameter(param)) || [];
 	}
 
 	/**
@@ -82,9 +83,9 @@ export abstract class MethodBase
 export class Method extends MethodBase
 {
 	private readonly _name: string;
-	private readonly _returnType: Type;
+	private readonly _returnType: LazyType;
 	private readonly _optional: boolean;
-	private readonly _typeParameters: Array<Type>;
+	private readonly _typeParameters: Array<LazyType>;
 	private readonly _decorators: Array<Decorator>;
 	private readonly _accessModifier: AccessModifier;
 
@@ -101,7 +102,7 @@ export class Method extends MethodBase
 	 */
 	get returnType(): Type
 	{
-		return this._returnType;
+		return this._returnType.type;
 	}
 
 	/**
@@ -134,8 +135,8 @@ export class Method extends MethodBase
 		}
 
 		this._name = description.n;
-		this._typeParameters = description.tp?.map(t => resolveLazyType(t)) || [];
-		this._returnType = resolveLazyType(description.rt);
+		this._typeParameters = description.tp?.map(t => new LazyType(t)) || [];
+		this._returnType = new LazyType(description.rt);
 		this._optional = description.o;
 		this._accessModifier = description.am;
 		this._decorators = description.d?.map(Mapper.mapDecorators) || [];
@@ -147,7 +148,7 @@ export class Method extends MethodBase
 	 */
 	getTypeParameters(): ReadonlyArray<Type>
 	{
-		return this._typeParameters.slice();
+		return this._typeParameters.map(tp => tp.type);
 	}
 
 	/**

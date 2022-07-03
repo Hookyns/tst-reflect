@@ -1,16 +1,17 @@
 import {
 	AccessModifier,
 	Accessor
-}                          from "../enums";
+}                    from "../enums";
+import { Mapper }    from "../mapper";
 import {
-	Mapper,
-	resolveLazyType
-} from "../mapper";
-import type { Type }       from "../Type";
+	LazyType,
+	TypeProvider
+}                    from "../Type";
+import type { Type } from "../Type";
 import {
 	Decorator,
 	DecoratorDescription
-}                          from "./decorator";
+}                    from "./decorator";
 
 /**
  * @internal
@@ -25,7 +26,7 @@ export interface PropertyDescription
 	/**
 	 * Property type
 	 */
-	t: Type;
+	t: Type | TypeProvider;
 
 	/**
 	 * Optional property
@@ -58,12 +59,14 @@ export interface PropertyDescription
  */
 export class Property
 {
+	private readonly _type: LazyType;
+
 	/**
 	 * Property decorators
 	 * @internal
 	 */
 	private _decorators: ReadonlyArray<Decorator>;
-	
+
 	/**
 	 * Property name
 	 */
@@ -72,7 +75,10 @@ export class Property
 	/**
 	 * Property type
 	 */
-	readonly type: Type;
+	get type(): Type
+	{
+		return this._type.type;
+	}
 
 	/**
 	 * Optional property
@@ -101,14 +107,14 @@ export class Property
 	protected constructor(description: PropertyDescription)
 	{
 		this.name = description.n;
-		this.type = resolveLazyType(description.t);
+		this._type = new LazyType(description.t);
 		this._decorators = description.d?.map(Mapper.mapDecorators) || [];
 		this.optional = description.o;
 		this.accessModifier = description.am ?? AccessModifier.Public;
 		this.accessor = description.acs ?? Accessor.None;
 		this.readonly = description.ro ?? false;
 	}
-	
+
 	/**
 	 * Returns array of decorators
 	 */
