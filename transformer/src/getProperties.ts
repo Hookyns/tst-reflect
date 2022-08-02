@@ -27,7 +27,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 
 		const properties = members
 			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor || (m.flags & ts.SymbolFlags.SetAccessor) == ts.SymbolFlags.SetAccessor || m.escapedName === ts.InternalSymbolName.Index)
-			.map((memberSymbol: ts.Symbol) =>
+			.map<PropertyDescriptionSource>((memberSymbol: ts.Symbol) =>
 			{
 				const declaration = getDeclaration(memberSymbol);
 				const accessor = getAccessor(declaration);

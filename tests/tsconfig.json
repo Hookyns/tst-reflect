@@ -6,13 +6,11 @@
 		"strict": true,
 		"stripInternal": true,
 		"declaration": false,
-		"outDir": "dist",
+		"outDir": "./dist",
 		"rootDir": "./src",
-		"baseUrl": "./src",
 		"experimentalDecorators": true,
 		"typeRoots": [
-			"../node_modules/@types",
-			"node_modules/@types"
+			"../node_modules/@types"
 		],
 		"plugins": [
 			{
@@ -21,11 +19,11 @@
 		]
 	},
 	"include": [
-		"src/**/*.ts"
+		"./src/**/*.ts"
 	],
 	"exclude": [
-		"node_modules/**/*",
-		"dist/**/*"
+		"../node_modules/**/*",
+		"./dist/**/*"
 	],
 	"reflection": {
 		"mode": "server",

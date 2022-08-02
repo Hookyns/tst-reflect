@@ -17,11 +17,12 @@ import { getProperties }            from "./getProperties";
 import { getTypeCall }              from "./getTypeCall";
 import {
 	createCtorPromise,
+	getDeclaration,
 	getType,
 	getTypeFullName,
 	getTypeKind,
 	UNKNOWN_TYPE_PROPERTIES
-}                                   from "./helpers";
+} from "./helpers";
 import { log }                      from "./log";
 import { nodeGenerator }            from "./NodeGenerator";
 
@@ -347,6 +348,7 @@ export function getTypeDescription(
 		props: getProperties(symbolToUse, type, context),
 		meths: getMethods(symbolToUse, type, context),
 		decs: decorators,
+		args: context.typeChecker.getTypeArguments(type as ts.TypeReference).map(t => getTypeCall(t, undefined, context))
 	};
 
 	if (kind === TypeKind.Class)

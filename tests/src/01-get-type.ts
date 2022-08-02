@@ -33,4 +33,16 @@ test("getType<T>() returns correct type", () => {
 	expect(
 		getType<string[]>().getTypeArguments()[0].is(getType<number[]>().getTypeArguments()[0])
 	).toBe(false);
+
+	class Bar<T> {}
+	class Foo
+	{
+		bar!: Bar<string>;
+	}
+
+	const barType = getType<Foo>().getProperties().find(prop => prop.name ==="bar")!.type;
+	
+	expect(
+		barType.getTypeArguments()[0].is(getType<string>())
+	).toBe(true);
 });
