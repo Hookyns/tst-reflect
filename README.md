@@ -49,6 +49,21 @@ and runtime stuff (package `tst-reflect`).
 ## How to Get the Type
 Use function `getType<TType>(): Type` imported from module `tst-reflect`.
 
+```typescript
+import { getType } from "tst-reflect";
+
+interface IFoo {}
+class Foo implements IFoo {}
+
+getType<IFoo>();
+getType<Foo>();
+getType(Foo);
+
+const foo = new Foo();
+getType<typeof foo>();
+getType(foo);
+```
+
 ### Base Usage
 ```typescript
 import { getType, Type } from "tst-reflect";

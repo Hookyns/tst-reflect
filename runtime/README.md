@@ -12,6 +12,22 @@ information about types such as list of properties and their types, list of cons
 
 [Visit Github repository for more information](https://github.com/Hookyns/tst-reflect)
 
+## How to Get Type?
+```typescript
+import { getType } from "tst-reflect";
+
+interface IFoo {}
+class Foo implements IFoo {}
+
+getType<IFoo>();
+getType<Foo>();
+getType(Foo);
+
+const foo = new Foo();
+getType<typeof foo>();
+getType(foo);
+```
+
 ## Simple Example
 
 ```typescript

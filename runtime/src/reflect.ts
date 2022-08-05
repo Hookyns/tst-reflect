@@ -58,8 +58,16 @@ export function getTypeOfRuntimeValue(value: any): Type
 
 		return arrayBuilder.setGenericType(unionBuilder.build()).build();
 	}
+	
+	// TODO: In this case, it is class method or arrow function.
+	// if (typeof value === "function" && value.prototype == undefined) {
+	//	
+	// }
 
-	return Type.store.get(value.constructor.prototype[REFLECTED_TYPE_ID]) || Type.Unknown;
+	return Type.store.get(
+		(typeof value === "function" && value.prototype?.[REFLECTED_TYPE_ID])
+		|| value.constructor.prototype[REFLECTED_TYPE_ID]
+	) || Type.Unknown;
 }
 
 /**

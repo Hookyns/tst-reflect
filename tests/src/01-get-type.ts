@@ -45,4 +45,7 @@ test("getType<T>() returns correct type", () => {
 	expect(
 		barType.getTypeArguments()[0].is(getType<string>())
 	).toBe(true);
+	
+	const someClassRef = Foo;
+	expect(getType(someClassRef).name).toBe("Foo");
 });

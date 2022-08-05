@@ -12,6 +12,22 @@ and their types and so on.
 
 [Visit Github repository for more information](https://github.com/Hookyns/tst-reflect)
 
+## How to Get Type?
+```typescript
+import { getType } from "tst-reflect";
+
+interface IFoo {}
+class Foo implements IFoo {}
+
+getType<IFoo>();
+getType<Foo>();
+getType(Foo);
+
+const foo = new Foo();
+getType<typeof foo>();
+getType(foo);
+```
+
 ## Simple Example
 
 ```typescript
