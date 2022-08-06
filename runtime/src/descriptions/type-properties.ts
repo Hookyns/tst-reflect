@@ -4,6 +4,7 @@ import type { Type }                    from "../Type";
 import { ConditionalTypeDescription }   from "./conditional-type";
 import { ConstructorImportDescription } from "./constructor-import";
 import { DecoratorDescription }         from "./decorator";
+import { FunctionTypeDescription }      from "./function-type";
 import { IndexedAccessTypeDescription } from "./indexed-access-type";
 import {
 	ConstructorDescription,
@@ -113,12 +114,17 @@ export interface TypeProperties
 	con?: Type | TypeProvider;
 
 	/**
-	 * Conditional type description
+	 * Conditional type description.
 	 */
 	ct?: ConditionalTypeDescription;
 
 	/**
-	 * Indexed access type description
+	 * Indexed access type description.
 	 */
 	iat?: IndexedAccessTypeDescription;
+
+	/**
+	 * Function type description.
+	 */
+	fnc?: FunctionTypeDescription;
 }

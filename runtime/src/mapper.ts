@@ -12,7 +12,7 @@ import {
 	MethodDescription
 }                    from "./descriptions/method";
 import {
-	MethodParameter,
+	Parameter,
 	ParameterDescription
 }                    from "./descriptions/parameter";
 import {

@@ -171,6 +171,27 @@ export interface MethodDescriptionSource
 }
 
 /**
+ * @internal
+ */
+export interface FunctionTypeDescriptionSource
+{
+	/**
+	 * Parameters
+	 */
+	params?: Array<ParameterDescriptionSource>;
+
+	/**
+	 * Return type
+	 */
+	rt: GetTypeCall;
+
+	/**
+	 * Generic type parameters
+	 */
+	tp?: Array<GetTypeCall>;
+}
+
+/**
  * This data is not set when the config mode is set to "universal"
  *
  * @internal
@@ -359,6 +380,11 @@ export interface TypePropertiesSource
 	 * Indexed access type description
 	 */
 	iat?: IndexedAccessTypeDescriptionSource;
+
+	/**
+	 * Function type description.
+	 */
+	fnc?: FunctionTypeDescriptionSource;
 }
 
 /**

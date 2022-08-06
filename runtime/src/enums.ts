@@ -83,6 +83,11 @@ export enum TypeKind
 	 * Enum
 	 */
 	Enum = 13,
+
+	/**
+	 * function foo() {}
+	 */
+	Function = 14,
 }
 
 export enum Accessor

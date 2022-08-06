@@ -10,17 +10,24 @@ import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
 import { getExportOfConstructor }   from "./getExports";
 import getLiteralName               from "./getLiteralName";
-import { getMethods }               from "./getMethods";
+import {
+	getMethodGenerics,
+	getMethods
+} from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
 import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
+import { getSignatureParameters }   from "./getSignatureParameters";
 import { getTypeCall }              from "./getTypeCall";
 import {
 	createCtorPromise,
+	getAccessModifier,
 	getDeclaration,
+	getFunctionLikeSignature,
 	getType,
 	getTypeFullName,
 	getTypeKind,
+	getUnknownTypeCall,
 	UNKNOWN_TYPE_PROPERTIES
 } from "./helpers";
 import { log }                      from "./log";
@@ -333,6 +340,26 @@ export function getTypeDescription(
 		}
 
 		throw new Error("Unable to resolve TypeParameter's declaration.");
+	}
+	else if ((typeSymbol.flags & ts.SymbolFlags.Function) !== 0)
+	{
+
+		const functionSignature = getFunctionLikeSignature(typeSymbol, context.typeChecker);
+		const returnType = functionSignature?.getReturnType();
+
+		return {
+			properties: {
+				k: TypeKind.Function,
+				n: typeSymbol.getName(),
+				fn: getTypeFullName(type, context),
+				fnc: {
+					params: functionSignature && getSignatureParameters(functionSignature, context),
+					rt: returnType && getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
+					tp: getMethodGenerics(typeSymbol, context)
+				}
+			},
+			localType: false
+		};
 	}
 
 	const decorators = getDecorators(typeSymbol, context);

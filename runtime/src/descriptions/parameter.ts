@@ -28,7 +28,7 @@ export interface ParameterDescription
 /**
  * Method parameter description
  */
-export class MethodParameter
+export class Parameter
 {
 	private readonly _type: LazyType;
 

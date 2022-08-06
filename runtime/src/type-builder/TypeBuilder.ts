@@ -1,7 +1,9 @@
+import { FunctionTypeDescription }  from "../descriptions/function-type";
 import { MethodDescription }        from "../descriptions/method";
 import { PropertyDescription }      from "../descriptions/property";
 import type { Type }                from "../Type";
 import { ArrayTypeBuilder }         from "./ArrayBuilder";
+import { FunctionBuilder }          from "./FunctionBuilder";
 import { IntersectionTypeBuilder }  from "./IntersectionTypeBuilder";
 import { MethodBuilder }            from "./MethodBuilder";
 import { ObjectLiteralTypeBuilder } from "./ObjectLiteralTypeBuilder";

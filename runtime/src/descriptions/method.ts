@@ -10,7 +10,7 @@ import {
 	DecoratorDescription
 }                         from "./decorator";
 import {
-	MethodParameter,
+	Parameter,
 	ParameterDescription
 }                         from "./parameter";
 
@@ -57,7 +57,7 @@ export interface MethodDescription
 
 export abstract class MethodBase
 {
-	private readonly _parameters: Array<MethodParameter>;
+	private readonly _parameters: Array<Parameter>;
 
 	/**
 	 * Internal constructor
@@ -65,13 +65,13 @@ export abstract class MethodBase
 	 */
 	protected constructor(params: Array<ParameterDescription>)
 	{
-		this._parameters = params?.map(param => new MethodParameter(param)) || [];
+		this._parameters = params?.map(param => new Parameter(param)) || [];
 	}
 
 	/**
 	 * Parameters of this method
 	 */
-	getParameters(): ReadonlyArray<MethodParameter>
+	getParameters(): ReadonlyArray<Parameter>
 	{
 		return this._parameters.slice();
 	}

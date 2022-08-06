@@ -36,7 +36,6 @@ export function getMethodDescription(symbol: ts.Symbol, context: Context): Metho
 	const methodSignature = getFunctionLikeSignature(symbol, context.typeChecker);
 	const returnType = methodSignature?.getReturnType();
 
-	// TODO: Finish this implementation of methods
 	return {
 		n: symbol.escapedName.toString(),
 		params: methodSignature && getSignatureParameters(methodSignature, context),

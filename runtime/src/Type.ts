@@ -1,3 +1,4 @@
+import { FunctionInfo }       from "./descriptions/function-type";
 import type { MetadataStore } from "./meta-stores";
 import {
 	Constructor,
@@ -10,9 +11,9 @@ import {
 	ConstructorImport,
 	ConstructorImportActivator
 }                             from "./descriptions/constructor-import";
-import { Property, }          from "./descriptions/property";
-import { MethodParameter, }   from "./descriptions/parameter";
-import { EnumInfo }           from "./descriptions/enum-info";
+import { Property, }  from "./descriptions/property";
+import { Parameter, } from "./descriptions/parameter";
+import { EnumInfo }   from "./descriptions/enum-info";
 import { TypeProperties }     from "./descriptions/type-properties";
 import { TypeKind }           from "./enums";
 import { Mapper }             from "./mapper";
@@ -101,6 +102,8 @@ export class Type
 	/** @internal */
 	private _indexedAccessType?: IndexedAccessType;
 	/** @internal */
+	private _functionType?: FunctionInfo;
+	/** @internal */
 	private _genericTypeConstraint?: LazyType;
 	/** @internal */
 	private _genericTypeDefault?: LazyType;
@@ -162,6 +165,7 @@ export class Type
 		this._typeArgs = description.args?.map(t => new LazyType(t)) || [];
 		this._conditionalType = description.ct ? new ConditionalType(description.ct) : undefined;
 		this._indexedAccessType = description.iat ? new IndexedAccessType(description.iat) : undefined;
+		this._functionType = description.fnc ? new FunctionInfo(description.fnc) : undefined;
 		this._genericTypeConstraint = description.con ? new LazyType(description.con): undefined;
 		this._genericTypeDefault = description.def ? new LazyType(description.def) : undefined;
 
@@ -188,6 +192,14 @@ export class Type
 	get indexedAccessType(): IndexedAccessType | undefined
 	{
 		return this._indexedAccessType;
+	}
+
+	/**
+	 * Returns information about function type.
+	 */
+	get function(): FunctionInfo | undefined
+	{
+		return this._functionType;
 	}
 
 	/**
@@ -655,7 +667,7 @@ export class Type
 
 						return currentMethod.name == targetMethod.name
 							&& targetMethod.getParameters().every((targetMethodParam, i) => {
-								const currentMethodParam: MethodParameter | undefined = currentMethodParameters[i];
+								const currentMethodParam: Parameter | undefined = currentMethodParameters[i];
 
 								if (currentMethodParam == undefined)
 								{

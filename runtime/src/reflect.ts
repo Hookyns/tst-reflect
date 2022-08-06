@@ -1,3 +1,4 @@
+import { FunctionBuilder }          from "./type-builder/FunctionBuilder";
 import { ObjectLiteralTypeBuilder } from "./type-builder/ObjectLiteralTypeBuilder";
 import { TypeBuilder }              from "./type-builder/TypeBuilder";
 import { REFLECTED_TYPE_ID }        from "./consts";
@@ -58,11 +59,11 @@ export function getTypeOfRuntimeValue(value: any): Type
 
 		return arrayBuilder.setGenericType(unionBuilder.build()).build();
 	}
-	
-	// TODO: In this case, it is class method or arrow function.
-	// if (typeof value === "function" && value.prototype == undefined) {
-	//	
-	// }
+
+	if (typeof value === "function" && (value.prototype == undefined || Object.getOwnPropertyDescriptor(value, "prototype")?.writable === true))
+	{
+		return FunctionBuilder.fromFunction(value);
+	}
 
 	return Type.store.get(
 		(typeof value === "function" && value.prototype?.[REFLECTED_TYPE_ID])
