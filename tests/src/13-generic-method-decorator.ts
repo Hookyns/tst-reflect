@@ -7,12 +7,16 @@ test("Method decorator reflects generic type", () => {
 	/**
 	 * @reflect
 	 */
-	function methodDecorator<TClass>(_: any, __: any)
+	function methodDecorator<TClass>(target: any, methodName: string | symbol)
 	{
 		const type = getType<TClass>();
 		expect(type instanceof Type).toBe(true);
 		expect(type).not.toBe(Type.Unknown);
 		expect(type.name).toBe("Something");
+		
+		expect(typeof(target.constructor)).toBe("function");
+		expect(target.constructor.name).toBe("Something");
+		expect(methodName).toBe("method");
 	}
 
 	function reference<TType>(name: string, description: string)
@@ -25,7 +29,11 @@ test("Method decorator reflects generic type", () => {
 		expect(type).not.toBe(Type.Unknown);
 		expect(type.name).toBe("Something");
 
-		return (target: Object, key: string | symbol, descriptor: PropertyDescriptor) => {
+		return (target: any, methodName: string | symbol, descriptor: PropertyDescriptor) => {
+			expect(typeof(target.constructor)).toBe("function");
+			expect(target.constructor.name).toBe("Something");
+			expect(methodName).toBe("method");
+			
 			return descriptor;
 		};
 	}

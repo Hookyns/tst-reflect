@@ -7,12 +7,13 @@ test("Class decorator reflects generic type", () => {
 	/**
 	 * @reflect
 	 */
-	function classDecorator<TClass>(_: any)
+	function classDecorator<TClass>(Ctor: Function)
 	{
 		const type = getType<TClass>();
 		expect(type instanceof Type).toBe(true);
 		expect(type).not.toBe(Type.Unknown);
 		expect(type.name).toBe("Something");
+		expect(Ctor.name).toBe("Something");
 	}
 
 	function reference<TType>(name: string, description: string)
@@ -25,8 +26,8 @@ test("Class decorator reflects generic type", () => {
 		expect(type).not.toBe(Type.Unknown);
 		expect(type.name).toBe("Something");
 
-		return (ctor: Function) => {
-			
+		return (Ctor: Function) => {
+			expect(Ctor.name).toBe("Something");
 		};
 	}
 

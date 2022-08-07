@@ -1,0 +1,27 @@
+{
+	"compilerOptions": {
+		"module": "commonjs",
+		"target": "ES2020",
+		"removeComments": true,
+		"sourceMap": true,
+		"experimentalDecorators": true,
+		"rootDir": "../..",
+		"typeRoots": [
+			"../../node_modules/@types"
+		],
+		"plugins": [
+			{
+				"transform": "tst-reflect-transformer"
+			}
+		]
+	},
+	"include": [
+		"**/*.ts"
+	],
+	"reflection": {
+//		"metadata": {
+//			"type": "typelib"
+//		},
+		"debugMode": false
+	}
+}

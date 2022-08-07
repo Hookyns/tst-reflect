@@ -7,12 +7,15 @@ test("Property decorator reflects generic type", () => {
 	/**
 	 * @reflect
 	 */
-	function propertyDecorator<TClass>(_: any, __: any)
+	function propertyDecorator<TClass>(target: any, propertyName: string | symbol)
 	{
 		const type = getType<TClass>();
 		expect(type instanceof Type).toBe(true);
 		expect(type).not.toBe(Type.Unknown);
 		expect(type.name).toBe("Something");
+		expect(typeof(target.constructor)).toBe("function");
+		expect(target.constructor.name).toBe("Something");
+		expect(propertyName).toBe("property");
 	}
 
 	function reference<TType>(name: string, description: string)
@@ -25,8 +28,10 @@ test("Property decorator reflects generic type", () => {
 		expect(type).not.toBe(Type.Unknown);
 		expect(type.name).toBe("Something");
 
-		return (target: Object, key: string | symbol) => {
-			
+		return (target: any, propertyName: string | symbol) => {
+			expect(typeof(target.constructor)).toBe("function");
+			expect(target.constructor.name).toBe("Something");
+			expect(propertyName).toBe("property");
 		};
 	}
 

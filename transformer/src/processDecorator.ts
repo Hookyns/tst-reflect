@@ -48,14 +48,13 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 			context,
 			genericTypeNode.name
 		);
-		
+
 		return undefined;
 	}
 
 	// Decorator has no generic parameters in nature; we just abusing it so only one generic parameter makes sense
 	const genericParamName = state.usedGenericParameters[0];
 
-	let callExpression: ts.CallExpression;
 	const typeArgumentDescription = {
 		genericTypeName: genericParamName,
 		reflectedType: getTypeCall(
@@ -65,6 +64,8 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 			genericTypeNode.name
 		)
 	};
+
+	let callExpression: ts.CallExpression | ts.FunctionExpression;
 
 	if (ts.isCallExpression(node.expression))
 	{
@@ -85,24 +86,41 @@ export function processDecorator(node: ts.Decorator, decoratorType: ts.Type, con
 	return ts.factory.updateDecorator(node, callExpression);
 }
 
+/**
+ * Transform simple Identifier decorator into callable decorator.
+ * @description We need to pass argument to the decorator so it is a must. We cannot just call the simple decorator,
+ * because of implementation of decorators in TypeScript (the generated __decorate function).
+ * @param context
+ * @param node
+ * @param typeArgumentDescription
+ */
 function createCallExpressionFromIdentifier(context: Context, node: ts.Decorator, typeArgumentDescription: { reflectedType: ts.CallExpression; genericTypeName: string })
 {
-	const args = [];
-	const declaration = getDeclaration(context.typeChecker.getSymbolAtLocation(node.expression));
+	const argumentsIdentifier = ts.factory.createIdentifier("arguments");
 
-	if (declaration && (ts.isFunctionDeclaration(declaration)))
-	{
-		for (let param of declaration.parameters)
-		{
-			args.push(ts.factory.createIdentifier("undefined"));
-		}
-	}
+	// Call the decorator identifier and pass the reflected type.
+	const callExpression = ts.factory.createCallExpression(
+		node.expression,
+		undefined,
+		[
+			ts.factory.createSpreadElement(argumentsIdentifier),
+			ts.factory.createObjectLiteralExpression([ts.factory.createPropertyAssignment(
+				typeArgumentDescription.genericTypeName,
+				typeArgumentDescription.reflectedType
+			)])
+		]
+	);
 
-	return ts.factory.createCallExpression(node.expression, undefined, [
-		...args,
-		ts.factory.createObjectLiteralExpression([ts.factory.createPropertyAssignment(
-			typeArgumentDescription.genericTypeName,
-			typeArgumentDescription.reflectedType
-		)])
-	]);
+	// Create wrap over decorator; Identifier decorator has no return value but called decorators must return received Class/Function;
+	return ts.factory.createFunctionExpression(
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		undefined,
+		ts.factory.createBlock([
+			ts.factory.createExpressionStatement(callExpression)
+		])
+	);
 }
