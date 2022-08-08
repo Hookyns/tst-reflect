@@ -785,7 +785,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     <td align="center"><a href="https://github.com/hugebdu"><img src="https://avatars.githubusercontent.com/u/1109601?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Daniel Shmuglin</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Ahugebdu" title="Bug reports">🐛</a> <a href="#ideas-hugebdu" title="Ideas, Planning, & Feedback">🤔</a></td>
   </tr>
   <tr>
-    <td align="center"><a href="https://github.com/avin-kavish"><img src="https://avatars.githubusercontent.com/u/48435155?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Avin</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Aavin-kavish" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://github.com/avin-kavish"><img src="https://avatars.githubusercontent.com/u/48435155?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Avin</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Aavin-kavish" title="Bug reports">🐛</a> <a href="https://github.com/Hookyns/tst-reflect/commits?author=avin-kavish" title="Code">💻</a></td>
   </tr>
 </table>
 
