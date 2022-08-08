@@ -1,6 +1,6 @@
 {
   "projectName": "tst-reflect",
-  "projectOwner": "hookyns",
+  "projectOwner": "Hookyns",
   "repoType": "github",
   "repoHost": "https://github.com",
   "files": [
@@ -83,7 +83,17 @@
         "bug",
         "ideas"
       ]
+    },
+    {
+      "login": "avin-kavish",
+      "name": "Avin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/48435155?v=4",
+      "profile": "https://github.com/avin-kavish",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
-  "contributorsPerLine": 7
+  "contributorsPerLine": 7,
+  "skipCi": true
 }
