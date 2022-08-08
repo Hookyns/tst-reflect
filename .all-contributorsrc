@@ -92,6 +92,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "joeferner",
+      "name": "Joe Ferner",
+      "avatar_url": "https://avatars.githubusercontent.com/u/808857?v=4",
+      "profile": "http://joeferner.github.io/",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "contributorsPerLine": 7,
