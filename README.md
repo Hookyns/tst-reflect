@@ -7,7 +7,7 @@
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 ![Code coverage](./coverage/badge.svg)
 [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow)](https://twitter.com/hookyns)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-9-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=tst-reflect&theme=tokyonight)](https://github.com/Hookyns/tst-reflect)
@@ -787,6 +787,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
   <tr>
     <td align="center"><a href="https://github.com/avin-kavish"><img src="https://avatars.githubusercontent.com/u/48435155?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Avin</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Aavin-kavish" title="Bug reports">🐛</a></td>
     <td align="center"><a href="http://joeferner.github.io/"><img src="https://avatars.githubusercontent.com/u/808857?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joe Ferner</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/commits?author=joeferner" title="Code">💻</a></td>
+    <td align="center"><a href="https://dhkatz.dev"><img src="https://avatars.githubusercontent.com/u/8341611?v=4?s=100" width="100px;" alt=""/><br /><sub><b>David Katz</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Adhkatz" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 
