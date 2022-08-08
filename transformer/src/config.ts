@@ -219,11 +219,11 @@ export function createConfig(options: ts.CompilerOptions, rootDir: string, packa
 
 function isESMModule(options: ts.CompilerOptions) {
 	// ref: https://www.typescriptlang.org/tsconfig#module
-	
+
 	const target = options.target || ScriptTarget.ES3;
 	const module = options.module || (
 		[ScriptTarget.ES3, ScriptTarget.ES5].includes(target) ? ModuleKind.CommonJS : ModuleKind.ES2015
 	);
-	
-	return [ModuleKind.ES2015, ModuleKind.ES2020, ModuleKind.ES2022, ModuleKind.ESNext].includes(module);
+
+	return [ModuleKind.ES2015, ModuleKind.ES2020, ModuleKind.ES2022, ModuleKind.ESNext, ModuleKind.NodeNext].includes(module);
 }
