@@ -49,7 +49,7 @@ let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
  * @param symbol
  * @param checker
  */
-export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
+export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type | undefined
 {
 	if (symbol.flags == ts.SymbolFlags.Interface/* || symbol.flags == ts.SymbolFlags.Alias*/)
 	{
@@ -60,7 +60,7 @@ export function getType(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Type
 
 	if (!declaration)
 	{
-		throw new Error("Unable to resolve declarations of symbol.");
+		return undefined;
 	}
 
 	return checker.getTypeOfSymbolAtLocation(symbol, declaration);
@@ -87,7 +87,7 @@ export function getTypeSymbol(type: ts.Type, typeChecker: ts.TypeChecker): ts.Sy
  * Check if the type is an Array
  * @param type
  */
-export function isArrayType(type: ts.Type): boolean
+export function isArrayType(type: ts.Type): type is ts.GenericType
 {
 	// [Hookyns] Check if type is Array. I found no direct way to do so.
 	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Array";
@@ -97,7 +97,7 @@ export function isArrayType(type: ts.Type): boolean
  * Check if the type is an Promise
  * @param type
  */
-export function isPromiseType(type: ts.Type): boolean
+export function isPromiseType(type: ts.Type): type is ts.GenericType
 {
 	// [Hookyns] Check if type is Promise. I found no direct way to do so.
 	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Promise";
@@ -111,15 +111,9 @@ let typeIdCounter = -1;
  * @param type
  * @param typeChecker
  */
-export function getTypeId(type: ts.Type, typeChecker: ts.TypeChecker): number | undefined
+export function getTypeId(type: ts.Type, typeChecker: ts.TypeChecker): number
 {
 	return (type as any).id ?? ((type as any).id = typeIdCounter--);
-}
-
-let symbolIdCounter = -1;
-function getSymbolId(symbol: ts.Symbol): number
-{
-	return (symbol as any).id ?? ((symbol as any).id = symbolIdCounter--);
 }
 
 /**
@@ -167,7 +161,7 @@ export function getTypeKind(symbol: ts.Symbol)
 		return TypeKind.Enum;
 	}
 
-	throw new Error("Unknown type kind");
+	return null;
 }
 
 const nodeModulesPattern = "/node_modules/";
@@ -381,7 +375,7 @@ export function createCtorPromise(
 				)
 			]
 		);
-		
+
 		return [
 			// function() { return $importExpression }
 			ts.factory.createFunctionExpression(
@@ -394,7 +388,7 @@ export function createCtorPromise(
 				ts.factory.createBlock([ts.factory.createReturnStatement(importExpression)], true)
 			),
 			undefined
-		]
+		];
 	}
 
 	// require("...path...")
@@ -406,7 +400,7 @@ export function createCtorPromise(
 		),
 		ts.factory.createIdentifier(constructorDescription.en)
 	);
-	
+
 	// Promise.resolve($require)
 	const promise = ts.factory.createCallExpression(
 		ts.factory.createPropertyAccessExpression(
@@ -428,8 +422,8 @@ export function createCtorPromise(
 		[],
 		undefined,
 		ts.factory.createBlock([ts.factory.createReturnStatement(promise)], true)
-	)
-	
+	);
+
 	return [functionCall, requireCall];
 }
 
@@ -508,7 +502,14 @@ export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChec
 		return checker.getSignatureFromDeclaration(declaration);
 	}
 
-	return checker.getSignaturesOfType(getType(symbol, checker), ts.SignatureKind.Call)?.[0];
+	const type = getType(symbol, checker);
+
+	if (type === undefined)
+	{
+		return type;
+	}
+
+	return checker.getSignaturesOfType(type, ts.SignatureKind.Call)?.[0];
 }
 
 /**
@@ -565,7 +566,8 @@ export function getOutPathForSourceFile(sourceFileName: string, context: Transfo
 			context.config.parsedCommandLine.fileNames.push(sourceFileName);
 		}
 
-		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false).filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx" || fn.slice(-5) == ".d.ts")[0];
+		return ts.getOutputFileNames(context.config.parsedCommandLine, sourceFileName, false)
+			.filter(fn => fn.slice(-3) == ".js" || fn.slice(-4) == ".jsx" || fn.slice(-5) == ".d.ts")[0];
 	}
 
 	// Get the actual file location, regardless of dist/source dir

@@ -14,25 +14,27 @@ test("getType<T>() is transformed and it is not Type.Unknown", () => {
 });
 
 test("getType<T>() returns correct type", () => {
-	// Array is Array
+	// Same array types should be equal
 	expect(getType<string[]>().is(getType<string[]>())).toBe(true);
-	expect(getType<string[]>().is(getType<number[]>())).toBe(true);
 	
+	// and different shouldn't.
+	expect(getType<string[]>().is(getType<number[]>())).toBe(false);
+	
+	// Both Array<T> and T[] are equals.
 	expect(
 		getType<Array<string>>().is(getType<string[]>())
 	).toBe(true);
 	
-	expect(
-		getType<string[]>().getTypeArguments()[0].is(getType<string[]>().getTypeArguments()[0])
-	).toBe(true);
+	const stringArrayType = getType<string[]>();
+	const numberArrayType = getType<number[]>();
 	
-	expect(
-		getType<string[]>().getTypeArguments()[0]
-	).toBe(getType<string[]>().getTypeArguments()[0]);
+	expect(stringArrayType.genericTypeDefinition).toBe(numberArrayType.genericTypeDefinition);
 	
-	expect(
-		getType<string[]>().getTypeArguments()[0].is(getType<number[]>().getTypeArguments()[0])
-	).toBe(false);
+	expect(stringArrayType.isGenericType()).toBe(true);
+	
+	expect(stringArrayType.getTypeArguments()[0].is(getType<string[]>().getTypeArguments()[0])).toBe(true);
+	expect(getType<string[]>().getTypeArguments()[0]).toBe(getType<string[]>().getTypeArguments()[0]);
+	expect(stringArrayType.getTypeArguments()[0].is(numberArrayType.getTypeArguments()[0])).toBe(false);
 
 	class Bar<T> {}
 	class Foo
@@ -48,4 +50,36 @@ test("getType<T>() returns correct type", () => {
 	
 	const someClassRef = Foo;
 	expect(getType(someClassRef).name).toBe("Foo");
+});
+
+test("getType<T>().fullName - uniqueness of generic types", () => {
+	
+	type TypeA<T, U> = T | U | {
+		a: T;
+		b: U;
+	}
+
+	interface InterfaceA<T> {
+		a: T;
+	}
+	
+	class ClassA<T, U> {
+		a?: T;
+		foo(): U {
+			return null as unknown as U;
+		}
+	}
+	
+	expect(getType<InterfaceA<string>>().fullName).not.toBe(getType<InterfaceA<boolean>>().fullName);
+	expect(getType<ClassA<string, boolean>>().fullName).not.toBe(getType<ClassA<boolean, string>>().fullName);
+	
+	// TODO: Solve the next line. It does not work right now.
+	// expect(getType<TypeA<string, boolean>>().fullName).not.toBe(getType<TypeA<boolean, string>>().fullName);
+});
+
+test("getType<T>().fullName - uniqueness of type aliases", () => {
+	class ClassA {}
+	type ClassAAlias = ClassA;
+	
+	expect(getType<ClassAAlias>().fullName).toBe(getType<ClassA>().fullName);
 });

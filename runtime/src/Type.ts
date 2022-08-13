@@ -107,6 +107,10 @@ export class Type
 	private _genericTypeConstraint?: LazyType;
 	/** @internal */
 	private _genericTypeDefault?: LazyType;
+	/** @internal */
+	private _genericTypeDefinition?: LazyType;
+	/** @internal */
+	private _isGenericType!: boolean;
 
 	/** @internal */
 	private static _store: MetadataStore = {
@@ -168,6 +172,8 @@ export class Type
 		this._functionType = description.fnc ? new FunctionInfo(description.fnc) : undefined;
 		this._genericTypeConstraint = description.con ? new LazyType(description.con): undefined;
 		this._genericTypeDefault = description.def ? new LazyType(description.def) : undefined;
+		this._isGenericType = description.isg ? description.isg : false;
+		this._genericTypeDefinition = description.gtd ? new LazyType(description.gtd) : undefined;
 
 		// BaseType of Type.Object must be undefined
 		this._baseType = description.bt 
@@ -217,6 +223,14 @@ export class Type
 	get constructorDescription(): ConstructorImport | undefined
 	{
 		return this._ctorDesc || undefined;
+	}
+
+	/**
+	 * Get definition of a generic type.
+	 */
+	get genericTypeDefinition(): Type | undefined
+	{
+		return this._genericTypeDefinition?.type;
 	}
 
 	/**
@@ -410,6 +424,14 @@ export class Type
 	isNative(): boolean
 	{
 		return this.kind === TypeKind.Native;
+	}
+
+	/**
+	 * Check whether the type is generic. 
+	 */
+	isGenericType(): boolean
+	{
+		return this._isGenericType;
 	}
 
 	/**

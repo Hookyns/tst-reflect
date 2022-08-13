@@ -1,6 +1,7 @@
 import * as ts                         from "typescript";
 import { Context }                     from "../contexts/Context";
 import { getError }                    from "../getError";
+import { getNodeLocationText }         from "../getNodeLocationText";
 import { GENERIC_PARAMS }              from "../helpers";
 import { getGenericParametersDetails } from "../getGenericParametersDetails";
 import { log }                         from "../log";
@@ -52,7 +53,7 @@ export default class DeclarationVisitor
 				return node;
 			}
 
-			return DeclarationVisitor.modifyDeclaration(node);
+			return DeclarationVisitor.modifyDeclaration(node, context);
 		}
 
 		return node;
@@ -61,11 +62,12 @@ export default class DeclarationVisitor
 	/**
 	 * Modify method/function declaration
 	 * @param node
+	 * @param context
 	 * @private
 	 */
-	private static modifyDeclaration(node: ts.MethodDeclaration | ts.FunctionDeclaration): ts.MethodDeclaration | ts.FunctionDeclaration
+	private static modifyDeclaration(node: ts.MethodDeclaration | ts.FunctionDeclaration, context: Context): ts.MethodDeclaration | ts.FunctionDeclaration
 	{
-		const [modParams, modBody] = DeclarationVisitor.getModifiedDeclarationProperties(node.parameters, node.body!);
+		const [modParams, modBody] = DeclarationVisitor.getModifiedDeclarationProperties(node.parameters, node.body!, context);
 
 		if (ts.isMethodDeclaration(node))
 		{
@@ -101,9 +103,10 @@ export default class DeclarationVisitor
 	 * Modify method/function declaration
 	 * @param parameters
 	 * @param body
+	 * @param context
 	 * @private
 	 */
-	private static getModifiedDeclarationProperties(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block): [ts.ParameterDeclaration[], ts.Block]
+	private static getModifiedDeclarationProperties(parameters: ts.NodeArray<ts.ParameterDeclaration>, body: ts.Block, context: Context): [ts.ParameterDeclaration[], ts.Block]
 	{
 		const lastParam = parameters[parameters.length - 1];
 
@@ -208,12 +211,12 @@ export default class DeclarationVisitor
 		else if (ts.isArrayBindingPattern(lastParam.name))
 		{
 			// TODO: Implement
-			throw getError(body, "ArrayBindingPattern not supported in generic declarations yet.");
+			context.log.warn("ArrayBindingPattern not supported in generic declarations yet. At " + getNodeLocationText(lastParam));
 		}
 		else if (ts.isObjectBindingPattern(lastParam.name))
 		{
 			// TODO: Implement
-			throw getError(body, "ObjectBindingPattern not supported in generic declarations yet.");
+			context.log.warn("ObjectBindingPattern not supported in generic declarations yet. At " + getNodeLocationText(lastParam));
 		}
 
 		return [[...parameters], body];

@@ -385,6 +385,16 @@ export interface TypePropertiesSource
 	 * Function type description.
 	 */
 	fnc?: FunctionTypeDescriptionSource;
+
+	/**
+	 * Type is a generic type.
+	 */
+	isg?: boolean;
+
+	/**
+	 * Generic type definition.
+	 */
+	gtd?: GetTypeCall;
 }
 
 /**

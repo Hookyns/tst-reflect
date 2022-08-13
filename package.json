@@ -25,6 +25,6 @@
 		"make-coverage-badge": "^1.2.0",
 		"ts-node": "^10.4.0",
 		"ttypescript": "1.x",
-		"typescript": "4.x"
+		"typescript": "^4.7.0"
 	}
 }

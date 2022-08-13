@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
+## [0.10.1] - 2022-08-13 - transformer
+### Added
+- Type.isGenericType(): boolean;
+- Type.genericTypeDefinition: Type | undefined;
+
+### Changed
+- Each "instance" of a generic type is unique type with same genericTypeDefinition. 
+\
+Eg. lets have an `interface Ifce<T> {}`. `getType<IFce<string>>()` if different type than `getType<IFce<number>>()`. 
+\
+Property `genericTypeDefinition` of both types returns the same type `IFce<T>`, which is the definition of the generic type. This type is generic type too.
+- Support of ES modules and the NodeNext option.
 
 ## [0.9.10] - 2022-06-21
 ### Added

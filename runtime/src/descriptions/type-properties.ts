@@ -127,4 +127,14 @@ export interface TypeProperties
 	 * Function type description.
 	 */
 	fnc?: FunctionTypeDescription;
+
+	/**
+	 * Type is a generic type.
+	 */
+	isg?: boolean;
+
+	/**
+	 * Generic type definition.
+	 */
+	gtd?: Type | TypeProvider;
 }

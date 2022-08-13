@@ -10,8 +10,10 @@ import {
 	getCtorTypeReference,
 	getDeclaration,
 	getType,
-	isReadonly
-}                                    from "./helpers";
+	getUnknownTypeCall,
+	isReadonly,
+	UNKNOWN_TYPE_PROPERTIES
+} from "./helpers";
 
 /**
  * Return properties of type
@@ -31,17 +33,21 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 			{
 				const declaration = getDeclaration(memberSymbol);
 				const accessor = getAccessor(declaration);
-				let type = getType(memberSymbol, context.typeChecker);
+				let type;
 
 				if (declaration && ts.isIndexSignatureDeclaration(declaration))
 				{
 					const indexSignature = declaration as ts.IndexSignatureDeclaration;
 					type = context.typeChecker.getTypeAtLocation(indexSignature.type);
 				}
+				else
+				{
+					type = getType(memberSymbol, context.typeChecker);
+				}
 
 				return {
 					n: memberSymbol.escapedName.toString(),
-					t: getTypeCall(type, memberSymbol, context, getCtorTypeReference(memberSymbol)),
+					t: type && getTypeCall(type, memberSymbol, context, getCtorTypeReference(memberSymbol)) || getUnknownTypeCall(context),
 					d: getDecorators(memberSymbol, context),
 					am: getAccessModifier(declaration?.modifiers),
 					acs: accessor,

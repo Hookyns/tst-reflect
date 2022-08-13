@@ -4,6 +4,7 @@ import { Context }               from "./contexts/Context";
 import { TypeDescriptionResult } from "./declarations";
 import { getTypeCall }           from "./getTypeCall";
 import {
+	getTypeId,
 	isArrayType,
 	isPromiseType
 } from "./helpers";
@@ -97,7 +98,7 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 
 	if (isArrayType(type))
 	{
-		const typeArguments = context.typeChecker.getTypeArguments(type as ts.TypeReference);
+		const typeArguments = context.typeChecker.getTypeArguments(type);
 
 		if (typeArguments.length == 1)
 		{
@@ -105,6 +106,11 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 				ok: true,
 				typeDescription: {
 					n: "Array",
+					fn: "Array#" + getTypeId(type, context.typeChecker),
+					isg: true,
+					gtd: type.target === type 
+						? undefined 
+						: getTypeCall(type.target, undefined, context),
 					k: TypeKind.Native,
 					ctor: getNativeTypeCtor("Array"),
 					args: [getTypeCall(typeArguments[0], undefined, context)]
@@ -115,7 +121,7 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 
 	if (isPromiseType(type))
 	{
-		const typeArguments = context.typeChecker.getTypeArguments(type as ts.TypeReference);
+		const typeArguments = context.typeChecker.getTypeArguments(type);
 
 		if (typeArguments.length == 1)
 		{
@@ -123,6 +129,11 @@ export function getNativeTypeDescription(type: ts.Type, context: Context): TypeD
 				ok: true,
 				typeDescription: {
 					n: "Promise",
+					fn: "Promise#" + getTypeId(type, context.typeChecker),
+					isg: true,
+					gtd: type.target === type
+						? undefined
+						: getTypeCall(type.target, undefined, context),
 					k: TypeKind.Native,
 					ctor: getNativeTypeCtor("Promise"),
 					args: [getTypeCall(typeArguments[0], undefined, context)]

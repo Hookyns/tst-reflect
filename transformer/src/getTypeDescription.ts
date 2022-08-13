@@ -21,7 +21,6 @@ import { getSignatureParameters }   from "./getSignatureParameters";
 import { getTypeCall }              from "./getTypeCall";
 import {
 	createCtorPromise,
-	getAccessModifier,
 	getDeclaration,
 	getFunctionLikeSignature,
 	getType,
@@ -271,7 +270,7 @@ export function getTypeDescription(
 		}
 
 		// throw new Error("Unable to resolve type's symbol.");
-		log.error("Unable to resolve type's symbol. Returning type Unknown.");
+		log.warn("Unable to resolve type's symbol. Returning type Unknown.");
 		return { properties: UNKNOWN_TYPE_PROPERTIES, localType: false };
 	}
 	else if ((type.flags & ts.TypeFlags.Object) == ts.TypeFlags.Object && (typeSymbol.flags & ts.SymbolFlags.TypeLiteral) == ts.SymbolFlags.TypeLiteral)
@@ -339,7 +338,8 @@ export function getTypeDescription(
 			}
 		}
 
-		throw new Error("Unable to resolve TypeParameter's declaration.");
+		context.log.warn("Unable to resolve TypeParameter's declaration.");
+		return { properties: UNKNOWN_TYPE_PROPERTIES, localType: false };
 	}
 	else if ((typeSymbol.flags & ts.SymbolFlags.Function) !== 0)
 	{
@@ -362,25 +362,46 @@ export function getTypeDescription(
 		};
 	}
 
-	const decorators = getDecorators(typeSymbol, context);
 	const kind = getTypeKind(typeSymbol);
-	const symbolType = getType(typeSymbol, checker);
+
+	if (kind == null)
+	{
+		return { properties: UNKNOWN_TYPE_PROPERTIES, localType: false };
+	}
+		
+	const decorators = getDecorators(typeSymbol, context);
 	const symbolToUse = typeSymbol || symbol;
 
 	let localType = false;
+	
+	const typeArgs = context.typeChecker.getTypeArguments(type as ts.TypeReference);
+	const isGenericType = (((type as ts.ObjectType).objectFlags ?? 0) & ts.ObjectFlags.Reference) !== 0 && typeArgs.length !== 0;
+	
 	const properties: TypePropertiesSource = {
 		k: kind,
+		isg: isGenericType,
+		gtd: isGenericType && type !== (type as ts.GenericType).target ? getTypeCall((type as ts.GenericType).target, undefined, context, typeCtor) : undefined,
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, context),
 		props: getProperties(symbolToUse, type, context),
 		meths: getMethods(symbolToUse, type, context),
 		decs: decorators,
-		args: context.typeChecker.getTypeArguments(type as ts.TypeReference).map(t => getTypeCall(t, undefined, context))
+		args: typeArgs.map(t => getTypeCall(t, undefined, context))
 	};
 
 	if (kind === TypeKind.Class)
 	{
-		properties.ctors = getConstructors(symbolType, context);
+		const symbolType = getType(typeSymbol, checker);
+
+		if (symbolType === undefined)
+		{
+			const declaration = getDeclaration(symbolType);
+			context.log.warn("Unable to resolve ts.Type of the symbol." + (declaration === undefined ? "" : " At " + getNodeLocationText(declaration)));
+		}
+		else
+		{
+			properties.ctors = getConstructors(symbolType, context);
+		}
 
 		if (typeCtor)
 		{

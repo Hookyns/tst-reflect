@@ -2,9 +2,10 @@ import {
 	Expression,
 	ImportDeclaration,
 	ObjectLiteralElementLike
-}                                             from "typescript";
-import * as ts                                from "typescript";
-import { log }                                from "./log";
+}                         from "typescript";
+import * as ts            from "typescript";
+import TransformerContext from "./contexts/TransformerContext";
+import { log }            from "./log";
 
 class NodeGenerator
 {
@@ -14,28 +15,46 @@ class NodeGenerator
 	createGetTypeImport(getTypeIdentifier?: ts.Identifier): { statement: ts.Statement, getTypeIdentifier: ts.Identifier }
 	{
 		getTypeIdentifier ??= ts.factory.createIdentifier("_tst_getType");
+		const packageName = ts.factory.createStringLiteral("tst-reflect");
+		const getTypeExportNameIdentifier = ts.factory.createIdentifier("getType");
 
-		const statement = ts.factory.createVariableStatement(
-			undefined,
-			[
-				// const _tst_getType = require("tst-reflect").getType;
-				ts.factory.createVariableDeclaration(
-					getTypeIdentifier,
-					undefined,
-					undefined,
-					ts.factory.createPropertyAccessExpression(
-						ts.factory.createCallExpression(
-							ts.factory.createIdentifier("require"),
-							undefined,
-							[
-								ts.factory.createStringLiteral("tst-reflect")
-							]
-						),
-						ts.factory.createIdentifier("getType")
+		const statement: ts.Statement = TransformerContext.instance.config.esmModuleKind
+			? ts.factory.createImportDeclaration(
+				undefined,
+				undefined,
+				ts.factory.createImportClause(
+					false, undefined,
+					ts.factory.createNamedImports([
+						ts.factory.createImportSpecifier(
+							false,
+							getTypeIdentifier,
+							getTypeExportNameIdentifier
+						)
+					])
+				),
+				packageName
+			)
+			: ts.factory.createVariableStatement(
+				undefined,
+				[
+					// const _tst_getType = require("tst-reflect").getType;
+					ts.factory.createVariableDeclaration(
+						getTypeIdentifier,
+						undefined,
+						undefined,
+						ts.factory.createPropertyAccessExpression(
+							ts.factory.createCallExpression(
+								ts.factory.createIdentifier("require"),
+								undefined,
+								[
+									packageName
+								]
+							),
+							getTypeExportNameIdentifier
+						)
 					)
-				)
-			]
-		);
+				]
+			);
 
 		return {
 			statement,
@@ -45,7 +64,7 @@ class NodeGenerator
 
 	createImport(importInformation: { filePath: string, isDefault?: boolean, identifier: string | ts.Identifier, isTypeOnlyImport?: boolean }): ImportDeclaration
 	{
-		const identifier = typeof importInformation.identifier === 'string'
+		const identifier = typeof importInformation.identifier === "string"
 			? ts.factory.createIdentifier(importInformation.identifier)
 			: importInformation.identifier;
 
