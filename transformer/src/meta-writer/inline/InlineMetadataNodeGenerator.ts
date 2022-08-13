@@ -30,25 +30,6 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 				namespaceImport: true
 			})	
 		];
-		
-		return [
-			factory.createVariableStatement(
-				undefined,
-				factory.createVariableDeclarationList(
-					[factory.createVariableDeclaration(
-						this.identifier,
-						undefined,
-						undefined,
-						factory.createCallExpression(
-							factory.createIdentifier("require"),
-							undefined,
-							[factory.createStringLiteral("tst-reflect")]
-						)
-					)],
-					ts.NodeFlags.Const
-				)
-			),
-		];
 	}
 
 	/**

@@ -1,10 +1,15 @@
 import { Context }                      from "contexts/Context";
+import * as path                        from "path";
 import {
 	MetadataType,
 	MetadataTypeValues
 }                                       from "../../config-options";
 import TransformerContext               from "../../contexts/TransformerContext";
-import { getRequireRelativePath }       from "../../helpers";
+import {
+	getRequireRelativePath,
+	isTsNode,
+	replaceExtension
+}                                       from "../../helpers";
 import { MetadataTransformerFactory }   from "../factories/MetadataTransformerFactory";
 import { MetadataWriterBase }           from "../MetadataWriterBase";
 import { TypeLibMetadataNodeGenerator } from "./TypeLibMetadataNodeGenerator";
