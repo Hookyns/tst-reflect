@@ -1,7 +1,8 @@
 {
 	"compilerOptions": {
-		"module": "commonjs",
-		"target": "ES2020",
+		"module": "NodeNext",
+//		"moduleResolution": "classic",
+		"target": "esnext",
 		"removeComments": true,
 		"sourceMap": true,
 		"experimentalDecorators": true,
@@ -16,7 +17,8 @@
 		]
 	},
 	"include": [
-		"**/*.ts"
+		"**/*.ts",
+		"**/*.mts"
 	],
 	"reflection": {
 //		"metadata": {

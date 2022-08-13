@@ -319,6 +319,10 @@ export declare class Type
      */
     get indexedAccessType(): IndexedAccessType | undefined;
     /**
+     * Returns information about function type.
+     */
+    get function(): FunctionInfo | undefined;
+    /**
      * List of underlying types in case Type is union or intersection
      */
     get types(): ReadonlyArray<Type>;
@@ -327,6 +331,10 @@ export declare class Type
      * This data is not set when the config mode is set to "universal"
      */
     get constructorDescription(): ConstructorImport | undefined;
+    /**
+     * Get definition of a generic type.
+     */
+    get genericTypeDefinition(): Type | undefined;
     /**
      * Base type
      * @description Base type from which this type extends from or undefined if type is Object.
@@ -418,6 +426,10 @@ export declare class Type
      */
     isNative(): boolean;
     /**
+     * Check whether the type is generic.
+     */
+    isGenericType(): boolean;
+    /**
      * Check if this is a primitive type ("string", "number", "boolean" etc.)
      */
     isPrimitive(): boolean;
@@ -442,6 +454,14 @@ export declare class Type
      */
     isPromise(): boolean;
     /**
+     * Check if this type is a Tuple
+     */
+    isTuple(): boolean;
+    /**
+     * Check if this type is an any
+     */
+    isAny(): boolean;
+    /**
      *
      * @return {boolean}
      */
@@ -458,7 +478,9 @@ export declare class Type
     /**
      * Constructor function in case Type is class
      */
-    getCtor(): Promise<Function | undefined>;
+    getCtor(): Promise<{
+        new (...args: any[]): any;
+    } | undefined>;
     /**
      * Returns array of type parameters.
      */

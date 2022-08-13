@@ -1,7 +1,12 @@
 .idea
-**/*.js
-**/*.js.map
-**/*.d.ts
+
+*.js
+*.js.map
+*.d.ts
+
+*.mjs
+*.mjs.map
+
 !dev/dev-compiler.js
 !repl/install.js
 dist

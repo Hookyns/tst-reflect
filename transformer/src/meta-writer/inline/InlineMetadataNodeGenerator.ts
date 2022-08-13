@@ -1,5 +1,6 @@
 import { createValueExpression }  from "../../createValueExpression";
 import { TypePropertiesSource }   from "../../declarations";
+import { nodeGenerator }          from "../../NodeGenerator";
 import { IMetadataNodeGenerator } from "../IMetadataNodeGenerator";
 import * as ts                    from "typescript";
 
@@ -22,6 +23,14 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 	 */
 	sourceFileMetaLibStatements(metaLibImportPath?: string): ts.Statement[]
 	{
+		return [
+			nodeGenerator.createImport({
+				filePath: "tst-reflect",
+				identifier: this.identifier,
+				namespaceImport: true
+			})	
+		];
+		
 		return [
 			factory.createVariableStatement(
 				undefined,

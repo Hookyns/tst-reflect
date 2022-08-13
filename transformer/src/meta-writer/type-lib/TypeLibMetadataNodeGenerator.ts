@@ -2,6 +2,7 @@ import { createValueExpression }  from "../../createValueExpression";
 import { TypePropertiesSource }   from "../../declarations";
 import * as ts                    from "typescript";
 import { factory }                from "typescript";
+import { nodeGenerator }          from "../../NodeGenerator";
 import { IMetadataNodeGenerator } from "../IMetadataNodeGenerator";
 
 
@@ -23,23 +24,28 @@ export class TypeLibMetadataNodeGenerator implements IMetadataNodeGenerator
 		const reflectionMetaIdentifier = factory.createIdentifier("___tst_reflection_meta");
 
 		return [
-			factory.createVariableStatement(
-				undefined,
-				factory.createVariableDeclarationList(
-					[factory.createVariableDeclaration(
-						reflectionMetaIdentifier, 
-						// factory.createIdentifier("___tst_reflection_meta"),
-						undefined,
-						undefined,
-						factory.createCallExpression(
-							factory.createIdentifier("require"),
-							undefined,
-							[factory.createStringLiteral(metaLibImportPath)]
-						)
-					)],
-					ts.NodeFlags.Const
-				)
-			),
+			nodeGenerator.createImport({
+				filePath: metaLibImportPath,
+				identifier: reflectionMetaIdentifier,
+				namespaceImport: true
+			}),
+			// factory.createVariableStatement(
+			// 	undefined,
+			// 	factory.createVariableDeclarationList(
+			// 		[factory.createVariableDeclaration(
+			// 			reflectionMetaIdentifier, 
+			// 			// factory.createIdentifier("___tst_reflection_meta"),
+			// 			undefined,
+			// 			undefined,
+			// 			factory.createCallExpression(
+			// 				factory.createIdentifier("require"),
+			// 				undefined,
+			// 				[factory.createStringLiteral(metaLibImportPath)]
+			// 			)
+			// 		)],
+			// 		ts.NodeFlags.Const
+			// 	)
+			// ),
 			factory.createVariableStatement(
 				undefined,
 				factory.createVariableDeclarationList(

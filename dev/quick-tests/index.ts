@@ -1,30 +1,13 @@
 import {
 	getType,
 	Type
-} from "tst-reflect";
+}                   from "tst-reflect";
 
-function foo<T extends string = "">(x: T, y: number)
-{
-	return 1;
-}
+interface Foo {}
+interface Bar {}
+interface Logger<T> {}
 
-const x = function(a: boolean) {}
-const y = (a: boolean) => a;
-
-printFunctionInfo(getType<typeof foo>());
-printFunctionInfo(getType<typeof x>());
-printFunctionInfo(getType<typeof y>());
-printFunctionInfo(getType(foo));
-
-function printFunctionInfo(fnc: Type)
-{
-	console.log("----------------------------------------");
-	console.log("function", fnc.name, fnc.fullName);
-
-	if (fnc.function)
-	{
-		console.log("return type:", fnc.function.returnType.name);
-		console.log("parameters:", fnc.function.getParameters().map(param => param.name + ": " + param.type.name).join(", "));
-		console.log("type parameters:", fnc.function.getTypeParameters().map(param => param.name).join(", "));
-	}
-}
+console.log(getType<Logger<Foo>>().fullName)
+console.log(getType<Logger<Bar>>().fullName)
+console.log(getType<Array<string>>().fullName)
+console.log(getType<Array<number>>().fullName)
