@@ -63,7 +63,14 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 				am: getAccessModifier(declaration?.modifiers),
 				acs: accessor,
 				ro: isReadonly(declaration?.modifiers) || accessor == Accessor.Getter,
-				o: declaration && (ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)) && !!declaration.questionToken
+				o: (memberSymbol.flags & ts.SymbolFlags.Optional) === ts.SymbolFlags.Optional
+					|| (
+						declaration
+						&& (
+							ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)
+						)
+						&& !!declaration.questionToken
+					)
 			};
 		});
 }
