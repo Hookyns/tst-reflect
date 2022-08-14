@@ -6,11 +6,12 @@ import { ConstructorImportDescription } from "./constructor-import";
 import { DecoratorDescription }         from "./decorator";
 import { FunctionTypeDescription }      from "./function-type";
 import { IndexedAccessTypeDescription } from "./indexed-access-type";
+import { IndexDescription }             from "./IndexInfo";
 import {
 	ConstructorDescription,
 	MethodDescription
-}                                       from "./method";
-import { PropertyDescription }          from "./property";
+}                                       from "./methodInfo";
+import { PropertyDescription }          from "./propertyInfo";
 
 /**
  * @internal
@@ -41,6 +42,11 @@ export interface TypeProperties
 	 * Properties
 	 */
 	props?: Array<PropertyDescription>;
+
+	/**
+	 * Indexes
+	 */
+	indxs?: Array<IndexDescription>;
 
 	/**
 	 * Methods

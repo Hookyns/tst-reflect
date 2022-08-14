@@ -11,9 +11,9 @@ import {
 	getDeclaration,
 	getType,
 	getUnknownTypeCall,
-	isReadonly,
-	UNKNOWN_TYPE_PROPERTIES
-} from "./helpers";
+	isArrayType,
+	isReadonly
+}                                    from "./helpers";
 
 /**
  * Return properties of type
@@ -23,58 +23,47 @@ import {
  */
 export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, context: Context): Array<PropertyDescriptionSource> | undefined
 {
-	if (symbol?.members)
+	if (isArrayType(type))
 	{
-		const members: Array<ts.Symbol> = Array.from(symbol.members.values() as any);
+		const resolvedTypeArguments: readonly ts.Type[] = context.typeChecker.getTypeArguments(type);
 
-		const properties = members
-			.filter(m => (m.flags & ts.SymbolFlags.Property) == ts.SymbolFlags.Property || (m.flags & ts.SymbolFlags.GetAccessor) == ts.SymbolFlags.GetAccessor || (m.flags & ts.SymbolFlags.SetAccessor) == ts.SymbolFlags.SetAccessor || m.escapedName === ts.InternalSymbolName.Index)
-			.map<PropertyDescriptionSource>((memberSymbol: ts.Symbol) =>
+		if (resolvedTypeArguments)
+		{
+			const properties = resolvedTypeArguments.map((type: ts.Type, index: number) =>
 			{
-				const declaration = getDeclaration(memberSymbol);
-				const accessor = getAccessor(declaration);
-				let type;
-
-				if (declaration && ts.isIndexSignatureDeclaration(declaration))
-				{
-					const indexSignature = declaration as ts.IndexSignatureDeclaration;
-					type = context.typeChecker.getTypeAtLocation(indexSignature.type);
-				}
-				else
-				{
-					type = getType(memberSymbol, context.typeChecker);
-				}
-
+				// TODO: Returning properties for Array is OK only in case that Array is Literal (eg. [number, string]). If it's generic Array (eg. Array<string>), it has unknown props but known generic type.
 				return {
-					n: memberSymbol.escapedName.toString(),
-					t: type && getTypeCall(type, memberSymbol, context, getCtorTypeReference(memberSymbol)) || getUnknownTypeCall(context),
-					d: getDecorators(memberSymbol, context),
-					am: getAccessModifier(declaration?.modifiers),
-					acs: accessor,
-					ro: isReadonly(declaration?.modifiers) || accessor == Accessor.Getter,
-					o: declaration && (ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)) && !!declaration.questionToken
+					n: index.toString(),
+					t: getTypeCall(type, undefined, context)
 				};
 			});
 
-		return properties.length ? properties : undefined;
+			return properties.length ? properties : undefined;
+		}
+
+		return undefined;
 	}
 
-	// If type is Array
-	const resolvedTypeArguments: readonly ts.Type[] = context.typeChecker.getTypeArguments(type as ts.TypeReference);//(type as any).resolvedTypeArguments;
-
-	if (resolvedTypeArguments)
-	{
-		const properties = resolvedTypeArguments.map((type: ts.Type, index: number) =>
+	return type.getProperties()
+		.filter(m =>
+			(m.flags & ts.SymbolFlags.Property) === ts.SymbolFlags.Property
+			|| (m.flags & ts.SymbolFlags.GetAccessor) === ts.SymbolFlags.GetAccessor
+			|| (m.flags & ts.SymbolFlags.SetAccessor) === ts.SymbolFlags.SetAccessor
+		)
+		.map<PropertyDescriptionSource>((memberSymbol: ts.Symbol) =>
 		{
-			// TODO: Returning properties for Array is OK only in case that Array is Literal (eg. [number, string]). If it's generic Array (eg. Array<string>), it has unknown props but known generic type.
+			const declaration = getDeclaration(memberSymbol);
+			const accessor = getAccessor(declaration);
+			let type = getType(memberSymbol, context.typeChecker);
+
 			return {
-				n: index.toString(),
-				t: getTypeCall(type, undefined, context)
+				n: memberSymbol.escapedName.toString(),
+				t: type && getTypeCall(type, memberSymbol, context, getCtorTypeReference(memberSymbol)) || getUnknownTypeCall(context),
+				d: getDecorators(memberSymbol, context),
+				am: getAccessModifier(declaration?.modifiers),
+				acs: accessor,
+				ro: isReadonly(declaration?.modifiers) || accessor == Accessor.Getter,
+				o: declaration && (ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)) && !!declaration.questionToken
 			};
 		});
-
-		return properties.length ? properties : undefined;
-	}
-
-	return undefined;
 }

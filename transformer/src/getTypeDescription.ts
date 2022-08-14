@@ -9,11 +9,12 @@ import {
 import { getConstructors }          from "./getConstructors";
 import { getDecorators }            from "./getDecorators";
 import { getExportOfConstructor }   from "./getExports";
+import { getIndexes }               from "./getIndexes";
 import getLiteralName               from "./getLiteralName";
 import {
 	getMethodGenerics,
 	getMethods
-} from "./getMethods";
+}                                   from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
 import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
@@ -140,7 +141,8 @@ export function getTypeDescription(
 						k: TypeKind.Object,
 						n: type.aliasSymbol.name,
 						fn: getTypeFullName(type, context),
-						props: getProperties(symbol, type, context)
+						props: getProperties(symbol, type, context),
+						indxs: getIndexes(type, context)
 					},
 					localType: false
 				};
@@ -149,7 +151,8 @@ export function getTypeDescription(
 			return {
 				properties: {
 					k: TypeKind.Object,
-					props: getProperties(symbol, type, context)
+					props: getProperties(symbol, type, context),
+					indxs: getIndexes(type, context)
 				},
 				localType: false
 			};
@@ -230,7 +233,8 @@ export function getTypeDescription(
 			return {
 				properties: {
 					k: TypeKind.Object,
-					props: getProperties(symbol, type, context)
+					props: getProperties(symbol, type, context),
+					indxs: getIndexes(type, context)
 				},
 				localType: false
 			};
@@ -284,7 +288,8 @@ export function getTypeDescription(
 			properties: {
 				n: type.aliasSymbol?.name.toString(),
 				k: TypeKind.Object,
-				props: getProperties(typeSymbol, type, context)
+				props: getProperties(typeSymbol, type, context),
+				indxs: getIndexes(type, context)
 			},
 			localType: false
 		};
@@ -300,7 +305,8 @@ export function getTypeDescription(
 		return {
 			properties: {
 				k: TypeKind.Object,
-				props: getProperties(typeSymbol, type, context)
+				props: getProperties(typeSymbol, type, context),
+				indxs: getIndexes(type, context)
 			},
 			localType: false
 		};
@@ -384,6 +390,7 @@ export function getTypeDescription(
 		n: typeSymbol.getName(),
 		fn: getTypeFullName(type, context),
 		props: getProperties(symbolToUse, type, context),
+		indxs: getIndexes(type, context),
 		meths: getMethods(symbolToUse, type, context),
 		decs: decorators,
 		args: typeArgs.map(t => getTypeCall(t, undefined, context))

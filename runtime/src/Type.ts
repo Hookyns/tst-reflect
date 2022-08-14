@@ -1,18 +1,19 @@
 import { FunctionInfo }       from "./descriptions/function-type";
+import { IndexInfo }          from "./descriptions/IndexInfo";
 import type { MetadataStore } from "./meta-stores";
 import {
-	Constructor,
-	Method,
-}                             from "./descriptions/method";
+	ConstructorInfo,
+	MethodInfo,
+}                             from "./descriptions/methodInfo";
 import { Decorator }          from "./descriptions/decorator";
 import { IndexedAccessType }  from "./descriptions/indexed-access-type";
 import { ConditionalType }    from "./descriptions/conditional-type";
 import {
 	ConstructorImport,
 	ConstructorImportActivator
-}                             from "./descriptions/constructor-import";
-import { Property, }  from "./descriptions/property";
-import { Parameter, } from "./descriptions/parameter";
+}                        from "./descriptions/constructor-import";
+import { PropertyInfo, } from "./descriptions/propertyInfo";
+import { Parameter, }    from "./descriptions/parameter";
 import { EnumInfo }   from "./descriptions/enum-info";
 import { TypeProperties }     from "./descriptions/type-properties";
 import { TypeKind }           from "./enums";
@@ -80,13 +81,15 @@ export class Type
 	/** @internal */
 	private _types!: Array<LazyType>;
 	/** @internal */
-	private _properties!: Array<Property>;
+	private _properties!: Array<PropertyInfo>;
 	/** @internal */
-	private _methods!: Array<Method>;
+	private _indexes!: Array<IndexInfo>;
+	/** @internal */
+	private _methods!: Array<MethodInfo>;
 	/** @internal */
 	private _decorators!: Array<Decorator>;
 	/** @internal */
-	private _constructors!: Array<Constructor>;
+	private _constructors!: Array<ConstructorInfo>;
 	/** @internal */
 	private _typeParameters!: Array<LazyType>;
 	/** @internal */
@@ -156,6 +159,7 @@ export class Type
 		this._kind = description.k;
 		this._constructors = description.ctors?.map(Mapper.mapConstructors) || [];
 		this._properties = description.props?.map(Mapper.mapProperties) || [];
+		this._indexes = description.indxs?.map(Mapper.mapIndexes) || [];
 		this._methods = description.meths?.map(Mapper.mapMethods) || [];
 		this._decorators = description.decs?.map(Mapper.mapDecorators) || [];
 		this._typeParameters = description.tp?.map(t => new LazyType(t)) || [];
@@ -468,6 +472,14 @@ export class Type
 	}
 
 	/**
+	 * Check if this type is a symbol
+	 */
+	isSymbol(): boolean
+	{
+		return this.isNative() && this.name.toLowerCase() == "symbol";
+	}
+
+	/**
 	 * Check if this type is a boolean
 	 */
 	isBoolean(): boolean
@@ -581,7 +593,7 @@ export class Type
 	/**
 	 * Returns constructor description when Type is a class
 	 */
-	getConstructors(): ReadonlyArray<Constructor> | undefined
+	getConstructors(): ReadonlyArray<ConstructorInfo> | undefined
 	{
 		if (!this.isClass())
 		{
@@ -594,15 +606,23 @@ export class Type
 	/**
 	 * Returns array of properties
 	 */
-	getProperties(): ReadonlyArray<Property>
+	getProperties(): ReadonlyArray<PropertyInfo>
 	{
 		return this._properties.slice();
 	}
 
 	/**
+	 * Returns array of indexes
+	 */
+	getIndexes(): ReadonlyArray<IndexInfo>
+	{
+		return this._indexes.slice();
+	}
+
+	/**
 	 * Returns array of methods
 	 */
-	getMethods(): ReadonlyArray<Method>
+	getMethods(): ReadonlyArray<MethodInfo>
 	{
 		return this._methods.slice();
 	}
@@ -617,11 +637,11 @@ export class Type
 
 	/**
 	 * Returns object with all methods and properties from current Type and all methods and properties inherited from base types and interfaces to this Type.
-	 * @return {{properties: {[p: string]: Property}, methods: {[p: string]: Method}}}
+	 * @return {{properties: {[p: string]: PropertyInfo}, methods: {[p: string]: MethodInfo}}}
 	 */
 	flattenInheritedMembers(): {
-		properties: { [propertyName: string]: Property },
-		methods: { [methodName: string]: Method }
+		properties: { [propertyName: string]: PropertyInfo },
+		methods: { [methodName: string]: MethodInfo }
 	}
 	{
 		return flatten(this);

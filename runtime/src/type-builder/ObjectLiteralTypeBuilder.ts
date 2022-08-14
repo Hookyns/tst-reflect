@@ -1,8 +1,8 @@
-import { PropertyDescription }   from "../descriptions/property";
+import { PropertyDescription } from "../descriptions/propertyInfo";
 import {
 	Accessor,
 	TypeKind
-}                                from "../enums";
+}                              from "../enums";
 import { getTypeOfRuntimeValue } from "../reflect";
 import { Type }                  from "../Type";
 import { TypeBuilderBase }       from "./TypeBuilderBase";

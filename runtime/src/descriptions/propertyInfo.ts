@@ -57,7 +57,7 @@ export interface PropertyDescription
 /**
  * Property description
  */
-export class Property
+export class PropertyInfo
 {
 	private readonly _type: LazyType;
 
@@ -86,11 +86,6 @@ export class Property
 	readonly optional: boolean;
 
 	/**
-	 * It's index property / indexer.
-	 */
-	readonly index: boolean;
-
-	/**
 	 * Access modifier
 	 */
 	readonly accessModifier: AccessModifier;
@@ -112,7 +107,6 @@ export class Property
 	protected constructor(description: PropertyDescription)
 	{
 		this.name = description.n;
-		this.index = description.n === "__index";
 		this._type = new LazyType(description.t);
 		this._decorators = description.d?.map(Mapper.mapDecorators) || [];
 		this.optional = description.o;
@@ -133,6 +127,6 @@ export class Property
 /**
  * @internal
  */
-export class PropertyActivator extends Property
+export class PropertyInfoActivator extends PropertyInfo
 {
 }

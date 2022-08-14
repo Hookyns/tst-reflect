@@ -9,10 +9,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 [//]: # (### Added)
 [//]: # (### Changed)
 
+## [0.11.0] - 2022-08-14 - transformer
+### Added
+- Type.isSymbol(): boolean;
+- Type.getIndexes(): IndexInfo[];
+
+### Changed
+- Class `Property` renamed to `PropertyInfo`,
+- class `Constructor` renamed to `ConstructorInfo`,
+- class `Method` renamed to `MethodInfo`,
+- property `index` removed from `PropertyInfo` - indexes are moved to separate collection - see `Type.getIndexes()`,
+- changed way how properties and indexes are generated, which add support of the Record<>, Omit<> etc.
+
 ## [0.10.1] - 2022-08-13 - transformer
 ### Added
 - Type.isGenericType(): boolean;
 - Type.genericTypeDefinition: Type | undefined;
+
 
 ### Changed
 - Each "instance" of a generic type is unique type with same genericTypeDefinition. 

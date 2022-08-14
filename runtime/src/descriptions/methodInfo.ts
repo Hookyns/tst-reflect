@@ -80,7 +80,7 @@ export abstract class MethodBase
 /**
  * Method details
  */
-export class Method extends MethodBase
+export class MethodInfo extends MethodBase
 {
 	private readonly _name: string;
 	private readonly _returnType: LazyType;
@@ -129,7 +129,7 @@ export class Method extends MethodBase
 	{
 		super(description.params);
 
-		if (new.target != MethodActivator)
+		if (new.target != MethodInfoActivator)
 		{
 			throw new Error("You cannot create instance of Method manually!");
 		}
@@ -163,7 +163,7 @@ export class Method extends MethodBase
 /**
  * @internal
  */
-export class MethodActivator extends Method
+export class MethodInfoActivator extends MethodInfo
 {
 }
 
@@ -178,7 +178,7 @@ export interface ConstructorDescription
 /**
  * Constructor details
  */
-export class Constructor extends MethodBase
+export class ConstructorInfo extends MethodBase
 {
 	/**
 	 * Internal constructor
@@ -188,7 +188,7 @@ export class Constructor extends MethodBase
 	{
 		super(description.params);
 
-		if (new.target != ConstructorActivator)
+		if (new.target != ConstructorInfoActivator)
 		{
 			throw new Error("You cannot create instance of Constructor manually!");
 		}
@@ -198,6 +198,6 @@ export class Constructor extends MethodBase
 /**
  * @internal
  */
-export class ConstructorActivator extends Constructor
+export class ConstructorInfoActivator extends ConstructorInfo
 {
 }

@@ -1,8 +1,8 @@
 import {
-	Method,
-	MethodActivator,
+	MethodInfo,
+	MethodInfoActivator,
 	MethodDescription
-} from "../descriptions/method";
+} from "../descriptions/methodInfo";
 
 export class MethodBuilder
 {
@@ -16,8 +16,8 @@ export class MethodBuilder
 	/**
 	 * Build Method info
 	 */
-	build(): Method
+	build(): MethodInfo
 	{
-		return Reflect.construct(Method, [this.description], MethodActivator);
+		return Reflect.construct(MethodInfo, [this.description], MethodInfoActivator);
 	}
 }

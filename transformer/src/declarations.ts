@@ -59,11 +59,17 @@ export type TypeDescription = {
  */
 export interface ParameterDescriptionSource
 {
-	// Name of the parameter
+	/**
+	 * Name of the parameter
+	 */
 	n: string;
-	// Is optional parameter?
-	// method(param?:string)
+
+	/**
+	 * Parameter is optional.
+	 * eg. method(param?:string)
+	 */
 	o?: boolean;
+
 	t: GetTypeCall | undefined;
 }
 
@@ -76,6 +82,11 @@ export interface PropertyDescriptionSource
 	 * Name of the property
 	 */
 	n: string;
+
+	/**
+	 * Index key type in case of Index.
+	 */
+	it?: GetTypeCall;
 
 	/**
 	 * Type of the property
@@ -106,6 +117,27 @@ export interface PropertyDescriptionSource
 	 * Optional
 	 */
 	o?: boolean;
+}
+
+/**
+ * @internal
+ */
+export interface IndexDescriptionSource
+{
+	/**
+	 * Index key type.
+	 */
+	k?: GetTypeCall;
+
+	/**
+	 * Type of the index value.
+	 */
+	t: GetTypeCall;
+
+	/**
+	 * Readonly index.
+	 */
+	ro?: boolean;
 }
 
 /**
@@ -301,6 +333,11 @@ export interface TypePropertiesSource
 	 * Properties
 	 */
 	props?: Array<PropertyDescriptionSource>;
+
+	/**
+	 * Indexes
+	 */
+	indxs?: Array<IndexDescriptionSource>;
 
 	/**
 	 * Methods

@@ -1,8 +1,8 @@
 import {
-	Property,
-	PropertyActivator,
+	PropertyInfo,
+	PropertyInfoActivator,
 	PropertyDescription
-} from "../descriptions/property";
+} from "../descriptions/propertyInfo";
 
 export class PropertyBuilder
 {
@@ -16,8 +16,8 @@ export class PropertyBuilder
 	/**
 	 * Build Property info
 	 */
-	build(): Property
+	build(): PropertyInfo
 	{
-		return Reflect.construct(Property, [this.description], PropertyActivator);
+		return Reflect.construct(PropertyInfo, [this.description], PropertyInfoActivator);
 	}
 }

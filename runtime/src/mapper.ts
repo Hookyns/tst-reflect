@@ -2,24 +2,28 @@ import {
 	Decorator,
 	DecoratorActivator,
 	DecoratorDescription
-}                    from "./descriptions/decorator";
+}                           from "./descriptions/decorator";
 import {
-	Constructor,
-	ConstructorActivator,
+	IndexDescription,
+	IndexInfo
+} from "./descriptions/IndexInfo";
+import {
+	ConstructorInfo,
+	ConstructorInfoActivator,
 	ConstructorDescription,
-	Method,
-	MethodActivator,
+	MethodInfo,
+	MethodInfoActivator,
 	MethodDescription
-}                    from "./descriptions/method";
+}                           from "./descriptions/methodInfo";
 import {
 	Parameter,
 	ParameterDescription
-}                    from "./descriptions/parameter";
+}                           from "./descriptions/parameter";
 import {
-	Property,
-	PropertyActivator,
+	PropertyInfo,
+	PropertyInfoActivator,
 	PropertyDescription
-}                    from "./descriptions/property";
+}                    from "./descriptions/propertyInfo";
 import type { Type } from "./Type";
 
 export const Mapper = {
@@ -36,26 +40,35 @@ export const Mapper = {
 	 * @internal
 	 * @param p
 	 */
-	mapProperties(p: PropertyDescription): Property
+	mapProperties(p: PropertyDescription): PropertyInfo
 	{
-		return Reflect.construct(Property, [p], PropertyActivator);
+		return Reflect.construct(PropertyInfo, [p], PropertyInfoActivator);
+	},
+
+	/**
+	 * @internal
+	 * @param i
+	 */
+	mapIndexes(i: IndexDescription): IndexInfo
+	{
+		return new IndexInfo(i);
 	},
 
 	/**
 	 * @internal
 	 * @param c
 	 */
-	mapConstructors(c: ConstructorDescription): Constructor
+	mapConstructors(c: ConstructorDescription): ConstructorInfo
 	{
-		return Reflect.construct(Constructor, [c], ConstructorActivator);
+		return Reflect.construct(ConstructorInfo, [c], ConstructorInfoActivator);
 	},
 
 	/**
 	 * @internal
 	 * @param m
 	 */
-	mapMethods(m: MethodDescription): Method
+	mapMethods(m: MethodDescription): MethodInfo
 	{
-		return Reflect.construct(Method, [m], MethodActivator);
+		return Reflect.construct(MethodInfo, [m], MethodInfoActivator);
 	}
 };

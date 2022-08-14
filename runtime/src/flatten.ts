@@ -1,6 +1,6 @@
-import { Method }           from "./descriptions/method";
-import { Property }         from "./descriptions/property";
-import type { Type }        from "./Type";
+import { MethodInfo }   from "./descriptions/methodInfo";
+import { PropertyInfo } from "./descriptions/propertyInfo";
+import type { Type }    from "./Type";
 import type { TypeBuilder } from "./type-builder/TypeBuilder";
 
 let _TypeBuilder: typeof TypeBuilder = {} as any;
@@ -11,8 +11,8 @@ export function setTypeBuilder(typeBuilder: typeof TypeBuilder)
 }
 
 export function flatten(typeToFlatten: Type): {
-	properties: { [propertyName: string]: Property },
-	methods: { [methodName: string]: Method }
+	properties: { [propertyName: string]: PropertyInfo },
+	methods: { [methodName: string]: MethodInfo }
 }
 {
 	const interfaceMembers = typeToFlatten.interface?.flattenInheritedMembers() ?? { properties: {}, methods: {} };
@@ -24,8 +24,8 @@ export function flatten(typeToFlatten: Type): {
 	if (typeToFlatten.isUnionOrIntersection())
 	{
 		// Map of properties/methods through united types
-		const propertyUnitedMap = new Map<string, Array<Property>>();
-		const methodUnitedMap = new Map<string, Array<Method>>();
+		const propertyUnitedMap = new Map<string, Array<PropertyInfo>>();
+		const methodUnitedMap = new Map<string, Array<MethodInfo>>();
 
 		for (const type of typeToFlatten.types)
 		{

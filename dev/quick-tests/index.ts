@@ -1,13 +1,56 @@
 import {
 	getType,
 	Type
-}                   from "tst-reflect";
+} from "tst-reflect";
 
-interface Foo {}
-interface Bar {}
-interface Logger<T> {}
+function dec(..._: any) {
+	
+}
 
-console.log(getType<Logger<Foo>>().fullName)
-console.log(getType<Logger<Bar>>().fullName)
-console.log(getType<Array<string>>().fullName)
-console.log(getType<Array<number>>().fullName)
+export class Temp
+{
+	@dec
+	id: string;
+	email: string;
+	
+	get Email() {
+		return this.email;
+	}
+	
+	set Id(val) {
+		this.id = val;
+	}
+
+	[prop: string]: any;
+	readonly [prop: symbol]: any;
+
+	constructor()
+	constructor(x: any)
+	constructor(x?: any)
+	{
+	}
+
+	foo()
+	{
+		return "";
+	}
+
+	bar()
+	{
+
+	}
+}
+
+type T = {
+	[key in keyof Temp]: Temp[key]
+} & {
+	foo(): boolean;
+	prop: string;
+}
+
+type R = Record<string, Temp>;
+
+getType<Temp>();
+getType<T>();
+getType<Record<string, Temp>>();
+getType<R>();
