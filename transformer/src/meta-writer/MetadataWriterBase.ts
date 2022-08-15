@@ -401,14 +401,6 @@ export abstract class MetadataWriterBase implements IMetadataWriter
 	 */
 	private getRelativeMetaLibPath(relativeToSourceFile: ts.SourceFile): string
 	{
-		if (!isTsNode())
-		{
-			return replaceExtension(
-				"./" + path.relative(path.dirname(relativeToSourceFile.fileName), this.metadataFilePath),
-				".js"
-			);
-		}
-
 		return getRequireRelativePath(relativeToSourceFile.fileName, this.metadataFilePath);
 	}
 

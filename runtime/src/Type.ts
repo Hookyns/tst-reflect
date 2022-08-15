@@ -520,6 +520,14 @@ export class Type
 	}
 
 	/**
+	 * Check if this type is a "unknown".
+	 */
+	isUnknown(): boolean
+	{
+		return this.isNative() && this.name == "unknown";
+	}
+
+	/**
 	 *
 	 * @return {boolean}
 	 */

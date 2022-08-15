@@ -546,10 +546,25 @@ export function isTsNode(): boolean
 
 export function getRequireRelativePath(sourceFileDefiningImport: string, sourceFileImporting: string)
 {
-	return replaceExtension(
-		"./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting),
-		""
-	);
+	const filePath = "./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting);
+	const ext = path.extname(filePath);
+
+	if (ext === ".ts")
+	{
+		return replaceExtension(filePath, ".js");
+	}
+
+	if (ext === ".tsx")
+	{
+		return replaceExtension(filePath, ".jsx");
+	}
+
+	if (ext === ".mts")
+	{
+		return replaceExtension(filePath, ".mjs");
+	}
+
+	return filePath;
 }
 
 export function getOutPathForSourceFile(sourceFileName: string, context: TransformerContext, useTsNode: boolean = true): string
