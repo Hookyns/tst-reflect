@@ -3,6 +3,7 @@ import * as ts                      from "typescript";
 import { MetadataTypeValues }       from "./config-options";
 import { Context }                  from "./contexts/Context";
 import {
+	GetTypeCall,
 	TypeDescription,
 	TypePropertiesSource
 }                                   from "./declarations";
@@ -22,12 +23,14 @@ import { getSignatureParameters }   from "./getSignatureParameters";
 import { getTypeCall }              from "./getTypeCall";
 import {
 	createCtorPromise,
+	getBooleanTypeCall,
 	getDeclaration,
 	getFunctionLikeSignature,
 	getType,
 	getTypeFullName,
 	getTypeKind,
 	getUnknownTypeCall,
+	simplifyUnionWithTrueFalse,
 	UNKNOWN_TYPE_PROPERTIES
 } from "./helpers";
 import { log }                      from "./log";
@@ -103,13 +106,22 @@ export function getTypeDescription(
 
 	if (type.isUnionOrIntersection())
 	{
-		const types = type.types
-			.map(childType => getTypeCall(
-					childType,
-					undefined, //checker.getSymbolAtLocation(typeNode),
-					context
-				)
-			);
+		let types: Array<GetTypeCall>;
+
+		if (type.isUnion())
+		{
+			types = simplifyUnionWithTrueFalse(type, context);
+		}
+		else
+		{
+			types = (type as ts.IntersectionType).types
+				.map(childType => getTypeCall(
+						childType,
+						undefined,
+						context
+					)
+				);
+		}
 
 		return {
 			properties: {
@@ -349,8 +361,7 @@ export function getTypeDescription(
 	}
 	else if ((typeSymbol.flags & ts.SymbolFlags.Function) !== 0)
 	{
-
-		const functionSignature = getFunctionLikeSignature(typeSymbol, context.typeChecker);
+		const functionSignature = getFunctionLikeSignature(typeSymbol, undefined, context.typeChecker);
 		const returnType = functionSignature?.getReturnType();
 
 		return {
@@ -374,15 +385,15 @@ export function getTypeDescription(
 	{
 		return { properties: UNKNOWN_TYPE_PROPERTIES, localType: false };
 	}
-		
+
 	const decorators = getDecorators(typeSymbol, context);
 	const symbolToUse = typeSymbol || symbol;
 
 	let localType = false;
-	
+
 	const typeArgs = context.typeChecker.getTypeArguments(type as ts.TypeReference);
 	const isGenericType = (((type as ts.ObjectType).objectFlags ?? 0) & ts.ObjectFlags.Reference) !== 0 && typeArgs.length !== 0;
-	
+
 	const properties: TypePropertiesSource = {
 		k: kind,
 		isg: isGenericType,

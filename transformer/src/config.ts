@@ -117,7 +117,7 @@ export interface ConfigObject
 	 * @description Either a parsed command line or a parsed tsconfig.json.
 	 */
 	parsedCommandLine?: ts.ParsedCommandLine;
-
+	
 	isUniversalMode(): boolean;
 
 	isServerMode(): boolean;

@@ -13,7 +13,10 @@ import {
 	ConstructorImportDescriptionSource,
 	GetTypeCall
 }                                    from "./declarations";
-import { getTypeCallFromProperties } from "./getTypeCall";
+import {
+	getTypeCall,
+	getTypeCallFromProperties
+} from "./getTypeCall";
 import { log }                       from "./log";
 
 export const PATH_SEPARATOR_REGEX = /\\/g;
@@ -43,6 +46,17 @@ export const UNKNOWN_TYPE_PROPERTIES = { n: "unknown", k: TypeKind.Native };
  * Variable to cache created "unknown" type call
  */
 let unknownTypeCallExpression: GetTypeCall | undefined = undefined;
+
+/**
+ * Properties of boolean type
+ * @type {{k: TypeKind, n: string}}
+ */
+export const BOOLEAN_TYPE_PROPERTIES = { n: "Boolean", k: TypeKind.Native };
+
+/**
+ * Variable to cache created "boolean" type call
+ */
+let booleanTypeCallExpression: GetTypeCall | undefined = undefined;
 
 /**
  * Get type of symbol
@@ -480,7 +494,7 @@ export function isReadonly(modifiers?: ts.ModifiersArray): boolean
 }
 
 /**
- * Return true if there is readonly modifier
+ * Return GetTypeCall for type "unknown"
  * @param context
  */
 export function getUnknownTypeCall(context: Context): GetTypeCall
@@ -489,13 +503,22 @@ export function getUnknownTypeCall(context: Context): GetTypeCall
 }
 
 /**
+ * Return GetTypeCall for type "boolean"
+ * @param context
+ */
+export function getBooleanTypeCall(context: Context): GetTypeCall
+{
+	return booleanTypeCallExpression || (booleanTypeCallExpression = getTypeCallFromProperties(BOOLEAN_TYPE_PROPERTIES, context));
+}
+
+/**
  * Return signature of method/function
  * @param symbol
  * @param checker
  */
-export function getFunctionLikeSignature(symbol: ts.Symbol, checker: ts.TypeChecker): ts.Signature | undefined
+export function getFunctionLikeSignature(symbol: ts.Symbol, declaration: ts.Declaration | undefined, checker: ts.TypeChecker): ts.Signature | undefined
 {
-	const declaration = getDeclaration(symbol);
+	declaration ??= getDeclaration(symbol);
 
 	if (declaration && (ts.isMethodSignature(declaration) || ts.isMethodDeclaration(declaration)))
 	{
@@ -680,4 +703,70 @@ export function isNodeIgnored(node: ts.Node)
 export function ignoreNode(node: ts.Node)
 {
 	(node as any)[IGNORE_PROPERTY_NAME] = true;
+}
+
+/**
+ * Simplify union by replacing separated true | false by boolean type.
+ * @param type
+ * @param context
+ */
+export function simplifyUnionWithTrueFalse(type: ts.UnionType, context: Context): Array<GetTypeCall>
+{
+	const types: Array<GetTypeCall> = [];
+
+	let trueType: ts.Type | undefined = undefined, falseType: ts.Type | undefined = undefined;
+
+	for (let i = 0; i < type.types.length; i++)
+	{
+		const childType = type.types[i];
+
+		if ((childType.flags & ts.TypeFlags.BooleanLiteral) !== 0)
+		{
+			if ((childType as any).intrinsicName === "true")
+			{
+				trueType = childType;
+			}
+			else
+			{
+				falseType = childType;
+			}
+		}
+		else
+		{
+			types.push(
+				getTypeCall(
+					childType,
+					undefined,
+					context
+				)
+			);
+		}
+	}
+
+	if (trueType && falseType)
+	{
+		types.push(getBooleanTypeCall(context));
+	}
+	else if (trueType)
+	{
+		types.push(
+			getTypeCall(
+				trueType,
+				undefined,
+				context
+			)
+		);
+	}
+	else if (falseType)
+	{
+		types.push(
+			getTypeCall(
+				falseType,
+				undefined,
+				context
+			)
+		);
+	}
+
+	return types;
 }

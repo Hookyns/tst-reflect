@@ -528,6 +528,38 @@ export class Type
 	}
 
 	/**
+	 * Check if this type is a "undefined" literal.
+	 */
+	isUndefined(): boolean
+	{
+		return this.isNative() && this.name == "undefined";
+	}
+
+	/**
+	 * Check if this type is a "null" literal.
+	 */
+	isNull(): boolean
+	{
+		return this.isNative() && this.name == "null";
+	}
+
+	/**
+	 * Check if this type is a "true" literal.
+	 */
+	isTrue(): boolean
+	{
+		return this.isNative() && this.name == "true";
+	}
+
+	/**
+	 * Check if this type is a "false" literal.
+	 */
+	isFalse(): boolean
+	{
+		return this.isNative() && this.name == "false";
+	}
+
+	/**
 	 *
 	 * @return {boolean}
 	 */
@@ -741,6 +773,13 @@ export class Type
 		{
 			return true;
 		}
+
+		if ((this.isTrue() || this.isFalse()) && target.isBoolean())
+		{
+			return true;
+		}
+		
+		// TODO: Literals. "foo".isAssignableTo(string), 5.isAssignableTo(number)
 
 		// Container types check
 		if (this.kind == TypeKind.Container || target.kind == TypeKind.Container)

@@ -54,7 +54,28 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 		{
 			const declaration = getDeclaration(memberSymbol);
 			const accessor = getAccessor(declaration);
+			const optional = (memberSymbol.flags & ts.SymbolFlags.Optional) === ts.SymbolFlags.Optional
+				|| (
+					declaration
+					&& (
+						ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)
+					)
+					&& !!declaration.questionToken
+				);
+			
 			let type = getType(memberSymbol, context.typeChecker);
+			
+			// NOTE: Removing undefined from types of optional properties. This is not a good idea.
+			// if (type && optional && context.config.parsedCommandLine?.options.strictNullChecks === true)
+			// {
+			// 	const addNullBack = type.isUnion() && type.types.some(t => (t.flags & ts.TypeFlags.Null) !== 0);
+			//	
+			// 	type = context.typeChecker.getNonNullableType(type);
+			//	
+			// 	if (addNullBack) {
+			// 		type = context.typeChecker.getNullableType(type, ts.TypeFlags.Null);
+			// 	}
+			// }
 
 			return {
 				n: memberSymbol.escapedName.toString(),
@@ -63,14 +84,7 @@ export function getProperties(symbol: ts.Symbol | undefined, type: ts.Type, cont
 				am: getAccessModifier(declaration?.modifiers),
 				acs: accessor,
 				ro: isReadonly(declaration?.modifiers) || accessor == Accessor.Getter,
-				o: (memberSymbol.flags & ts.SymbolFlags.Optional) === ts.SymbolFlags.Optional
-					|| (
-						declaration
-						&& (
-							ts.isPropertyDeclaration(declaration) || ts.isPropertySignature(declaration)
-						)
-						&& !!declaration.questionToken
-					)
+				o: optional
 			};
 		});
 }

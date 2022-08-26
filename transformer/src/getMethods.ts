@@ -1,9 +1,9 @@
-import * as ts                 from "typescript";
-import { Context }             from "./contexts/Context";
+import * as ts                    from "typescript";
+import { Context }                from "./contexts/Context";
 import {
 	GetTypeCall,
 	MethodDescriptionSource
-}                              from "./declarations";
+}                                 from "./declarations";
 import { getDecorators }          from "./getDecorators";
 import { getSignatureParameters } from "./getSignatureParameters";
 import { getTypeCall }            from "./getTypeCall";
@@ -11,7 +11,7 @@ import {
 	getAccessModifier,
 	getFunctionLikeSignature,
 	getUnknownTypeCall,
-}                              from "./helpers";
+}                                 from "./helpers";
 
 export function getMethodGenerics(symbol: ts.Symbol, context: Context): Array<GetTypeCall>
 {
@@ -28,12 +28,13 @@ export function getMethodGenerics(symbol: ts.Symbol, context: Context): Array<Ge
  * this for other method descriptions, than just a class method
  *
  * @param {ts.Symbol} symbol
+ * @param {ts.Declaration} declaration
  * @param {Context} context
  * @returns {MethodDescriptionSource}
  */
-export function getMethodDescription(symbol: ts.Symbol, context: Context): MethodDescriptionSource
+export function getMethodDescription(symbol: ts.Symbol, declaration: ts.Declaration, context: Context): MethodDescriptionSource
 {
-	const methodSignature = getFunctionLikeSignature(symbol, context.typeChecker);
+	const methodSignature = getFunctionLikeSignature(symbol, declaration, context.typeChecker);
 	const returnType = methodSignature?.getReturnType();
 
 	return {
@@ -60,11 +61,15 @@ export function getMethods(symbol: ts.Symbol | undefined, type: ts.Type, context
 		return undefined;
 	}
 
-	const members: Array<ts.Symbol> = Array.from(symbol.members.values() as any);
+	const members = type.getProperties();
 
 	const methods = members
 		.filter(m => (m.flags & ts.SymbolFlags.Method) === ts.SymbolFlags.Method || (m.flags & ts.SymbolFlags.Function) === ts.SymbolFlags.Function)
-		.map((memberSymbol: ts.Symbol) => getMethodDescription(memberSymbol, context));
+		.flatMap(
+			(memberSymbol: ts.Symbol) => memberSymbol.getDeclarations()?.map(
+				declaration => getMethodDescription(memberSymbol, declaration, context)
+			) ?? []
+		);
 
 	return methods.length ? methods : undefined;
 }
