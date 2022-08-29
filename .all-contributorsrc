@@ -111,6 +111,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "bjsi",
+      "name": "Jamesb | Experimental Learning",
+      "avatar_url": "https://avatars.githubusercontent.com/u/58147075?v=4",
+      "profile": "https://experimental-learning.com/",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
