@@ -37,7 +37,8 @@ export class FunctionBuilder extends TypeBuilderBase
 		builder.setParameters(paramsIterator.map(i => ({
 			n: "param" + i,
 			t: Type.Any,
-			o: false
+			o: false,
+			var: false
 		})));
 
 		builder.setReturnType(Type.Unknown);

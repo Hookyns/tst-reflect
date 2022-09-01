@@ -71,6 +71,16 @@ export interface ParameterDescriptionSource
 	o?: boolean;
 
 	t: GetTypeCall | undefined;
+
+	/**
+	 * Is variadic (e.g: ...args: any[] )
+	 */
+	var: boolean
+
+	/**
+	 * Default value
+	 */
+	dv?: any
 }
 
 /**

@@ -23,6 +23,16 @@ export interface ParameterDescription
 	 * Optional parameter
 	 */
 	o: boolean;
+
+	/**
+	 * Is variadic (e.g: ...args: any[] )
+	 */
+	var: boolean
+
+	/**
+	 * Default value
+	 */
+	dv?: any
 }
 
 /**
@@ -51,6 +61,17 @@ export class Parameter
 	public readonly optional: boolean;
 
 	/**
+	 * Is parameter is variadic (e.g ...args)
+	 */
+	public readonly variadic: boolean;
+
+	/**
+	 * Default parameter value
+	 */
+	public readonly defaultValue?: any;
+
+
+	/**
 	 * @internal
 	 * @param properties
 	 */
@@ -59,5 +80,7 @@ export class Parameter
 		this._type = new LazyType(properties.t);
 		this.name = properties.n;
 		this.optional = properties.o;
+		this.variadic = properties.var;
+		this.defaultValue = properties.dv;
 	}
 }
