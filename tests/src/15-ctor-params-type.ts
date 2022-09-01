@@ -21,6 +21,13 @@ class FooService
 	{
 	}
 }
+//
+// class BarService
+// {
+// 	constructor(private foo: FooService = new FooService(42))
+// 	{
+// 	}
+// }
 
 test("getConstructors() params type", async () => {
 	const type = getType<Service>();
@@ -61,5 +68,22 @@ test("getConstructors() variadic and default value", async () => {
 	expect(params[1].variadic).toBe(false);
 
 	expect(params[2].defaultValue).toBe(undefined);
+	expect(params[2].optional).toBe(true);
 	expect(params[2].variadic).toBe(true);
 });
+
+// TODO: Handle new class instance as default value
+// test("getConstructors() default value class instance", async () => {
+// 	const type = getType<BarService>();
+// 	const ctors = type.getConstructors();
+//
+// 	expect(ctors).toBeDefined();
+// 	expect(ctors).toHaveLength(1);
+//
+// 	const params = ctors![0].getParameters();
+// 	expect(params).toBeDefined();
+// 	expect(params).toHaveLength(1);
+//
+// 	expect(params[0].defaultValue).toBeInstanceOf(FooService);
+// 	expect(params[0].variadic).toBe(false);
+// });

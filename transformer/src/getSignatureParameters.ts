@@ -35,9 +35,9 @@ export function getSignatureParameters(signature: ts.Signature, context: Context
 		parameters.push({
 			n: parameterSymbol.getName(),
 			t: type && getTypeCall(type, type.symbol, context, getCtorTypeReference(parameterSymbol)) || getUnknownTypeCall(context),
-			o: declaration.questionToken !== undefined || declaration.initializer !== undefined,
+			o: declaration.questionToken !== undefined || declaration.initializer !== undefined || declaration.dotDotDotToken !== undefined,
 			var: !!declaration?.dotDotDotToken,
-			dv: declaration.initializer,
+			dv: type?.isClass() ? null /*TODO: handle class, but how ? */ : declaration.initializer,
 		});
 	}
 
