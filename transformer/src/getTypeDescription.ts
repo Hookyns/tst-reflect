@@ -12,10 +12,7 @@ import { getDecorators }            from "./getDecorators";
 import { getExportOfConstructor }   from "./getExports";
 import { getIndexes }               from "./getIndexes";
 import getLiteralName               from "./getLiteralName";
-import {
-	getMethodGenerics,
-	getMethods
-}                                   from "./getMethods";
+import { getMethods }               from "./getMethods";
 import { getNativeTypeDescription } from "./getNativeTypeDescription";
 import { getNodeLocationText }      from "./getNodeLocationText";
 import { getProperties }            from "./getProperties";
@@ -23,16 +20,14 @@ import { getSignatureParameters }   from "./getSignatureParameters";
 import { getTypeCall }              from "./getTypeCall";
 import {
 	createCtorPromise,
-	getBooleanTypeCall,
 	getDeclaration,
-	getFunctionLikeSignature,
 	getType,
 	getTypeFullName,
 	getTypeKind,
 	getUnknownTypeCall,
 	simplifyUnionWithTrueFalse,
 	UNKNOWN_TYPE_PROPERTIES
-} from "./helpers";
+}                                   from "./helpers";
 import { log }                      from "./log";
 import { nodeGenerator }            from "./NodeGenerator";
 
@@ -361,19 +356,20 @@ export function getTypeDescription(
 	}
 	else if ((typeSymbol.flags & ts.SymbolFlags.Function) !== 0)
 	{
-		const functionSignature = getFunctionLikeSignature(typeSymbol, undefined, context.typeChecker);
-		const returnType = functionSignature?.getReturnType();
-
 		return {
 			properties: {
 				k: TypeKind.Function,
 				n: typeSymbol.getName(),
 				fn: getTypeFullName(type, context),
-				fnc: {
-					params: functionSignature && getSignatureParameters(functionSignature, context),
-					rt: returnType && getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
-					tp: getMethodGenerics(typeSymbol, context)
-				}
+				sg: type.getCallSignatures().map(signature => {
+					const returnType = signature.getReturnType();
+
+					return ({
+						params: getSignatureParameters(signature, context),
+						rt: getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
+						tp: signature.getTypeParameters()?.map(typeParameter => getTypeCall(typeParameter, typeParameter.symbol, context))
+					});
+				})
 			},
 			localType: false
 		};

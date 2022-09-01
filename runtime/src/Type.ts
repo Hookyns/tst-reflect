@@ -105,7 +105,7 @@ export class Type
 	/** @internal */
 	private _indexedAccessType?: IndexedAccessType;
 	/** @internal */
-	private _functionType?: FunctionInfo;
+	private _functionSignatures!: Array<FunctionInfo>;
 	/** @internal */
 	private _genericTypeConstraint?: LazyType;
 	/** @internal */
@@ -173,7 +173,7 @@ export class Type
 		this._typeArgs = description.args?.map(t => new LazyType(t)) || [];
 		this._conditionalType = description.ct ? new ConditionalType(description.ct) : undefined;
 		this._indexedAccessType = description.iat ? new IndexedAccessType(description.iat) : undefined;
-		this._functionType = description.fnc ? new FunctionInfo(description.fnc) : undefined;
+		this._functionSignatures = description.sg?.map(signature => new FunctionInfo(signature)) ?? [];
 		this._genericTypeConstraint = description.con ? new LazyType(description.con): undefined;
 		this._genericTypeDefault = description.def ? new LazyType(description.def) : undefined;
 		this._isGenericType = description.isg ? description.isg : false;
@@ -202,14 +202,6 @@ export class Type
 	get indexedAccessType(): IndexedAccessType | undefined
 	{
 		return this._indexedAccessType;
-	}
-
-	/**
-	 * Returns information about function type.
-	 */
-	get function(): FunctionInfo | undefined
-	{
-		return this._functionType;
 	}
 
 	/**
@@ -612,6 +604,14 @@ export class Type
 	getCtor(): Promise<{ new(...args: any[]): any } | undefined>
 	{
 		return this._ctor?.() ?? Promise.resolve(undefined);
+	}
+
+	/**
+	 * Returns array of function call signatures.
+	 */
+	getSignatures(): ReadonlyArray<FunctionInfo>
+	{
+		return this._functionSignatures.slice();
 	}
 
 	/**
