@@ -120,6 +120,16 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "carloszimm",
+      "name": "Carlos Zimmerle",
+      "avatar_url": "https://avatars.githubusercontent.com/u/4553211?v=4",
+      "profile": "https://www.linkedin.com/in/carloszimmerle/",
+      "contributions": [
+        "ideas",
+        "bug"
+      ]
     }
   ],
   "contributorsPerLine": 7,
