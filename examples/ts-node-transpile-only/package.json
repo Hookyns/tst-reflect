@@ -1,0 +1,18 @@
+{
+	"private": true,
+	"type": "module",
+	"scripts": {
+		"start": "ts-node index.ts --transpileOnly",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"dependencies": {
+		"ts-node": "^10.9.1",
+		"tst-reflect": "latest"
+	},
+	"devDependencies": {
+		"@types/node": "^16.0.0",
+		"tst-reflect-transformer": "latest",
+		"ttypescript": "1.x",
+		"typescript": "^4.7.0"
+	}
+}

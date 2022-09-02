@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"module": "NodeNext",
+		"strictNullChecks": true,
+		"target": "esnext",
+		"experimentalDecorators": true,
+		"rootDir": "./",
+		"plugins": [
+			{
+				"transform": "tst-reflect-transformer"
+			}
+		]
+	},
+	"include": ["index.ts", "src/**/*.ts"],
+	"ts-node": {
+		"files": true,
+		"esm": true,
+		"compiler": "ttypescript"
+	},
+	"reflection": {
+		"metadata": false,
+		"debugMode": false
+	}
+}
