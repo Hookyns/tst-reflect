@@ -1,0 +1,19 @@
+{
+	"private": true,
+	"main": "index.js",
+	"type": "module",
+	"scripts": {
+		"start": "ttsc & node index.js",
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Roman Jámbor",
+	"license": "MIT",
+	"devDependencies": {
+		"typescript": "4.x",
+		"ttypescript": "1.x",
+		"tst-reflect-transformer": "latest"
+	},
+	"dependencies": {
+		"tst-reflect": "latest"
+	}
+}

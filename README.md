@@ -7,7 +7,7 @@
 [![License MIT](https://img.shields.io/badge/License-MIT-brightgreen?style=flat-square)](https://opensource.org/licenses/MIT)
 ![Code coverage](./coverage/badge.svg)
 [![Twitter](https://img.shields.io/twitter/url/https/twitter.com/cloudposse.svg?style=social&label=Follow)](https://twitter.com/hookyns)<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-11-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 [![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=tst-reflect&theme=tokyonight)](https://github.com/Hookyns/tst-reflect)
@@ -292,12 +292,10 @@ getType({
 ## Synopsis
 
 ```typescript
-
 /**
  * Object representing TypeScript type in memory
  */
-export declare class Type
-{
+export declare class Type {
     static readonly Object: Type;
     static readonly Unknown: Type;
     static readonly Any: Type;
@@ -318,10 +316,6 @@ export declare class Type
      * Returns information about indexed access type.
      */
     get indexedAccessType(): IndexedAccessType | undefined;
-    /**
-     * Returns information about function type.
-     */
-    get function(): FunctionInfo | undefined;
     /**
      * List of underlying types in case Type is union or intersection
      */
@@ -442,6 +436,10 @@ export declare class Type
      */
     isNumber(): boolean;
     /**
+     * Check if this type is a symbol
+     */
+    isSymbol(): boolean;
+    /**
      * Check if this type is a boolean
      */
     isBoolean(): boolean;
@@ -461,6 +459,26 @@ export declare class Type
      * Check if this type is an any
      */
     isAny(): boolean;
+    /**
+     * Check if this type is a "unknown".
+     */
+    isUnknown(): boolean;
+    /**
+     * Check if this type is a "undefined" literal.
+     */
+    isUndefined(): boolean;
+    /**
+     * Check if this type is a "null" literal.
+     */
+    isNull(): boolean;
+    /**
+     * Check if this type is a "true" literal.
+     */
+    isTrue(): boolean;
+    /**
+     * Check if this type is a "false" literal.
+     */
+    isFalse(): boolean;
     /**
      *
      * @return {boolean}
@@ -482,6 +500,10 @@ export declare class Type
         new (...args: any[]): any;
     } | undefined>;
     /**
+     * Returns array of function call signatures.
+     */
+    getSignatures(): ReadonlyArray<FunctionInfo>;
+    /**
      * Returns array of type parameters.
      */
     getTypeParameters(): ReadonlyArray<Type>;
@@ -492,29 +514,33 @@ export declare class Type
     /**
      * Returns constructor description when Type is a class
      */
-    getConstructors(): ReadonlyArray<Constructor> | undefined;
+    getConstructors(): ReadonlyArray<ConstructorInfo> | undefined;
     /**
      * Returns array of properties
      */
-    getProperties(): ReadonlyArray<Property>;
+    getProperties(): ReadonlyArray<PropertyInfo>;
+    /**
+     * Returns array of indexes
+     */
+    getIndexes(): ReadonlyArray<IndexInfo>;
     /**
      * Returns array of methods
      */
-    getMethods(): ReadonlyArray<Method>;
+    getMethods(): ReadonlyArray<MethodInfo>;
     /**
      * Returns array of decorators
      */
     getDecorators(): ReadonlyArray<Decorator>;
     /**
      * Returns object with all methods and properties from current Type and all methods and properties inherited from base types and interfaces to this Type.
-     * @return {{properties: {[p: string]: Property}, methods: {[p: string]: Method}}}
+     * @return {{properties: {[p: string]: PropertyInfo}, methods: {[p: string]: MethodInfo}}}
      */
     flattenInheritedMembers(): {
         properties: {
-            [propertyName: string]: Property;
+            [propertyName: string]: PropertyInfo;
         };
         methods: {
-            [methodName: string]: Method;
+            [methodName: string]: MethodInfo;
         };
     };
     /**
@@ -811,6 +837,7 @@ Thanks go to these wonderful people ([emoji key](https://allcontributors.org/doc
     <td align="center"><a href="http://joeferner.github.io/"><img src="https://avatars.githubusercontent.com/u/808857?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Joe Ferner</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/commits?author=joeferner" title="Code">💻</a></td>
     <td align="center"><a href="https://dhkatz.dev"><img src="https://avatars.githubusercontent.com/u/8341611?v=4?s=100" width="100px;" alt=""/><br /><sub><b>David Katz</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Adhkatz" title="Bug reports">🐛</a></td>
     <td align="center"><a href="https://experimental-learning.com/"><img src="https://avatars.githubusercontent.com/u/58147075?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Jamesb &#124; Experimental Learning</b></sub></a><br /><a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Abjsi" title="Bug reports">🐛</a></td>
+    <td align="center"><a href="https://www.linkedin.com/in/carloszimmerle/"><img src="https://avatars.githubusercontent.com/u/4553211?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Carlos Zimmerle</b></sub></a><br /><a href="#ideas-carloszimm" title="Ideas, Planning, & Feedback">🤔</a> <a href="https://github.com/Hookyns/tst-reflect/issues?q=author%3Acarloszimm" title="Bug reports">🐛</a></td>
   </tr>
 </table>
 

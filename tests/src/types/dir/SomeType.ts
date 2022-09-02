@@ -1,0 +1,1 @@
+export type SomeType<T> = T extends Error ? (false | null | undefined | unknown | void | Pick<Error, "message"> | T) : never;

@@ -130,9 +130,9 @@ export interface TypeProperties
 	iat?: IndexedAccessTypeDescription;
 
 	/**
-	 * Function type description.
+	 * Function signatures.
 	 */
-	fnc?: FunctionTypeDescription;
+	sg?: FunctionTypeDescription[];
 
 	/**
 	 * Type is a generic type.
