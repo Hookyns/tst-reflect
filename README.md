@@ -20,6 +20,15 @@
 | [Changelog](https://github.com/Hookyns/tst-reflect/blob/main/CHANGELOG.md)
 | [Contributors](#contributors-)
 
+## Notice!
+>New version of the whole system is in progress and it is coming soon. I've set up a [milestone](https://github.com/Hookyns/tst-reflect/milestone/1) with deadline 2023/01/01, but I expect first dev builds in October.
+>
+>The current version can be used, but it has some issues, some in inline mode, some in typelib mode, mainly issues with `getCtor()`.
+>
+>`Type` is almost the same; there are some design changes allowing you to narrow the type. `Type` is just a base class with type guards eg. `isClass(): this is ClassType`. So it is casted to ClassType which contains methods related to classes.
+>
+>There are some other minor changes but the principle remains the same.
+
 ## About
 
 Yeap! How the title says, this project is about runtime **reflection** with working **generic** types, 
