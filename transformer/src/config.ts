@@ -1,21 +1,21 @@
 import {
 	join,
 	resolve
-}                      from "path";
-import * as ts         from "typescript";
+}                         from "path";
+import * as ts            from "typescript";
 import {
 	ModuleKind,
 	ScriptTarget
-}                      from "typescript";
+}                         from "typescript";
 import {
 	DEFAULT_METADATA_LIB_FILE_NAME,
 	MetadataType,
 	MetadataTypeValues,
 	Mode,
 	ModeValues
-}                      from "./config-options";
-import { PackageInfo } from "./declarations";
-import { PACKAGE_ID }  from "./helpers";
+}                         from "./config-options";
+import { PackageInfo }    from "./declarations";
+import { PACKAGE_ID }     from "./helpers";
 
 type ConfigReflectionSection = {
 	/**
@@ -73,6 +73,11 @@ export interface ConfigObject
 	esmModuleKind: boolean;
 
 	/**
+	 * Module resolution kind.
+	 */
+	moduleResolution: ts.ModuleResolutionKind;
+
+	/**
 	 * Output directory.
 	 */
 	outDir: string;
@@ -117,7 +122,7 @@ export interface ConfigObject
 	 * @description Either a parsed command line or a parsed tsconfig.json.
 	 */
 	parsedCommandLine?: ts.ParsedCommandLine;
-	
+
 	isUniversalMode(): boolean;
 
 	isServerMode(): boolean;
@@ -163,12 +168,14 @@ function readConfig(configPath: string, rootDir: string): {
 
 	if (!modes.includes(reflection.mode))
 	{
-		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.mode" must be one of ${modes.map(t => `"${t}"`).join(", ")}`);
+		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.mode" must be one of ${modes.map(t => `"${t}"`)
+			.join(", ")}`);
 	}
 
 	if (!metadataTypes.includes(reflection.metadata.type))
 	{
-		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.metadata.type" must be one of ${metadataTypes.map(t => `"${t}"`).join(", ")}`);
+		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.metadata.type" must be one of ${metadataTypes.map(
+			t => `"${t}"`).join(", ")}`);
 	}
 
 	if (reflection.metadata.filePath.endsWith(".js"))
@@ -176,7 +183,10 @@ function readConfig(configPath: string, rootDir: string): {
 		throw new Error(`${PACKAGE_ID}: tsconfig.json error: "reflection.metadata.filePath" must use the .ts extension. A .js version will be built to your projects out dir.`);
 	}
 
-	reflection.metadata.filePath = reflection.metadata.filePath ? resolve(rootDir, reflection.metadata.filePath) : join(rootDir, DEFAULT_METADATA_LIB_FILE_NAME);
+	reflection.metadata.filePath = reflection.metadata.filePath ? resolve(rootDir, reflection.metadata.filePath) : join(
+		rootDir,
+		DEFAULT_METADATA_LIB_FILE_NAME
+	);
 
 	return {
 		mode: reflection.mode,
@@ -199,6 +209,7 @@ export function createConfig(options: ts.CompilerOptions, rootDir: string, packa
 		outDir: options.outDir || rootDir,
 		tsConfigPath: configPath,
 		esmModuleKind: isESMModule(options),
+		moduleResolution: getModuleResolutionKind(options),
 		projectDir: rootDir,
 		packageName: packageInfo.name,
 		useMetadata: config.useMetadata,
@@ -217,7 +228,15 @@ export function createConfig(options: ts.CompilerOptions, rootDir: string, packa
 	};
 }
 
-function isESMModule(options: ts.CompilerOptions) {
+function getModuleResolutionKind(options: ts.CompilerOptions)
+{
+	return (ts as any).getEmitModuleResolutionKind?.(options)
+		?? options.moduleResolution
+		?? ts.ModuleResolutionKind.Classic;
+}
+
+function isESMModule(options: ts.CompilerOptions)
+{
 	// ref: https://www.typescriptlang.org/tsconfig#module
 
 	const target = options.target || ScriptTarget.ES3;
@@ -225,5 +244,6 @@ function isESMModule(options: ts.CompilerOptions) {
 		[ScriptTarget.ES3, ScriptTarget.ES5].includes(target) ? ModuleKind.CommonJS : ModuleKind.ES2015
 	);
 
-	return [ModuleKind.ES2015, ModuleKind.ES2020, ModuleKind.ES2022, ModuleKind.ESNext, ModuleKind.NodeNext].includes(module);
+	return [ModuleKind.ES2015, ModuleKind.ES2020, ModuleKind.ES2022, ModuleKind.ESNext, ModuleKind.NodeNext].includes(
+		module);
 }

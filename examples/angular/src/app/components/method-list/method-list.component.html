@@ -1,0 +1,23 @@
+<h2>Methods</h2>
+
+<ul *ngFor="let method of methods">
+  <li>
+    {{ method.name }}(
+    <span *ngFor="let param of method.getParameters()">
+      <span>{{ param.name }}: {{ param.type.name }}</span
+      >,
+    </span>
+
+    <div *ngIf="method.getDecorators().length">
+      <b>Decorators</b>
+      <ul>
+        <li *ngFor="let decorator of method.getDecorators()">
+          {{ decorator.name }}
+        </li>
+      </ul>
+    </div>
+    ):
+    <i>{{ method.returnType.toString() }}</i>
+    <sub *ngIf="method.optional"> [optional]</sub>
+  </li>
+</ul>

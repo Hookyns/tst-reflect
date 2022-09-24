@@ -1,0 +1,15 @@
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #fff;
+}
+
+.type {
+  margin: 30px;
+  padding: 20px;
+  background: #e0e0e0;
+  border-radius: 3px;
+}

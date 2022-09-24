@@ -1,0 +1,9 @@
+<h2>Properties</h2>
+
+<ul *ngFor="let property of properties">
+  <li>
+    {{ property.name }}:
+    <i>{{ property.type.toString() }}</i>
+    <sub *ngIf="property.optional"> [optional]</sub>
+  </li>
+</ul>

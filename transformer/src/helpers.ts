@@ -1,23 +1,22 @@
-import * as path                     from "path";
+import * as path          from "path";
 import {
 	AccessModifier,
 	Accessor,
 	TypeKind,
 	REFLECT_DECORATOR
-}                                    from "tst-reflect";
-import { TypeFlags }                 from "typescript";
-import * as ts                       from "typescript";
-import { Context }                   from "./contexts/Context";
-import TransformerContext            from "./contexts/TransformerContext";
+}                         from "tst-reflect";
+import * as ts            from "typescript";
+import { Context }        from "./contexts/Context";
+import TransformerContext from "./contexts/TransformerContext";
 import {
 	ConstructorImportDescriptionSource,
 	GetTypeCall
-}                                    from "./declarations";
+}                         from "./declarations";
 import {
 	getTypeCall,
 	getTypeCallFromProperties
-} from "./getTypeCall";
-import { log }                       from "./log";
+}                         from "./getTypeCall";
+import { log }            from "./log";
 
 export const PATH_SEPARATOR_REGEX = /\\/g;
 
@@ -104,7 +103,7 @@ export function getTypeSymbol(type: ts.Type, typeChecker: ts.TypeChecker): ts.Sy
 export function isArrayType(type: ts.Type): type is ts.GenericType
 {
 	// [Hookyns] Check if type is Array. I found no direct way to do so.
-	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Array";
+	return !!(type.flags & ts.TypeFlags.Object) && type.symbol?.escapedName == "Array";
 }
 
 /**
@@ -114,7 +113,7 @@ export function isArrayType(type: ts.Type): type is ts.GenericType
 export function isPromiseType(type: ts.Type): type is ts.GenericType
 {
 	// [Hookyns] Check if type is Promise. I found no direct way to do so.
-	return !!(type.flags & TypeFlags.Object) && type.symbol?.escapedName == "Promise";
+	return !!(type.flags & ts.TypeFlags.Object) && type.symbol?.escapedName == "Promise";
 }
 
 let typeIdCounter = -1;
@@ -499,7 +498,10 @@ export function isReadonly(modifiers?: ts.ModifiersArray): boolean
  */
 export function getUnknownTypeCall(context: Context): GetTypeCall
 {
-	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties(UNKNOWN_TYPE_PROPERTIES, context));
+	return unknownTypeCallExpression || (unknownTypeCallExpression = getTypeCallFromProperties(
+		UNKNOWN_TYPE_PROPERTIES,
+		context
+	));
 }
 
 /**
@@ -508,7 +510,10 @@ export function getUnknownTypeCall(context: Context): GetTypeCall
  */
 export function getBooleanTypeCall(context: Context): GetTypeCall
 {
-	return booleanTypeCallExpression || (booleanTypeCallExpression = getTypeCallFromProperties(BOOLEAN_TYPE_PROPERTIES, context));
+	return booleanTypeCallExpression || (booleanTypeCallExpression = getTypeCallFromProperties(
+		BOOLEAN_TYPE_PROPERTIES,
+		context
+	));
 }
 
 /**
@@ -516,7 +521,11 @@ export function getBooleanTypeCall(context: Context): GetTypeCall
  * @param symbol
  * @param checker
  */
-export function getFunctionLikeSignature(symbol: ts.Symbol, declaration: ts.Declaration | undefined, checker: ts.TypeChecker): ts.Signature | undefined
+export function getFunctionLikeSignature(
+	symbol: ts.Symbol,
+	declaration: ts.Declaration | undefined,
+	checker: ts.TypeChecker
+): ts.Signature | undefined
 {
 	declaration ??= getDeclaration(symbol);
 
@@ -569,28 +578,40 @@ export function isTsNode(): boolean
 
 export function getRequireRelativePath(sourceFileDefiningImport: string, sourceFileImporting: string)
 {
-	const filePath = "./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting);
-	const ext = path.extname(filePath);
+	const filePath = replaceExtension(
+		"./" + path.relative(path.dirname(sourceFileDefiningImport), sourceFileImporting),
+		"" // Remove the extension
+	);
 
-	if (ext === ".ts")
+	if (TransformerContext.instance.config.moduleResolution === ts.ModuleResolutionKind.Node16
+		|| TransformerContext.instance.config.moduleResolution === ts.ModuleResolutionKind.NodeNext)
 	{
-		return replaceExtension(filePath, ".js");
-	}
+		const ext = path.extname(sourceFileImporting);
 
-	if (ext === ".tsx")
-	{
-		return replaceExtension(filePath, ".jsx");
-	}
+		if (ext === ".ts")
+		{
+			return filePath + ".js";
+		}
 
-	if (ext === ".mts")
-	{
-		return replaceExtension(filePath, ".mjs");
+		if (ext === ".tsx")
+		{
+			return filePath + ".jsx";
+		}
+
+		if (ext === ".mts")
+		{
+			return filePath + ".mjs";
+		}
 	}
 
 	return filePath;
 }
 
-export function getOutPathForSourceFile(sourceFileName: string, context: TransformerContext, useTsNode: boolean = true): string
+export function getOutPathForSourceFile(
+	sourceFileName: string,
+	context: TransformerContext,
+	useTsNode: boolean = true
+): string
 {
 	if (useTsNode && isTsNode())
 	{

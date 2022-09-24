@@ -62,7 +62,8 @@ export function getDecorators(symbol: ts.Symbol, context: Context): Array<Decora
 				}
 				else
 				{
-					log.warn("Unexpected decorator argument. Only constant values are allowed.\n\tAt " + getNodeLocationText(arg));
+					log.warn("Unexpected decorator argument. Only constant values are allowed.\n\tAt " + getNodeLocationText(
+						arg));
 					args.push(ts.factory.createNull());
 				}
 			}

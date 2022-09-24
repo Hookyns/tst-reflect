@@ -1,0 +1,38 @@
+<div class="type">
+  <pre><code>
+export interface ITest {{ "{" }}
+    foo: string;
+}
+  </code></pre>
+
+  <property-list [properties]="t.getProperties()"></property-list>
+  <method-list [methods]="t.getMethods()"></method-list>
+</div>
+
+<div class="type">
+  <pre><code>
+export class CTest {{ "{" }}
+    public foo: ITest;
+    constructor() {{ "{" }} }
+    lorem(ipsum: boolean): string;
+    optionalMethod?(): void;
+}
+  </code></pre>
+
+  <property-list [properties]="t2.getProperties()"></property-list>
+  <method-list [methods]="t2.getMethods()"></method-list>
+</div>
+
+<div class="type">
+  <pre><code>
+export class CTest {{ "{" }}
+    public foo: ITest;
+    constructor() {{ "{" }} }
+    lorem(ipsum: boolean): string;
+    optionalMethod?(): void;
+}
+  </code></pre>
+
+  <property-list [properties]="t3.getProperties()"></property-list>
+  <method-list [methods]="t3.getMethods()"></method-list>
+</div>

@@ -3,8 +3,15 @@ import {
 	Type
 } from "tst-reflect";
 
-function dec(..._: any) {
-	
+import { SomeType }     from "./dir/SomeType.mjs";
+import { TsOnlyModule } from "./dir/TsOnly.js";
+
+getType<SomeType>();
+getType<TsOnlyModule>();
+
+function dec(..._: any)
+{
+
 }
 
 export class Temp
@@ -12,16 +19,19 @@ export class Temp
 	@dec
 	id: string;
 	email: string;
-	
-	get Email() {
+
+	get Email()
+	{
 		return this.email;
 	}
-	
-	set Id(val) {
+
+	set Id(val)
+	{
 		this.id = val;
 	}
 
 	[prop: string]: any;
+
 	readonly [prop: symbol]: any;
 
 	constructor()
