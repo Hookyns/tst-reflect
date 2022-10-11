@@ -374,6 +374,26 @@ export function getTypeDescription(
 			localType: false
 		};
 	}
+	else if ((typeSymbol.flags & ts.SymbolFlags.Method) !== 0)
+	{
+		return {
+			properties: {
+				k: TypeKind.Method,
+				n: typeSymbol.getName(),
+				fn: getTypeFullName(type, context),
+				sg: type.getCallSignatures().map(signature => {
+					const returnType = signature.getReturnType();
+
+					return ({
+						params: getSignatureParameters(signature, context),
+						rt: getTypeCall(returnType, returnType.symbol, context) || getUnknownTypeCall(context),
+						tp: signature.getTypeParameters()?.map(typeParameter => getTypeCall(typeParameter, typeParameter.symbol, context))
+					});
+				})
+			},
+			localType: false
+		};
+	}
 
 	const kind = getTypeKind(typeSymbol);
 
