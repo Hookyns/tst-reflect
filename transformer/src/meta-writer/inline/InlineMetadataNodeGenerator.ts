@@ -1,3 +1,4 @@
+import TransformerContext         from "../../contexts/TransformerContext";
 import { createValueExpression }  from "../../createValueExpression";
 import { TypePropertiesSource }   from "../../declarations";
 import { nodeGenerator }          from "../../NodeGenerator";
@@ -9,9 +10,11 @@ const factory = ts.factory;
 export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 {
 	private readonly identifier: ts.Identifier;
+	private readonly deno: boolean;
 
 	constructor()
 	{
+		this.deno = TransformerContext.instance.config.deno;
 		this.identifier = factory.createIdentifier("_ßr");
 	}
 
@@ -25,7 +28,9 @@ export class InlineMetadataNodeGenerator implements IMetadataNodeGenerator
 	{
 		return [
 			nodeGenerator.createImport({
-				filePath: "tst-reflect",
+				filePath: this.deno 
+					? "https://github.com/Hookyns/tst-reflect/raw/main/runtime/deno-reflect.js"
+					: "tst-reflect",
 				identifier: this.identifier,
 				namespaceImport: true
 			})	

@@ -1,10 +1,10 @@
-import * as ts      from "typescript";
+import * as ts            from "typescript";
 import {
 	GET_TYPE_FNC_NAME,
 	TYPE_ID_PROPERTY_NAME
-}                   from "tst-reflect";
-import { Context }  from "./contexts/Context";
-import { getError } from "./getError";
+}                         from "tst-reflect";
+import { Context }        from "./contexts/Context";
+import TransformerContext from "./contexts/TransformerContext";
 
 /**
  * Function detecting right getType() call
@@ -33,7 +33,7 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 		const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
 		// Check if it's our getType()
-		if (!fncType.getProperty(TYPE_ID_PROPERTY_NAME))
+		if (!fncType.getProperty(TYPE_ID_PROPERTY_NAME) && !TransformerContext.instance.config.deno)
 		{
 			return false;
 		}

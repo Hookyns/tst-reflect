@@ -3,8 +3,9 @@ import * as fs                   from "fs";
 import * as path                 from "path";
 import {
 	ConfigObject,
+	ConfigReflectionSection,
 	createConfig
-}                                from "../config";
+} from "../config";
 import { PackageInfo }           from "../declarations";
 import { IMetadataWriter }       from "../meta-writer/IMetadataWriter";
 import { MetadataWriterFactory } from "../meta-writer/factories/MetadataWriterFactory";
@@ -90,10 +91,11 @@ export default class TransformerContext
 	/**
 	 * Init context.
 	 * @param program
+	 * @param config
 	 */
-	init(program: ts.Program)
+	init(program: ts.Program, config: Partial<ConfigReflectionSection>)
 	{
-		this.prepareConfig(program);
+		this.prepareConfig(program, config);
 		this.program = program;
 
 		// If metadata library allowed
@@ -106,14 +108,15 @@ export default class TransformerContext
 	/**
 	 * Prepare configuration object.
 	 * @param program
+	 * @param config
 	 * @private
 	 */
-	private prepareConfig(program: ts.Program)
+	private prepareConfig(program: ts.Program, config: Partial<ConfigReflectionSection>)
 	{
 		this._tsConfig = program.getCompilerOptions();
 		const rootDir = path.resolve(this._tsConfig.rootDir || program.getCurrentDirectory());
 		const packageInfo = this.getPackage(rootDir);
-		this._config = createConfig(this._tsConfig, rootDir, packageInfo);
+		this._config = createConfig(this._tsConfig, rootDir, packageInfo, config);
 	}
 
 	/**

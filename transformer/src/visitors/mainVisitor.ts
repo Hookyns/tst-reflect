@@ -49,7 +49,7 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 			const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
 			// Check if it's our getType<T>() by checking it has our special static property.
-			if (fncType.getProperty(TYPE_ID_PROPERTY_NAME))
+			if (fncType.getProperty(TYPE_ID_PROPERTY_NAME) || (context.config.deno && node.typeArguments?.length === 1))
 			{
 				const res = processGetTypeCallExpression(node, context);
 

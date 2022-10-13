@@ -17,7 +17,7 @@ import {
 import { PackageInfo }    from "./declarations";
 import { PACKAGE_ID }     from "./helpers";
 
-type ConfigReflectionSection = {
+export type ConfigReflectionSection = {
 	/**
 	 * Modes "universal" or "server".
 	 *
@@ -52,7 +52,9 @@ type ConfigReflectionSection = {
 		filePath: string
 	},
 
-	debugMode: "true" | "false" | "0" | "1" | boolean
+	debugMode: "true" | "false" | "0" | "1" | boolean,
+	
+	deno: boolean
 }
 
 export interface ConfigObject
@@ -118,6 +120,11 @@ export interface ConfigObject
 	mode: Mode;
 
 	/**
+	 * Generate code compatible with deno.
+	 */
+	deno: boolean;
+
+	/**
 	 * TypeScript's ParsedCommandLine.
 	 * @description Either a parsed command line or a parsed tsconfig.json.
 	 */
@@ -150,16 +157,18 @@ function getConfigReflectionSection(configPath: string): ConfigReflectionSection
 		metadata: {
 			type: reflection.metadata?.type || MetadataTypeValues.inline,
 			filePath: reflection.metadata?.filePath?.toString() || ""
-		}
+		},
+		deno: reflection.deno || false
 	};
 }
 
-function readConfig(configPath: string, rootDir: string): {
+function readConfig(configPath: string, rootDir: string, config: Partial<ConfigReflectionSection>): {
 	metadataFilePath: string,
 	useMetadata: boolean,
 	useMetadataType: MetadataType,
 	debugMode: boolean,
-	mode: Mode
+	mode: Mode,
+	deno: boolean
 }
 {
 	const reflection = getConfigReflectionSection(configPath);
@@ -189,22 +198,29 @@ function readConfig(configPath: string, rootDir: string): {
 	);
 
 	return {
-		mode: reflection.mode,
+		mode: config.mode ?? reflection.mode,
 		useMetadata: reflection.metadata.type !== MetadataTypeValues.inline,
 		useMetadataType: reflection.metadata.type,
 		metadataFilePath: reflection.metadata.filePath,
-		debugMode: ["true", "1"].includes(reflection?.debugMode?.toString()),
+		debugMode: ["true", "1"].includes((config.debugMode ?? reflection?.debugMode)?.toString()),
+		deno: config.deno ?? reflection.deno
 	};
 }
 
-export function createConfig(options: ts.CompilerOptions, rootDir: string, packageInfo: PackageInfo): ConfigObject
+export function createConfig(
+	options: ts.CompilerOptions,
+	rootDir: string,
+	packageInfo: PackageInfo,
+	pluginConfig: Partial<ConfigReflectionSection>
+): ConfigObject
 {
 	const rawConfigObject = options as any;
 	const configPath = rawConfigObject.configFilePath;
-	const config = readConfig(configPath, rootDir);
+	const config = readConfig(configPath, rootDir, pluginConfig);
 
 	return {
 		mode: config.mode,
+		deno: config.deno,
 		rootDir: packageInfo.rootDir,
 		outDir: options.outDir || rootDir,
 		tsConfigPath: configPath,

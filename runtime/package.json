@@ -6,7 +6,8 @@
 	"types": "dist/index.d.ts",
 	"scripts": {
 		"test": "echo \"Error: no test specified\" && exit 1",
-		"prepare": "npx tsc"
+		"prepare": "npx tsc",
+		"denoify": "npx denoify && deno bundle deno_dist/index.ts deno-reflect.ts"
 	},
 	"files": [
 		"dist/**/*.js",

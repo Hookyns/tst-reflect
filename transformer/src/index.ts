@@ -1,15 +1,16 @@
-import * as ts            from "typescript";
-import SourceFileContext  from "./contexts/SourceFileContext";
-import TransformerContext from "./contexts/TransformerContext";
+import * as ts                     from "typescript";
+import { ConfigReflectionSection } from "./config";
+import SourceFileContext           from "./contexts/SourceFileContext";
+import TransformerContext          from "./contexts/TransformerContext";
 import {
 	color,
 	log,
 	LogLevel
-}                         from "./log";
+}                                  from "./log";
 
-export default function transform(program: ts.Program): ts.TransformerFactory<ts.SourceFile>
+export default function transform(program: ts.Program, options: Partial<ConfigReflectionSection>): ts.TransformerFactory<ts.SourceFile>
 {
-	TransformerContext.instance.init(program);
+	TransformerContext.instance.init(program, options);
 
 	if (!(process as any)["tstReflectInit"])
 	{
