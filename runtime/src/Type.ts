@@ -1,6 +1,6 @@
+import type { MetadataStore } from "./meta-stores";
 import { FunctionInfo }       from "./descriptions/function-type";
 import { IndexInfo }          from "./descriptions/IndexInfo";
-import type { MetadataStore } from "./meta-stores";
 import {
 	ConstructorInfo,
 	MethodInfo,
@@ -11,16 +11,14 @@ import { ConditionalType }    from "./descriptions/conditional-type";
 import {
 	ConstructorImport,
 	ConstructorImportActivator
-}                        from "./descriptions/constructor-import";
-import { PropertyInfo, } from "./descriptions/propertyInfo";
-import { Parameter, }    from "./descriptions/parameter";
-import { EnumInfo }   from "./descriptions/enum-info";
+}                             from "./descriptions/constructor-import";
+import { PropertyInfo, }      from "./descriptions/propertyInfo";
+import { Parameter, }         from "./descriptions/parameter";
+import { EnumInfo }           from "./descriptions/enum-info";
 import { TypeProperties }     from "./descriptions/type-properties";
 import { TypeKind }           from "./enums";
 import { Mapper }             from "./mapper";
 import { flatten }            from "./flatten";
-
-export type TypeProvider = () => Type;
 
 export class LazyType
 {
@@ -843,3 +841,5 @@ export class Type
 export class TypeActivator extends Type
 {
 }
+
+export type TypeProvider = () => Type;

@@ -21,6 +21,7 @@
 		"@types/jest": "^27.4.0",
 		"@types/node": "^16.0.0",
 		"all-contributors-cli": "^6.20.0",
+		"denoify": "^1.2.2",
 		"jest": "^27.5.1",
 		"make-coverage-badge": "^1.2.0",
 		"ts-node": "^10.9.1",

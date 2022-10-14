@@ -2,7 +2,7 @@ import { Type }              from "../Type";
 import { MetadataStore }     from "./MetadataStore";
 import { MetadataStoreBase } from "./MetadataStoreBase";
 
-let store: InlineMetadataStore | null = null;
+let __inlineMetadataStore: InlineMetadataStore | null = null;
 
 export class InlineMetadataStore extends MetadataStoreBase
 {
@@ -10,21 +10,21 @@ export class InlineMetadataStore extends MetadataStoreBase
 
 	public static initiate(): MetadataStore
 	{
-		if (store)
+		if (__inlineMetadataStore)
 		{
-			return store;
+			return __inlineMetadataStore;
 		}
 
-		store = new InlineMetadataStore();
+		__inlineMetadataStore = new InlineMetadataStore();
 
-		(Type as any)._setStore(store);
+		(Type as any)._setStore(__inlineMetadataStore);
 
-		return store;
+		return __inlineMetadataStore;
 	}
 
 	public static get(): MetadataStore
 	{
-		return store || this.initiate();
+		return __inlineMetadataStore || this.initiate();
 	}
 
 	get store(): { [p: number]: Type }

@@ -1,3 +1,9 @@
+import { Type }                from "./Type";
+import { setTypeBuilder }      from "./flatten";
+import { TypeBuilder }         from "./type-builder/TypeBuilder";
+
+setTypeBuilder(TypeBuilder);
+
 export * from "./consts";
 export * from "./enums";
 export * from "./meta-stores";
@@ -12,15 +18,12 @@ export * from "./descriptions/enum-info";
 export * from "./descriptions/type-properties";
 export {
 	Type,
-	LazyType,
+	LazyType
+}        from "./Type";
+export type {
 	TypeProvider
 }        from "./Type";
 export {
 	getType,
 	reflect
 }        from "./reflect";
-
-import { setTypeBuilder } from "./flatten";
-import { TypeBuilder }    from "./type-builder/TypeBuilder";
-
-setTypeBuilder(TypeBuilder);

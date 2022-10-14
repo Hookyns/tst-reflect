@@ -11,7 +11,7 @@ export abstract class MetadataStoreBase implements MetadataStore
 	/**
 	 * @inheritDoc
 	 */
-	abstract readonly store: { [key: number]: Type };
+	abstract get store(): { [key: number]: Type };
 
 	/**
 	 * @inheritDoc

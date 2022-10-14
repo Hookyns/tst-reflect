@@ -11,8 +11,10 @@
 !repl/install.js
 dist
 runtime/dist
+runtime/deno_dist
+runtime/esm
 transformer/dist
-**/tsconfig.tsbuildinfo
+**/*.tsbuildinfo
 reflection.meta.js
 reflection.meta.ts
 

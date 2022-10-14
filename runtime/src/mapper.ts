@@ -16,15 +16,10 @@ import {
 	MethodDescription
 }                           from "./descriptions/methodInfo";
 import {
-	Parameter,
-	ParameterDescription
-}                           from "./descriptions/parameter";
-import {
 	PropertyInfo,
 	PropertyInfoActivator,
 	PropertyDescription
 }                    from "./descriptions/propertyInfo";
-import type { Type } from "./Type";
 
 export const Mapper = {
 	/**

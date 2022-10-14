@@ -727,6 +727,57 @@ class TypeBuilderBase {
         this.typeName = typeName;
     }
 }
+class FunctionBuilder extends TypeBuilderBase {
+    parameters = [];
+    returnType = Type.Unknown;
+    constructor(){
+        super();
+        this.setName("");
+    }
+    static fromFunction(object) {
+        if (!object) {
+            return Type.Undefined;
+        }
+        const builder = new FunctionBuilder();
+        builder.setName(object.name ?? "");
+        const paramsIterator = Array.from(Array(object.length).keys());
+        builder.setParameters(paramsIterator.map((i)=>({
+                n: "param" + i,
+                t: Type.Any,
+                o: false
+            })));
+        builder.setReturnType(Type.Unknown);
+        return builder.build();
+    }
+    setParameters(parameters) {
+        this.parameters = parameters;
+    }
+    setReturnType(returnType) {
+        this.returnType = returnType;
+    }
+    build() {
+        return Type.store.wrap({
+            k: TypeKind.Function,
+            n: this.typeName,
+            fn: this.fullName,
+            fnc: {
+                params: this.parameters,
+                tp: [],
+                rt: this.returnType
+            }
+        });
+    }
+}
+const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
+const REFLECT_DECORATOR = "reflect";
+const GET_TYPE_FNC_NAME = "getType";
+const REFLECT_STORE_SYMBOL = Symbol("tst_reflect_store");
+const REFLECTED_TYPE_ID = "__reflectedTypeId__";
+export { TYPE_ID_PROPERTY_NAME as TYPE_ID_PROPERTY_NAME };
+export { REFLECT_DECORATOR as REFLECT_DECORATOR };
+export { GET_TYPE_FNC_NAME as GET_TYPE_FNC_NAME };
+export { REFLECT_STORE_SYMBOL as REFLECT_STORE_SYMBOL };
+export { REFLECTED_TYPE_ID as REFLECTED_TYPE_ID };
 class ArrayTypeBuilder extends TypeBuilderBase {
     type;
     constructor(){
@@ -818,57 +869,27 @@ class UnionTypeBuilder extends TypeBuilderBase {
         });
     }
 }
-class FunctionBuilder extends TypeBuilderBase {
-    parameters = [];
-    returnType = Type.Unknown;
-    constructor(){
-        super();
-        this.setName("");
+class TypeBuilder {
+    constructor(){}
+    static createUnion(types) {
+        return new UnionTypeBuilder().addTypes(...types);
     }
-    static fromFunction(object) {
-        if (!object) {
-            return Type.Undefined;
-        }
-        const builder = new FunctionBuilder();
-        builder.setName(object.name ?? "");
-        const paramsIterator = Array.from(Array(object.length).keys());
-        builder.setParameters(paramsIterator.map((i)=>({
-                n: "param" + i,
-                t: Type.Any,
-                o: false
-            })));
-        builder.setReturnType(Type.Unknown);
-        return builder.build();
+    static createIntersection(types) {
+        return new IntersectionTypeBuilder().addTypes(...types);
     }
-    setParameters(parameters) {
-        this.parameters = parameters;
+    static createArray() {
+        return new ArrayTypeBuilder();
     }
-    setReturnType(returnType) {
-        this.returnType = returnType;
+    static createObject() {
+        return new ObjectLiteralTypeBuilder();
     }
-    build() {
-        return Type.store.wrap({
-            k: TypeKind.Function,
-            n: this.typeName,
-            fn: this.fullName,
-            fnc: {
-                params: this.parameters,
-                tp: [],
-                rt: this.returnType
-            }
-        });
+    static createProperty(description) {
+        return new PropertyBuilder(description);
+    }
+    static createMethod(description) {
+        return new MethodBuilder(description);
     }
 }
-const TYPE_ID_PROPERTY_NAME = "__tst_reflect__";
-const REFLECT_DECORATOR = "reflect";
-const GET_TYPE_FNC_NAME = "getType";
-const REFLECT_STORE_SYMBOL = Symbol("tst_reflect_store");
-const REFLECTED_TYPE_ID = "__reflectedTypeId__";
-export { TYPE_ID_PROPERTY_NAME as TYPE_ID_PROPERTY_NAME };
-export { REFLECT_DECORATOR as REFLECT_DECORATOR };
-export { GET_TYPE_FNC_NAME as GET_TYPE_FNC_NAME };
-export { REFLECT_STORE_SYMBOL as REFLECT_STORE_SYMBOL };
-export { REFLECTED_TYPE_ID as REFLECTED_TYPE_ID };
 class ObjectLiteralTypeBuilder extends TypeBuilderBase {
     properties = [];
     constructor(){
@@ -931,27 +952,6 @@ class ObjectLiteralTypeBuilder extends TypeBuilderBase {
         });
     }
 }
-class TypeBuilder {
-    constructor(){}
-    static createUnion(types) {
-        return new UnionTypeBuilder().addTypes(...types);
-    }
-    static createIntersection(types) {
-        return new IntersectionTypeBuilder().addTypes(...types);
-    }
-    static createArray() {
-        return new ArrayTypeBuilder();
-    }
-    static createObject() {
-        return new ObjectLiteralTypeBuilder();
-    }
-    static createProperty(description) {
-        return new PropertyBuilder(description);
-    }
-    static createMethod(description) {
-        return new MethodBuilder(description);
-    }
-}
 function getTypeOfRuntimeValue(value) {
     if (value === undefined) return Type.Undefined;
     if (value === null) return Type.Null;
@@ -988,7 +988,7 @@ function getType(...args) {
     if (args.length) {
         return getTypeOfRuntimeValue(args[0]);
     }
-    if (!(typeof window === "object" && window || typeof global === "object" && global || globalThis)["tst-reflect-disable"]) {
+    if (!(typeof window === "object" && window || globalThis)["tst-reflect-disable"]) {
         console.debug("[ERR] tst-reflect: You call getType() method directly. " + "You have probably wrong configuration, because tst-reflect-transformer package should replace this call by the Type instance.\n" + "If you have right configuration it may be BUG so try to create an issue.\n" + "If it is not an issue and you don't want to see this debug message, " + "create field 'tst-reflect-disable' in global object (window | global | globalThis) eg. `window['tst-reflect-disable'] = true;`");
     }
     return Type.Unknown;
@@ -1036,7 +1036,6 @@ for(const typeName in nativeTypes){
     }
 }
 class MetadataStoreBase {
-    store;
     set(id, description) {
         return this.wrap(description, id);
     }
@@ -1055,19 +1054,19 @@ class MetadataStoreBase {
         return type;
     }
 }
-let store = null;
+let __inlineMetadataStore = null;
 class InlineMetadataStore extends MetadataStoreBase {
     _store = {};
     static initiate() {
-        if (store) {
-            return store;
+        if (__inlineMetadataStore) {
+            return __inlineMetadataStore;
         }
-        store = new InlineMetadataStore();
-        Type._setStore(store);
-        return store;
+        __inlineMetadataStore = new InlineMetadataStore();
+        Type._setStore(__inlineMetadataStore);
+        return __inlineMetadataStore;
     }
     static get() {
-        return store || this.initiate();
+        return __inlineMetadataStore || this.initiate();
     }
     get store() {
         return this._store;
@@ -1140,6 +1139,7 @@ class WindowMetadataStore extends MetadataStoreBase {
     }
 }
 export { WindowMetadataStore as WindowMetadataStore };
+InlineMetadataStore.initiate();
 function getMetadataStore() {
     if (typeof process !== "undefined") {
         return NodeProcessMetadataStore.get();
@@ -1150,7 +1150,6 @@ function getMetadataStore() {
     throw new Error(`Failed to initialize a store for your environment, the global "process" and "window" vars aren't available.`);
 }
 export { getMetadataStore as getMetadataStore };
+setTypeBuilder(TypeBuilder);
 export { Type as Type, LazyType as LazyType };
 export { getType as getType, reflect as reflect };
-InlineMetadataStore.initiate();
-setTypeBuilder(TypeBuilder);
