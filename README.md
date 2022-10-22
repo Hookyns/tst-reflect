@@ -31,7 +31,7 @@
 
 ## About
 
-Yeap! How the title says, this project is about runtime **reflection** with working **generic** types, 
+Yeap! How the title says, this project is about runtime **reflection**, with working **generic type parameters** `<TSomething>`, 
 achieved using custom TypeScript transformer plugin (package `tst-reflect-transformer`) 
 and runtime stuff (package `tst-reflect`).
 
@@ -101,7 +101,7 @@ import { getType } from "tst-reflect";
 
 function printTypeProperties<TType>() 
 {
-    const type = getType<TType>(); // <<== get type of generic TType
+    const type = getType<TType>(); // <<== get type of type parameter TType
     
     console.log(type.getProperties().map(prop => prop.name + ": " + prop.type.name).join("\n"));
 }
@@ -122,7 +122,7 @@ bar: number
 baz: Date
 ```
 
-### Decorator With Reflected Generic Type
+### Decorator With Reflected Type Parameter
 
 `tst-reflect-transformer` is able to process class decorators marked by @reflect JSDoc tag.
 You will be able to get `Type` of each decorated class.
@@ -155,19 +155,13 @@ class B {}
 
 ## How to Start
 
-1. Install packages.
+### Usage With Plain TypeScript
+
+1. Install packages,
 ```
 npm i tst-reflect && npm i tst-reflect-transformer -D
 ```
-
-
-2. In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
-```
-npm i ttypescript -D
-```
-
-
-3. Add transformer to `tsconfig.json`
+2. add transformer to `tsconfig.json`,
 ```json5
 {
     "compilerOptions": {
@@ -182,22 +176,90 @@ npm i ttypescript -D
     }
 }
 ```
-4. Now just transpile your code by `ttsc` instead of `tsc`
+2. `npm i ttypescript -D`
+> In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
+3. Now just transpile your code by `ttsc` instead of `tsc`
 ```
 npx ttsc
 ```
 
-### Using Webpack
-Modify your webpack config. Use `options.compiler` of `ts-loader` to set `ttypescript` compiler.
+### Usage With Webpack
+
+> If you use Angular or something else which has webpack encapsulated and under its own control, 
+> this Usage variant may not work properly. 
+> Angular has own [Usage](https://github.com/Hookyns/tst-reflect/blob/v0.10/docs/usage/angular.md) description.
+
+#### With `ts-loader`
+> ! `ts-loader` is recommended because you don't need `ttypescript` and it has better performance than `awesome-typescript-loader`.
+
+StackBlitz demo with configured project [here](https://stackblitz.com/edit/tst-reflect-webpack?file=index.ts).
+
+1. Install packages,
+```
+npm i tst-reflect && npm i tst-reflect-transformer -D
+```
+2. modify your webpack config,
+```javascript
+const tstReflectTransform = require("tst-reflect-transformer").default;
+
+module.exports = {
+    module: {
+        rules: [
+            {
+                test: /\.(ts|tsx)$/,
+                loader: "ts-loader",
+                options: {
+                    // ADD THIS OPTION!
+                    getCustomTransformers: (program) => ({
+                        before: [
+                            tstReflectTransform(program, {})
+                        ]
+                    })
+                }
+            }
+            // ... other rules
+        ]
+    }
+    // ... other options
+};
+```
+3. `webpack` or `webpack serve`
+
+---
+
+#### With `awesome-typescript-loader`
+1. Install packages,
+```
+npm i tst-reflect && npm i tst-reflect-transformer -D
+```
+2. add transformer to `tsconfig.json`,
+```json5
+{
+    "compilerOptions": {
+        // your options...
+
+        // ADD THIS!
+        "plugins": [
+            {
+                "transform": "tst-reflect-transformer"
+            }
+        ]
+    }
+}
+```
+3. `npm i ttypescript -D`
+> In order to use transformer plugin you need TypeScript compiler which supports plugins eg. package [ttypescript](https://www.npmjs.com/package/ttypescript) or you can use [TypeScript compiler API](https://github.com/Microsoft/TypeScript/wiki/Using-the-Compiler-API) manually.
+4. modify your webpack config,
 ```javascript
 ({
     test: /\.(ts|tsx)$/,
-    loader: require.resolve("ts-loader"),
+    loader: "awesome-typescript-loader",
     options: {
         compiler: "ttypescript"
     }
 })
 ```
+5. `webpack` or `webpack serve`
 
 ### Using Parcel
 Install Parcel plugin.
@@ -318,7 +380,7 @@ export declare class Type {
     static readonly Undefined: Type;
     static readonly Never: Type;
     /**
-     * Returns information about generic conditional type.
+     * Returns information about conditional type.
      */
     get condition(): ConditionalType | undefined;
     /**
