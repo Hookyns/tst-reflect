@@ -28,6 +28,8 @@
 >`Type` is almost the same; there are some design changes allowing you to narrow the type. `Type` is just a base class with type guards eg. `isClass(): this is ClassType`. So it is casted to ClassType which contains methods related to classes.
 >
 >There are some other minor changes but the principle remains the same.
+>
+> Sign for participation in alpha in [issue #78](https://github.com/Hookyns/tst-reflect/issues/78).
 
 ## About
 
