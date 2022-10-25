@@ -1,21 +1,21 @@
 import {
 	join,
 	resolve
-}                         from "path";
-import * as ts            from "typescript";
+}                      from "path";
+import * as ts         from "typescript";
 import {
 	ModuleKind,
 	ScriptTarget
-}                         from "typescript";
+}                      from "typescript";
 import {
 	DEFAULT_METADATA_LIB_FILE_NAME,
 	MetadataType,
 	MetadataTypeValues,
 	Mode,
 	ModeValues
-}                         from "./config-options";
-import { PackageInfo }    from "./declarations";
-import { PACKAGE_ID }     from "./helpers";
+}                      from "./config-options";
+import { PackageInfo } from "./declarations";
+import { PACKAGE_ID }  from "./helpers";
 
 export type ConfigReflectionSection = {
 	/**
@@ -53,7 +53,7 @@ export type ConfigReflectionSection = {
 	},
 
 	debugMode: "true" | "false" | "0" | "1" | boolean,
-	
+
 	deno: boolean
 }
 
@@ -140,8 +140,21 @@ export interface ConfigObject
  * @param {string} configPath
  * @return {ConfigReflectionSection}
  */
-function getConfigReflectionSection(configPath: string): ConfigReflectionSection
+function getConfigReflectionSection(configPath: string | undefined): ConfigReflectionSection
 {
+	if (!configPath)
+	{
+		return {
+			mode: ModeValues.universal,
+			debugMode: false,
+			metadata: {
+				type: MetadataTypeValues.inline,
+				filePath: ""
+			},
+			deno: false
+		};
+	}
+
 	const result = ts.readConfigFile(configPath, ts.sys.readFile);
 
 	if (result.error)
@@ -162,7 +175,7 @@ function getConfigReflectionSection(configPath: string): ConfigReflectionSection
 	};
 }
 
-function readConfig(configPath: string, rootDir: string, config: Partial<ConfigReflectionSection>): {
+function readConfig(configPath: string | undefined, rootDir: string, config: Partial<ConfigReflectionSection>): {
 	metadataFilePath: string,
 	useMetadata: boolean,
 	useMetadataType: MetadataType,
@@ -232,7 +245,7 @@ export function createConfig(
 		useMetadataType: config.useMetadataType,
 		metadataFilePath: config.metadataFilePath,
 		debugMode: config.debugMode,
-		parsedCommandLine: ts.getParsedCommandLineOfConfigFile(configPath, undefined, ts.sys as any),
+		parsedCommandLine: configPath ?? ts.getParsedCommandLineOfConfigFile(configPath, undefined, ts.sys as any),
 		isUniversalMode(): boolean
 		{
 			return config.mode === ModeValues.universal;
