@@ -33,7 +33,10 @@ export function isGetTypeCall(node: ts.Node, context: Context): false | ts.TypeN
 		const fncType = context.typeChecker.getTypeAtLocation(node.expression);
 
 		// Check if it's our getType()
-		if (!fncType.getProperty(TYPE_ID_PROPERTY_NAME) && !TransformerContext.instance.config.deno)
+		if (!fncType.getProperty(TYPE_ID_PROPERTY_NAME)
+			&& !TransformerContext.instance.config.deno
+			&& (fncType as any).intrinsicName !== "error"
+		)
 		{
 			return false;
 		}

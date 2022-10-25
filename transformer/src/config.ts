@@ -245,7 +245,7 @@ export function createConfig(
 		useMetadataType: config.useMetadataType,
 		metadataFilePath: config.metadataFilePath,
 		debugMode: config.debugMode,
-		parsedCommandLine: configPath ?? ts.getParsedCommandLineOfConfigFile(configPath, undefined, ts.sys as any),
+		parsedCommandLine: configPath && ts.getParsedCommandLineOfConfigFile(configPath, undefined, ts.sys as any),
 		isUniversalMode(): boolean
 		{
 			return config.mode === ModeValues.universal;
