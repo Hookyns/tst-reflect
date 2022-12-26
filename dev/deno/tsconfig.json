@@ -1,0 +1,24 @@
+{
+	"compilerOptions": {
+		"module": "ESNext",
+		"target": "ESNext",
+		"moduleResolution": "NodeNext",
+		"removeComments": true,
+		"sourceMap": false,
+		"experimentalDecorators": true,
+		"rootDir": "src",
+		"outDir": "dist",
+		"plugins": [
+			{
+				"transform": "tst-reflect-transformer",
+				"deno": true
+			}
+		]
+	},
+	"include": [
+		"src/*.ts",
+	],
+	"reflection": {
+		"deno": true
+	}
+}

@@ -10,6 +10,7 @@
 		"baseUrl": "./src",
 		"outDir": "./dist",
 		"composite": true,
+		"isolatedModules": true,
 		"typeRoots": [
 			"../node_modules/@types",
 			"node_modules/@types"

@@ -4,7 +4,10 @@ import {
 }                  from "@angular/core";
 import { CTest }   from "src/base/test.class";
 import { ITest }   from "src/base/test.interface";
-import { getType } from "tst-reflect";
+import {
+  getType,
+  Type
+} from "tst-reflect";
 
 @Component({
   selector: "app-root",
@@ -18,9 +21,13 @@ export class AppComponent implements OnInit
 
   t = getType<ITest>();
   t2 = getType<CTest>();
-  t3 = getType(this.foo);
+  t3?: Type;
 
   ngOnInit()
   {
+    const test = new CTest();
+    this.t3 = getType(test);
+    console.log(test, this.t3);
+    // this.t = getType<typeof test>();
   }
 }

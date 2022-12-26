@@ -5,9 +5,9 @@ import {
 	ConfigObject,
 	ConfigReflectionSection,
 	createConfig
-} from "../config";
-import { PackageInfo }           from "../declarations";
-import { IMetadataWriter }       from "../meta-writer/IMetadataWriter";
+}                                from "../config";
+import type { PackageInfo }      from "../declarations";
+import type { IMetadataWriter }  from "../meta-writer/IMetadataWriter";
 import { MetadataWriterFactory } from "../meta-writer/factories/MetadataWriterFactory";
 
 const UnknownPackageName = "@@this";
@@ -142,7 +142,7 @@ export default class TransformerContext
 
 			// Try to get parent folder package
 			const packageInfo = this.getPackage(path.normalize(path.join(root, "..")), true);
-			
+
 			if (packageInfo.rootDir == undefined)
 			{
 				// If this is recursive check, return undefined root as received from parent folder check

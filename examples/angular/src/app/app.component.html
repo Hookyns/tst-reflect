@@ -23,7 +23,7 @@ export class CTest {{ "{" }}
   <method-list [methods]="t2.getMethods()"></method-list>
 </div>
 
-<div class="type">
+<div class="type" *ngIf="t3">
   <pre><code>
 export class CTest {{ "{" }}
     public foo: ITest;

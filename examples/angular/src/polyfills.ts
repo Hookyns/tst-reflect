@@ -51,3 +51,5 @@ import 'zone.js';  // Included with Angular CLI.
 /***************************************************************************************************
  * APPLICATION IMPORTS
  */
+import { Type, getType } from "tst-reflect";
+(window as any)._ßr = { Type, getType };

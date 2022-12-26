@@ -1,0 +1,16 @@
+{
+  "private": true,
+  "scripts": {
+    "start": "tsc && node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "tst-reflect": "^0.12.0",
+    "tst-reflect-transformer": "^0.12.0",
+    "ttypescript": "1.x",
+    "typescript": "^4.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "x"
+  }
+}

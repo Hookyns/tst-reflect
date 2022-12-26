@@ -1,3 +1,4 @@
+import { TypeProperties }           from "./descriptions/type-properties";
 import { FunctionBuilder }          from "./type-builder/FunctionBuilder";
 import { ObjectLiteralTypeBuilder } from "./type-builder/ObjectLiteralTypeBuilder";
 import { TypeBuilder }              from "./type-builder/TypeBuilder";
@@ -118,15 +119,16 @@ export function reflect<TType>()
 reflect.__tst_reflect__ = true;
 
 
-function createNativeType(typeName: string, ctor?: Function): Type
+function createNativeType(typeName: string, ctor?: Function, properties: Partial<TypeProperties> = {}): Type
 {
-	const type = Reflect.construct(Type, [], TypeActivator);
+	const type: Type = Reflect.construct(Type, [], TypeActivator);
 
 	type.initialize({
 		n: typeName,
 		fn: typeName,
-		ctor: () => ctor,
-		k: TypeKind.Native
+		ctor: () => Promise.resolve(ctor as { new(...args: any[]): any }),
+		k: TypeKind.Native,
+		...properties
 	});
 
 	return type;
@@ -135,6 +137,8 @@ function createNativeType(typeName: string, ctor?: Function): Type
 const objectNativeType = createNativeType("Object", Object);
 (Type as any).Object = objectNativeType;
 
+const anyType = createNativeType("any");
+
 /**
  * List of native types
  * @description It should save some memory and all native Types will be the same instances.
@@ -142,7 +146,7 @@ const objectNativeType = createNativeType("Object", Object);
 const nativeTypes = {
 	"Object": objectNativeType,
 	"Unknown": createNativeType("unknown"),
-	"Any": createNativeType("any"),
+	"Any": anyType,
 	"Void": createNativeType("void"),
 	"String": createNativeType("String", String),
 	"Number": createNativeType("Number", Number),
@@ -152,6 +156,7 @@ const nativeTypes = {
 	"Undefined": createNativeType("undefined"),
 	"Never": createNativeType("never"),
 	"BigInt": createNativeType("BigInt"),
+	"Array": createNativeType("Array", Array, { isg: true, args: [anyType] }),
 };
 
 /**

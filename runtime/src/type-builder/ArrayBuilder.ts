@@ -35,7 +35,8 @@ export class ArrayTypeBuilder extends TypeBuilderBase
 			n: this.typeName,
 			fn: this.fullName,
 			args: [this.type ?? Type.Any],
-			ctor: () => Array
+			ctor: () => Promise.resolve(Array),
+			gtd: Type.Array
 		});
 	}
 }

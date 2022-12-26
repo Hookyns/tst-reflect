@@ -10,7 +10,8 @@ import {
 	getTypeId,
 	hasReflectJsDoc,
 	isNodeIgnored
-} from "../helpers";
+}                                       from "../helpers";
+import { isReflectGetTypeFunction }     from "../isReflectGetTypeFunction";
 import { log }                          from "../log";
 import { processDecorator }             from "../processDecorator";
 import { processGenericCallExpression } from "../processGenericCallExpression";
@@ -45,11 +46,8 @@ export function mainVisitor(nodeToVisit: ts.Node, context: Context): ts.VisitRes
 		// Is it call of some function named "getType"?
 		if (ts.isIdentifier(node.expression) && node.expression.escapedText == GET_TYPE_FNC_NAME)
 		{
-			// Function/method type
-			const fncType = context.typeChecker.getTypeAtLocation(node.expression);
-
 			// Check if it's our getType<T>() by checking it has our special static property.
-			if (fncType.getProperty(TYPE_ID_PROPERTY_NAME) || ((context.config.deno || (fncType as any).intrinsicName === "error") && node.typeArguments?.length === 1))
+			if (isReflectGetTypeFunction(node.expression, context))
 			{
 				const res = processGetTypeCallExpression(node, context);
 

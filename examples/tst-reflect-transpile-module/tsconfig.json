@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "ES2020",
+    "removeComments": true,
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "rootDir": "./",
+    "outDir": "dist"
+  },
+  "include": ["index.ts", "src/*.ts"],
+  "reflection": {
+    "metadata": false,
+    "debugMode": false
+  }
+}

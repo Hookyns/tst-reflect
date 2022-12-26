@@ -61,6 +61,7 @@ export class Type
 	public static readonly Null: Type;
 	public static readonly Undefined: Type;
 	public static readonly Never: Type;
+	public static readonly Array: Type;
 
 	/** @internal */
 	private _ctor?: () => Promise<{ new(...args: any[]): any }>;
@@ -174,7 +175,7 @@ export class Type
 		this._functionSignatures = description.sg?.map(signature => new FunctionInfo(signature)) ?? [];
 		this._genericTypeConstraint = description.con ? new LazyType(description.con): undefined;
 		this._genericTypeDefault = description.def ? new LazyType(description.def) : undefined;
-		this._isGenericType = description.isg ? description.isg : false;
+		this._isGenericType = description.isg ? description.isg : this._typeArgs.length > 0;
 		this._genericTypeDefinition = description.gtd ? new LazyType(description.gtd) : undefined;
 
 		// BaseType of Type.Object must be undefined

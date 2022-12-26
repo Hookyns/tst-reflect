@@ -1,21 +1,25 @@
 import {
 	join,
 	resolve
-}                      from "path";
-import * as ts         from "typescript";
+}                           from "path";
+import * as ts              from "typescript";
 import {
 	ModuleKind,
 	ScriptTarget
-}                      from "typescript";
+}                           from "typescript";
 import {
 	DEFAULT_METADATA_LIB_FILE_NAME,
 	MetadataType,
 	MetadataTypeValues,
 	Mode,
 	ModeValues
-}                      from "./config-options";
-import { PackageInfo } from "./declarations";
-import { PACKAGE_ID }  from "./helpers";
+}                           from "./config-options";
+import type { PackageInfo } from "./declarations";
+
+/**
+ * Package name/identifier
+ */
+const PACKAGE_ID = "tst-reflect-transformer";
 
 export type ConfigReflectionSection = {
 	/**
