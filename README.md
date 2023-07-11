@@ -229,7 +229,7 @@ module.exports = {
 
 ---
 
-#### With `awesome-typescript-loader`
+#### With `awesome-typescript-loader` (deprecated)
 1. Install packages,
 ```
 npm i tst-reflect && npm i tst-reflect-transformer -D
@@ -316,6 +316,12 @@ _ts-node can be a little bugged if you use `reflection.metadata.type = "typelib"
 
 
 ## Examples
+- Listing properties and methods of classes and interfaces [StackBlitz](https://stackblitz.com/edit/tst-reflect-example?file=index.ts)
+- Validace structure of object by interface or class [StackBlitz](https://stackblitz.com/edit/tst-reflect-validate-object-structure-by-type?file=index.ts)
+- Methods and constructors overloads [StackBlitz](https://stackblitz.com/edit/tst-reflect-overloads?file=index.ts)
+- Create object with default values by interface [StackBlitz](https://stackblitz.com/edit/tst-reflect-example-get-default-values?file=index.ts)
+
+Deprecated
 - Simple Dependency Injection [![Run on repl.it](https://repl.it/badge/github/Hookyns/tst-reflect-example-01)](https://replit.com/@Hookyns/tst-reflect-example-01#src/index.ts)
 - Object validation by Interface [![Run on repl.it](https://replit.com/badge/github/hookyns/tst-reflect-validate2)](https://replit.com/@Hookyns/tst-reflect-validate2#src/index.ts)
 
