@@ -21,15 +21,15 @@
 | [Contributors](#contributors-)
 
 ## Notice!
->New version of the whole system is in progress and it is coming soon. I've set up a [milestone](https://github.com/Hookyns/tst-reflect/milestone/1) with deadline 2023/01/01, but I expect first dev builds in October.
+> A new version of the entire system is in development!
 >
->The current version can be used, but it has some issues, some in inline mode, some in typelib mode, mainly issues with `getCtor()`.
+> The new version is made up of a separate tool called `typegen` and a new better runtime.
+> It is possible to generate usable metadata even without the need to use any transformer. This metadata can be used manually to lookup types and modules in the project, import the modules, create instances of classes etc. This in not limited to any build system so it is usable with **tsc, Webpack, Vite, esbuild, SWC, Turbopack, Rollup, Parcel** etc.
 >
->`Type` is almost the same; there are some design changes allowing you to narrow the type. `Type` is just a base class with type guards eg. `isClass(): this is ClassType`. So it is casted to ClassType which contains methods related to classes.
+> However, there will also be small plugin for each build tool that allow using `getType()` and the generic type parameters, even for SWC and esbuild.
+> Depending on the build system, the functionality of `getType` will vary. Build systems without type checking will not be able to get majority of inferred types eg. `getType<typeof variable>()`.
 >
->There are some other minor changes but the principle remains the same.
->
-> Sign for participation in alpha in [issue #78](https://github.com/Hookyns/tst-reflect/issues/78).
+> Sign for participation in the new version [issue #78](https://github.com/Hookyns/tst-reflect/issues/78).
 
 ## About
 
