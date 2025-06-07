@@ -27,9 +27,23 @@
 > It is possible to generate usable metadata even without the need to use any transformer. This metadata can be used manually to lookup types and modules in the project, import the modules, create instances of classes etc. This in not limited to any build system so it is usable with **tsc, Webpack, Vite, esbuild, SWC, Turbopack, Rollup, Parcel** etc.
 >
 > However, there will also be small plugin for each build tool that allow using `getType()` and the generic type parameters, even for SWC and esbuild.
-> Depending on the build system, the functionality of `getType` will vary. Build systems without type checking will not be able to get majority of inferred types eg. `getType<typeof variable>()`.
+> Depending on the build system, the functionality of `getType` will vary. Build systems without type checking will not be able to infer complex types e.g. `getType<typeof variable>()` where variable is `const variable = foo() ? new Something() : getSomethingElse();`.
 >
 > Sign for participation in the new version [issue #78](https://github.com/Hookyns/tst-reflect/issues/78).
+
+### Update – June 2025
+We're excited to announce that the new version is planned for release on 2025-07-01!
+
+This will be a 0.x release. While not all plugins will be ready by launch, the core system will be fully functional.
+- The runtime is stable, very similar to currect `tst-reflect` runtime.
+- The `typegen` tool is in alpha, as is the new `transformer` (written in Rust).
+- The `transformer` compiles TypeScript to TypeScript, making it compatible with any build system via the load() method (similar to a file loader). Creating plugins for various build tools should only take a few days — and **the Vite plugin will be available at launch**.
+
+The new project is called **RTTIST** (pronounced like artist: /ˈɑː(r)tɪst/).
+
+You can explore it on the official [website](https://rttist.org) and check out the [documentation](https://docs.rttist.org/#/).
+
+> Note: The website and docs are currently a bit outdated, but will be refreshed ahead of the release.
 
 ## About
 
