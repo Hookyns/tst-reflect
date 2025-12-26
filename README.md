@@ -10,7 +10,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-12-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
-[![Readme Card](https://github-readme-stats.vercel.app/api/pin/?username=hookyns&repo=tst-reflect&theme=tokyonight)](https://github.com/Hookyns/tst-reflect)
+[![Readme Card](https://readme-stats-fast.vercel.app/api/pin/?username=hookyns&repo=tst-reflect&theme=tokyonight)](https://github.com/Hookyns/tst-reflect)
 
 [Examples](#examples) 
 | [Synopsis](#synopsis) 
